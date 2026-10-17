@@ -106,7 +106,7 @@ def test_grow_draws_every_tier_equally_and_stops_at_target():
         (study, "analyse"): lambda root, pmd, ck=None:
             {"n_funcs": 100, "matrix": {"class": {"n_univ": 40, "wmc47_gods": 3}}},
         (study, "tool_versions"): lambda pmd, ck: {},
-        (study, "_summary"): lambda rows: None,
+        (study, "_summary"): lambda rows, *a, **k: None,
     }
     saved = {k: getattr(*k) for k in patches}
     for (mod, name), fn in patches.items():

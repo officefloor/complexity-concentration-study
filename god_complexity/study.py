@@ -137,8 +137,13 @@ def _pmd_violations(pmd: str, root: str, files: list[str]) -> dict | None:
         out = subprocess.run([pmd, "check", "--file-list", lst, "-R", "category/java/design.xml",
                               "--format", "json", "--no-cache", "--no-progress"],
                              capture_output=True, text=True)
+    except (OSError, subprocess.SubprocessError):
+        return None                     # PMD missing/crashed here: a pmd_error, never a raise
     finally:
-        os.unlink(lst)
+        try:
+            os.unlink(lst)
+        except OSError:
+            pass
     try:
         d = json.loads(out.stdout)
     except Exception:
@@ -523,6 +528,28 @@ def tool_drift(tools: dict) -> list[str]:
     return out
 
 
+def preflight_tools(pmd: str | None, ck: str | None) -> None:
+    """Fail LOUD and EARLY if a CONFIGURED tool cannot run at all, so a study is never quietly
+    measured with holes in its Java oracle panels. A tool left unset (None) is a deliberate
+    choice to run without that panel and is fine. A tool that is set but unusable aborts here,
+    before any repository is cloned, rather than silently dropping its oracles on every Java
+    repo. (A tool that runs but is the wrong VERSION is a soft warning via tool_drift, not a
+    stop -- the panel is still produced.)"""
+    bad = []
+    if pmd and not pmd_version(pmd):
+        bad.append(f"--pmd {pmd!r}: PMD does not run here (need PMD {PMD_VERSION}). Fix the "
+                   f"path, or omit --pmd to run without the Java PMD panel.")
+    if ck:
+        if not os.path.isfile(ck):
+            bad.append(f"--ck {ck!r}: CK jar not found. Fix the path, or omit --ck.")
+        elif shutil.which("java") is None:
+            bad.append(f"--ck {ck!r}: no `java` on PATH to run CK. Install a JRE, or omit --ck.")
+    if bad:
+        raise RuntimeError("tool preflight failed (a configured tool must be runnable, so the "
+                           "study is never measured with silent oracle holes):\n  - "
+                           + "\n  - ".join(bad))
+
+
 def _load_selection(manifest_path: str | None) -> dict:
     """url -> selection metadata {stratum_lang, tier, stars, rank} from a sampling manifest,
     so results can be grouped by how each repo was selected."""
@@ -540,6 +567,22 @@ def _load_selection(manifest_path: str | None) -> dict:
     return sel
 
 
+def _warn_panel_holes(name: str, lang: str, row: dict, pmd: str | None, ck: str | None) -> None:
+    """Print a LOUD per-repo warning when a Java repo was expected to carry a PMD/CK panel
+    (the tool was configured) but does not -- so a silently missing oracle is seen, not buried.
+    A clone/parse error row is already reported elsewhere, so it is skipped here."""
+    if lang != "java" or row.get("error"):
+        return
+    if pmd and "pmd_gods" not in row:
+        print(f"        WARNING: PMD panel MISSING on {name} "
+              f"({row.get('pmd_error', 'no report')}) -- this Java row has NO PMD oracles",
+              flush=True)
+    if ck and "ck_def_gods" not in row:
+        print(f"        WARNING: CK panel MISSING on {name} "
+              f"({row.get('ck_error', 'no class table')}) -- this Java row has NO CK oracles",
+              flush=True)
+
+
 def run(repos: list, out_path: str, pmd: str | None, keep: bool,
         manifest_path: str | None = None, ck: str | None = None) -> None:
     """Measure each repo. `repos` holds URLs or (url, commit) pins; a pinned repo is measured
@@ -551,6 +594,7 @@ def run(repos: list, out_path: str, pmd: str | None, keep: bool,
         except Exception:
             results = {}
     check_parser()                      # fail closed on a blind Java parser
+    preflight_tools(pmd, ck)            # fail closed on a configured-but-unusable PMD/CK
     selection = _load_selection(manifest_path)
     tools = tool_versions(pmd, ck)
     for d in tool_drift(tools):
@@ -599,11 +643,12 @@ def run(repos: list, out_path: str, pmd: str | None, keep: bool,
               f"class universe {cm.get('n_univ')} | wmc47 gods {cm.get('wmc47_gods')}"
               + (f" | PMD gods {row['pmd_gods']}" if 'pmd_gods' in row else ""),
               flush=True)
+        _warn_panel_holes(name, lang, row, pmd, ck)
         if not keep:
             shutil.rmtree(dest, ignore_errors=True)
     rows = list(results.values())
     write_csv(rows, os.path.splitext(out_path)[0] + ".csv")
-    _summary(rows)
+    _summary(rows, pmd, ck)
 
 
 # ---------------------------------------------------------------------------
@@ -642,7 +687,7 @@ def write_csv(rows: list[dict], path: str) -> None:
     print(f"\nwrote results table -> {path}")
 
 
-def _summary(rows: list[dict]) -> None:
+def _summary(rows: list[dict], pmd: str | None = None, ck: str | None = None) -> None:
     ok = [r for r in rows if not r.get("error") and r.get("matrix")]
     usable = [r for r in ok if is_usable(r)]
     print("\n" + "=" * 72 + "\nMEASURED REPOSITORIES (usable = substance floor met)")
@@ -656,6 +701,21 @@ def _summary(rows: list[dict]) -> None:
     n_ck = sum(1 for r in usable if "ck_def_gods" in r)
     print(f"\n{len(usable)} usable repositories of {len(ok)} measured; "
           f"PMD panel on {n_pmd}, CK panel on {n_ck} (Java only).")
+    # Loudly account for any Java row that a CONFIGURED tool failed to cover, so the holes are
+    # never silent: a run full of partial Java rows is reported, not discovered later.
+    java_ok = [r for r in ok if r.get("lang") == "java"]
+    if pmd:
+        holes = [r for r in java_ok if "pmd_gods" not in r]
+        print(f"WARNING: PMD was configured but produced NO panel on {len(holes)} of "
+              f"{len(java_ok)} Java repos -- those rows lack PMD oracles: "
+              f"{[r.get('name') for r in holes][:15]}" if holes else
+              f"PMD configured: panel present on all {len(java_ok)} Java repos.")
+    if ck:
+        holes = [r for r in java_ok if "ck_def_gods" not in r]
+        print(f"WARNING: CK was configured but produced NO table on {len(holes)} of "
+              f"{len(java_ok)} Java repos -- those rows lack CK oracles: "
+              f"{[r.get('name') for r in holes][:15]}" if holes else
+              f"CK configured: panel present on all {len(java_ok)} Java repos.")
     print("Analysis of the comparison matrix: paper/god_complexity.py <study.json>.")
 
 

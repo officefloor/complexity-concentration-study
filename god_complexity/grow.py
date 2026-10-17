@@ -204,6 +204,7 @@ def grow(langs: list[str], tiers: list[str], target: int, cap: int, hw: float, s
         return cand_cache[key]
 
     study.check_parser()                # fail closed on a blind Java parser
+    study.preflight_tools(pmd, ck)      # fail closed on a configured-but-unusable PMD/CK
     work = tempfile.mkdtemp(prefix="cdiv-grow-")
     tools = study.tool_versions(pmd, ck)
     selection: dict = {}
@@ -251,6 +252,7 @@ def grow(langs: list[str], tiers: list[str], target: int, cap: int, hw: float, s
               f"{str(row.get('n_funcs','-')):>7} fns  class universe {cm.get('n_univ')}"
               + (f"  ERROR: {row['error']}" if row.get("error") else "") + tag
               + f"  ({secs}s)", flush=True)
+        study._warn_panel_holes(name, row.get("lang"), row, pmd, ck)
         return row
 
     def logs_by_lang():
@@ -316,7 +318,7 @@ def grow(langs: list[str], tiers: list[str], target: int, cap: int, hw: float, s
                     min_funcs, min_univ, langs, tiers, sorted(exclude), tools)
     _write_repos(repos_path, rows)
     study.write_csv(rows, os.path.splitext(out_path)[0] + ".csv")
-    study._summary(rows)
+    study._summary(rows, pmd, ck)
     _report_targets(rows, langs, target, cap, hw, min_funcs, min_univ, exhausted)
     return rows
 
