@@ -43,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     sm.add_argument("--tiers", default="high,mid,low")
     sub.add_parser("grow", add_help=False, help="adaptive seeded sample: keep topping up "
                    "until each language reaches a usable-repo target. Run with no arguments "
-                   "to reproduce the published study (needs the gh CLI). `grow -h` for options.")
+                   "for the default configuration (needs the gh CLI). `grow -h` for options.")
     # `grow` owns all its defaults in grow.STUDY (single source of truth), so it is delegated
     # the raw argv rather than re-declaring every option here where the two could drift.
     if argv_list and argv_list[0] == "grow":

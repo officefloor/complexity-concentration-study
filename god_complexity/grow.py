@@ -40,12 +40,11 @@ Z = 1.96
 CLONE_TIMEOUT = 600         # seconds; a single clone cannot stall the whole run past this
 
 # ---------------------------------------------------------------------------
-# The canonical study configuration, in one place. Running
+# The default configuration, in one place. Running
 #     god-complexity grow
-# with no arguments reproduces the published study exactly: same seed, same
-# per-language target and precision bar, same substance floor, same languages
-# and tiers. Every value here is a frozen study parameter -- change one only to
-# run a DIFFERENT study, and say so. The CLI reads its defaults straight from
+# with no arguments uses these defaults: a fixed seed, per-language target and
+# precision bar, substance floor, languages and tiers. Change any value only to
+# run a DIFFERENT configuration, and say so. The CLI reads its defaults straight from
 # this dict, so there is a single source of truth and nothing can drift.
 # ---------------------------------------------------------------------------
 STUDY = {
@@ -165,7 +164,7 @@ def grow(langs: list[str], tiers: list[str], target: int, cap: int, hw: float, s
         return f"{s // 60:3d}:{s % 60:02d}"
 
     # Create the parent directories of every output path up front, so a nested -O/-m/-o
-    # target (e.g. paper/data/2026-10-17/study.json) does not crash on the first checkpoint.
+    # target (e.g. paper/data/run/study.json) does not crash on the first checkpoint.
     for p in (out_path, manifest_path, repos_path):
         d = os.path.dirname(p)
         if d:
@@ -442,8 +441,8 @@ def main(argv: list[str] | None = None) -> int:
     canonical = params_default and not missing and not drift
     pmd_label = args.pmd or "not found on PATH -- Java rows will omit the PMD comparison"
     ck_label = args.ck or "not given (--ck or CK_JAR) -- no CK/DECOR cohesion/coupling definitions"
-    banner = ("=> CANONICAL STUDY CONFIGURATION (the published method; GitHub moves, so the "
-              "exact population is re-measured with `study --repos repos.txt`)" if canonical
+    banner = ("=> DEFAULT CONFIGURATION (GitHub moves, so a given sample is re-measurable "
+              "with `study --repos <repos.txt>`)" if canonical
               else "=> non-default parameters: this is a DIFFERENT study" if not params_default
               else f"=> default parameters but missing oracle(s) {', '.join(missing)}: "
                    "NOT the canonical study" if missing

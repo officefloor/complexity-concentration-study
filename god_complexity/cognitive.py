@@ -1,10 +1,10 @@
 """Language-agnostic Cognitive Complexity (Campbell, 2018).
 
-ImpactGate's own estimator, computed over one function's source text. It is NOT the
-certified SonarSource implementation; it is a deliberately simple, faithful approximation
-whose numbers are calibrated against PMD (Java) and eslint-plugin-sonarjs (TypeScript) in
-the test suite. It powers an ABSOLUTE per-method gate, and for a gate cross-checkpoint /
-cross-PR CONSISTENCY matters more than matching a third party's exact value.
+A deliberately simple estimator computed over one function's source text. It is NOT the
+certified SonarSource implementation; it is a faithful approximation whose numbers are
+calibrated against PMD (Java) and eslint-plugin-sonarjs (TypeScript) in the test suite.
+For a relative concentration spike, consistency across units matters more than matching a
+third party's exact value.
 
 Method (the parts of Campbell's rules that a parser-free scan can carry faithfully):
 

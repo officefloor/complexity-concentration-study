@@ -75,10 +75,10 @@ best signal's AUC is then read on the held-out CONFIRM half, so the headline is 
 5. **No human ground truth.** Every oracle is tool-derived and itself imperfect. This measures
    **agreement between detectors**, not correctness. `decor_blob` omits DECOR's data-class
    association clause, so it is a faithful-but-partial Blob, not the certified Ptidej rule.
-6. **Cognitive complexity** is ImpactGate's faithful approximation, not the certified
-   SonarSource value; fine for a relative spike, read as an estimate.
-7. **Method level needs an independent oracle.** Every method-level definition in the current
-   run is one of the signals thresholded, so method-level AUC≈1 is tautological. An independent
+6. **Cognitive complexity** is a faithful approximation, not the certified SonarSource value;
+   fine for a relative spike, read as an estimate.
+7. **Method level needs an independent oracle.** By construction every method-level definition
+   here is one of the signals thresholded, so method-level AUC≈1 is tautological. An independent
    method oracle (e.g. PMD's own `CyclomaticComplexity` / `NPathComplexity` /
    `ExcessiveMethodLength` / `CognitiveComplexity`) is the first thing to add for a real
    method-level result.
