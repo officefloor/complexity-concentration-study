@@ -73,31 +73,28 @@ are split into explore/confirm so the headline is out of sample. See
 
 ## Running it
 
-One-command setup — creates the venv, installs the pinned Python dependencies, and downloads the
-non-pip tools (**PMD 7.27.0**, **CK 0.7.0**) into `./lib`, each verified against its pinned
-sha256:
+Three numbered scripts, each printing the next. Prerequisites the scripts do **not** install:
+`python3`, `git`, **Java (JRE 17+)**, and the **`gh` CLI authenticated** (`gh auth login`) for
+the sampling in step 2.
 
-    ./setup.sh
+    ./step1_setup.sh                       # venv + pinned Python deps + PMD/CK into ./lib (sha256-verified)
+    ./step2_run.sh --seed 1                # draw the seeded sample and measure it -> results/<date>/
+    ./step3_analyse.sh --results results/<date>    # the full report, class and method level
 
-(Equivalently: `python3 -m venv .venv && .venv/bin/pip install -e . && .venv/bin/python -m
-god_complexity.cli deps`. `pip` pins **lizard 1.23.0** — 1.24.x has a Java regression that returns
-no functions for annotated classes.)
+That is the whole flow — each script ends by printing the exact next command (with the run's
+output directory filled in), so you can follow it top to bottom. `./step1_setup.sh` is a thin
+alias for the clean `./setup.sh` that also prints the next step. The manual equivalents are
+`python -m god_complexity.cli deps | grow` and `paper/god_complexity.py`; `pip` pins
+**lizard 1.23.0** (1.24.x has a Java regression that returns no functions for annotated classes).
 
-Then draw a sample and measure it. With setup done, PMD/CK default to `./lib` and output defaults
-to `results/<date>/`, so a run needs only the seed (which fixes the draw — a different seed draws
-a different, independent sample). Sampling needs the `gh` CLI, authenticated:
+Step 2 takes any `grow` flag and passes it through — the seed fixes the draw (a different seed is a
+different, independent sample), and output defaults to `results/<date>/` (override with
+`--out-dir`), PMD/CK default to `./lib` (override with `--lib`/`$GODC_LIB` or exact `--pmd`/`--ck`):
 
-    .venv/bin/python -m god_complexity.cli grow --seed 1
+    ./step2_run.sh --seed 1 --out-dir results/my-run --target 40
 
-That is the whole command. Override any default when you need to:
-
-    .venv/bin/python -m god_complexity.cli grow --seed 1 \
-      --out-dir results/my-run \        # where output goes (default results/<date>)
-      --lib /path/to/deps \             # where PMD/CK live (default ./lib, or $GODC_LIB)
-      --pmd /path/to/pmd --ck /path/to/ck.jar   # exact tool paths, if not in --lib
-
-It clones hundreds of repositories (PMD + CK on every Java one) and is resumable — re-running the
-same command (same `--out-dir`) skips repositories already recorded. Alongside the lean
+It clones hundreds of repositories (PMD + CK on every Java one) and is resumable — re-running
+step 2 with the same `--out-dir` skips repositories already recorded. Alongside the lean
 `study.json` it writes an append-only `study.units.jsonl` sidecar with each repo's per-unit values
 and god membership — the substrate for the conservation and no-calibration analyses.
 
