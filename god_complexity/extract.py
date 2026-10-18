@@ -5,32 +5,59 @@ same substrate impact-gate uses, so it works on any language lizard parses witho
 per-language analyser. Everything above lizard is lexical and language-neutral.
 
 For each function we capture several complexity definitions, so the god-class/method
-comparison can spike each one (all language-neutral: five straight from lizard, cognitive
-from the vendored Campbell estimator):
+comparison can spike each one (all language-neutral: five straight from lizard, the rest from
+vendored parser-free estimators). Every one is oriented so HIGHER == more god-like:
 
-    cc        cyclomatic complexity (McCabe)
-    cognitive Campbell cognitive complexity (vendored estimator)
-    nloc      non-comment lines of code
-    tokens    token count
-    params    parameter count
-    nesting   maximum nesting depth
+    cc          cyclomatic complexity (McCabe)
+    cognitive   Campbell cognitive complexity (vendored estimator)
+    nloc        non-comment lines of code
+    tokens      token count
+    params      parameter count
+    nesting     maximum nesting depth
+    cyc_density cyclomatic density, cc / nloc (branching per line)
+    exit_points return / throw / raise / panic statements (control exits)
+    hvol        Halstead volume (vendored approximate estimator)
+    mi          maintainability BURDEN = 100 - Maintainability Index, so higher == less
+                maintainable, consistent with the other signals (MI itself runs the other way)
 
-Class-level values are the per-file sums of these; WMC per FILE (sum of function cyclomatic
-complexity) is the textbook size reference (Lanza-Marinescu god-class threshold is WMC >= 47).
+Class-level values are the per-file sum / mean / max of these (metrics.CLASS_SIGNALS); WMC per
+FILE (sum of function cyclomatic complexity) equals cc_sum and is the textbook size reference
+(Lanza-Marinescu god-class threshold is WMC >= 47).
 A file is the language-neutral unit. Test files (by directory and by each language's
 colocated-test naming, plus Rust #[cfg(test)] modules) are excluded unless include_tests.
 """
 from __future__ import annotations
 
+import math
 import os
 import re
 
 import lizard
 
 from . import cognitive as _cognitive
+from . import halstead as _halstead
 
-# Per-function complexity definitions. Class-level values are the per-file sums of these.
-COMPLEXITY_FIELDS = ("cc", "cognitive", "nloc", "tokens", "params", "nesting")
+# Per-function complexity definitions, each oriented so higher == more god-like. Class-level
+# values are the per-file sum / mean / max of these (see metrics.CLASS_SIGNALS).
+COMPLEXITY_FIELDS = ("cc", "cognitive", "nloc", "tokens", "params", "nesting",
+                     "cyc_density", "exit_points", "hvol", "mi")
+
+# Control-exit statements, counted language-neutrally for the `exit_points` signal. Approximate
+# across languages (implicit returns are not seen); read as a relative spike, not an exact count.
+_EXIT_KW = re.compile(r"\b(?:return|throw|raise|panic)\b")
+
+
+def maintainability_burden(hvol: float, cc: int, nloc: int) -> float:
+    """100 - normalised Maintainability Index, so higher == LESS maintainable (consistent with
+    the other complexity signals). MI = A - B*ln(HV) - C*CC - D*ln(LOC), normalised to [0,100]
+    by the SEI/Visual-Studio convention (clamp(MI*100/A, 0, 100)). Degenerate (empty) bodies
+    with hvol<=0 have no burden."""
+    if hvol <= 0 or nloc <= 0:
+        return 0.0
+    raw = (_halstead.MI_A - _halstead.MI_B * math.log(hvol)
+           - _halstead.MI_C * cc - _halstead.MI_D * math.log(nloc))
+    mi_norm = max(0.0, min(100.0, raw * 100.0 / _halstead.MI_A))
+    return round(100.0 - mi_norm, 2)
 
 # Extensions lizard can parse that we scan. A superset; lizard skips what it cannot handle.
 SOURCE_EXTS = {
@@ -149,8 +176,8 @@ def analyze_tree(root: str, include_tests: bool = False) -> dict:
 
     Returns {"funcs": {func_id: {...}}, "wmc": {file: total_cc}}, where func_id is
     (file, short_name) and each record has file, name and the complexity definitions in
-    COMPLEXITY_FIELDS (cc, cognitive, nloc, tokens, params, nesting) so the matrix can spike
-    each one. Overloads of the same (file, name) are merged by taking the max of each field."""
+    COMPLEXITY_FIELDS so the matrix can spike each one. Overloads of the same (file, name) are
+    merged by taking the max of each field."""
     raw: list = []                      # (file, short, metrics_dict)
     for rel in source_files(root, include_tests):
         path = os.path.join(root, rel)
@@ -171,12 +198,19 @@ def analyze_tree(root: str, include_tests: bool = False) -> dict:
             if any(a <= s <= b for a, b in skip):
                 continue
             body_raw = "\n".join(src_lines[max(s - 1, 0):e])
-            md = {"cc": int(fn.cyclomatic_complexity),
-                  "nloc": int(getattr(fn, "nloc", 0) or 0),
+            cc = int(fn.cyclomatic_complexity)
+            nloc = int(getattr(fn, "nloc", 0) or 0)
+            hvol = _halstead.halstead_volume(body_raw, ext)
+            md = {"cc": cc,
+                  "nloc": nloc,
                   "tokens": int(getattr(fn, "token_count", 0) or 0),
                   "params": int(getattr(fn, "parameter_count", 0) or 0),
                   "nesting": int(getattr(fn, "max_nesting_depth", 0) or 0),
-                  "cognitive": _cognitive.cognitive_complexity(body_raw, ext)}
+                  "cognitive": _cognitive.cognitive_complexity(body_raw, ext),
+                  "cyc_density": round(cc / nloc, 4) if nloc > 0 else 0.0,
+                  "exit_points": len(_EXIT_KW.findall(_strip(body_raw, ext))),
+                  "hvol": hvol,
+                  "mi": maintainability_burden(hvol, cc, nloc)}
             raw.append((rel, _short(fn.name), md))
     if not raw:
         return {"funcs": {}, "wmc": {}}

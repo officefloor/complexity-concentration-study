@@ -257,15 +257,13 @@ def _cell(outset: set, god: set, universe: set) -> dict:
             "n_overlap": len(outset & god), "n_god_univ": len(universe & god)}
 
 
-def _matrix_block(funcs, wmc, method_oracles, class_oracles, pmd_godclass) -> dict:
-    """The full detection matrix. For every (level, signal, algorithm) cell: the confusion
-    counts against every applicable god DEFINITION (all keyed like the extractor: function
-    ids at method level, repo-relative paths at class level). Also, for every (level, signal,
-    definition): the THRESHOLD-FREE AUC/AP of the raw signal, which separates signal quality
-    from the outlier algorithm's threshold. A COMMON per-level universe (funcs cc>0 / files
-    wmc>0) is used for a fair head-to-head."""
-    mx = metrics.matrix_outliers(funcs, wmc)
-
+def _matrix_block(mx, method_oracles, class_oracles) -> dict:
+    """The full detection matrix (from a pre-computed metrics.matrix_outliers result). For every
+    (level, signal, algorithm) cell: the confusion counts against every applicable god DEFINITION
+    (all keyed like the extractor: function ids at method level, repo-relative paths at class
+    level). Also, for every (level, signal, definition): the THRESHOLD-FREE AUC/AP of the raw
+    signal, which separates signal quality from the outlier algorithm's threshold. A COMMON
+    per-level universe (funcs cc>0 / files wmc>0) is used for a fair head-to-head."""
     def sigs(level_dict):
         return [k for k in level_dict if k not in ("universe", "_vals")]
 
@@ -306,21 +304,52 @@ def _matrix_block(funcs, wmc, method_oracles, class_oracles, pmd_godclass) -> di
     }
 
 
+def _unit_payload(mx, method_oracles, class_oracles) -> dict:
+    """Per-unit raw signal values and god membership for one repo, for cross-repo analyses the
+    lean matrix cannot carry (measure correlation, the relative-vs-absolute-threshold head-to-
+    head, bootstrap CIs). Written to the run's append-only `*.units.jsonl` sidecar, NOT to
+    study.json (which `grow` rewrites every repo). Units are the common per-level universe, in a
+    fixed order; `values[signal]` aligns to `units`, and `god_idx[oracle]` lists god positions."""
+    def level(level_dict, oracles):
+        universe = sorted(level_dict["universe"],
+                          key=lambda u: u if isinstance(u, str) else "\u0000".join(u))
+        pos = {u: i for i, u in enumerate(universe)}
+        signals = [k for k in level_dict if k not in ("universe", "_vals")]
+        vals = level_dict["_vals"]
+        values = {sig: [round(float(vals[sig].get(u, 0)), 4) for u in universe]
+                  for sig in signals}
+        god_idx = {name: sorted(pos[u] for u in g if u in pos)
+                   for name, g in oracles.items()}
+        units = [u if isinstance(u, str) else "::".join(u) for u in universe]
+        return {"units": units, "signals": signals, "values": values, "god_idx": god_idx}
+
+    return {"method": level(mx["method"], method_oracles),
+            "class": level(mx["class"], class_oracles)}
+
+
 def analyse(root: str, pmd: str | None, ck: str | None = None) -> dict:
     res = extract.analyze_tree(root)
     funcs, wmc = res["funcs"], res["wmc"]
     if not funcs:
         return {"error": "no functions"}
     kind = classify_kind(root, funcs)
-    # method-level god DEFINITIONS (textbook thresholds), so the method comparison is not
-    # limited to a single oracle: McCabe CC, Campbell cognitive, deep nesting, long method,
-    # long parameter list.
+    # method-level god DEFINITIONS. Five SINGLE-metric textbook thresholds (each IS a signal
+    # thresholded, so self-referential for that signal): McCabe CC, Campbell cognitive, deep
+    # nesting, long method, long parameter list. Plus one COMPOSITE, independent-of-any-single-
+    # signal target -- `brain_method`, the Lanza-Marinescu Brain Method as the conjunction of
+    # the long-method, high-CC and deep-nesting thresholds (a faithful-but-partial rule, omitting
+    # the NOAV / accessed-variables clause we cannot resolve language-neutrally). Because it is a
+    # conjunction, recovering it from any one complexity measure is a real result; nloc/cc/nesting
+    # are its ingredients, the other signals are clean cross-signal tests of concentration.
     method_oracles = {
         "cc14": {fid for fid, r in funcs.items() if r.get("cc", 0) >= CC_GOD},
         "cognitive15": {fid for fid, r in funcs.items() if r.get("cognitive", 0) >= 15},
         "nesting5": {fid for fid, r in funcs.items() if r.get("nesting", 0) >= 5},
         "loc50": {fid for fid, r in funcs.items() if r.get("nloc", 0) >= 50},
         "params5": {fid for fid, r in funcs.items() if r.get("params", 0) >= 5},
+        "brain_method": {fid for fid, r in funcs.items()
+                         if r.get("nloc", 0) >= 50 and r.get("cc", 0) >= CC_GOD
+                         and r.get("nesting", 0) >= 5},
     }
     c_god = {f for f, w in wmc.items() if w >= extract.WMC_GOD}       # class size reference
     out = {"n_funcs": len(funcs), "n_files": len(wmc), "kind": kind, "wmc_gods": len(c_god)}
@@ -346,8 +375,11 @@ def analyse(root: str, pmd: str | None, ck: str | None = None) -> dict:
             class_oracles.update(ck_defs)
             out["ck_def_gods"] = {name: len(s) for name, s in ck_defs.items()}
 
-    # full (level x signal x algorithm x oracle) comparison matrix
-    out["matrix"] = _matrix_block(funcs, wmc, method_oracles, class_oracles, pmd_godclass)
+    # full (level x signal x algorithm x oracle) comparison matrix, computed once and split
+    # into the lean per-repo block (-> study.json) and the per-unit payload (-> units sidecar).
+    mx = metrics.matrix_outliers(funcs, wmc)
+    out["matrix"] = _matrix_block(mx, method_oracles, class_oracles)
+    out["_units"] = _unit_payload(mx, method_oracles, class_oracles)
     return out
 
 
@@ -528,26 +560,102 @@ def tool_drift(tools: dict) -> list[str]:
     return out
 
 
-def preflight_tools(pmd: str | None, ck: str | None) -> None:
-    """Fail LOUD and EARLY if a CONFIGURED tool cannot run at all, so a study is never quietly
-    measured with holes in its Java oracle panels. A tool left unset (None) is a deliberate
-    choice to run without that panel and is fine. A tool that is set but unusable aborts here,
-    before any repository is cloned, rather than silently dropping its oracles on every Java
-    repo. (A tool that runs but is the wrong VERSION is a soft warning via tool_drift, not a
-    stop -- the panel is still produced.)"""
-    bad = []
-    if pmd and not pmd_version(pmd):
-        bad.append(f"--pmd {pmd!r}: PMD does not run here (need PMD {PMD_VERSION}). Fix the "
-                   f"path, or omit --pmd to run without the Java PMD panel.")
-    if ck:
-        if not os.path.isfile(ck):
-            bad.append(f"--ck {ck!r}: CK jar not found. Fix the path, or omit --ck.")
-        elif shutil.which("java") is None:
-            bad.append(f"--ck {ck!r}: no `java` on PATH to run CK. Install a JRE, or omit --ck.")
-    if bad:
-        raise RuntimeError("tool preflight failed (a configured tool must be runnable, so the "
-                           "study is never measured with silent oracle holes):\n  - "
-                           + "\n  - ".join(bad))
+def _java_smoke_source() -> str:
+    """A deliberately god-like Java class (16 fields, 30 branching methods) used only to verify,
+    at preflight, that PMD and CK actually run AND produce a non-empty panel here."""
+    fields = "\n".join(f"    public int f{i};" for i in range(16))
+    methods = "\n".join(
+        f"    public int m{i}(int x) {{ if (x > {i}) {{ return f{i % 16} + x; }} "
+        f"else {{ return f{i % 16} - x; }} }}" for i in range(30))
+    return "public class PreflightGod {\n" + fields + "\n" + methods + "\n}\n"
+
+
+def _env_problems(need_gh: bool) -> list[str]:
+    """Missing non-Python runtime dependencies: git for cloning, and (when sampling) an
+    authenticated gh CLI -- an unauthenticated gh hits the low rate limit and drops candidates."""
+    problems = []
+    if shutil.which("git") is None:
+        problems.append("`git` is not on PATH -- repositories cannot be cloned.")
+    if need_gh:
+        if shutil.which("gh") is None:
+            problems.append("`gh` (GitHub CLI) is not on PATH -- the seeded sampler cannot query "
+                            "GitHub. Install it and run `gh auth login`.")
+        else:
+            try:
+                r = subprocess.run(["gh", "auth", "status"], capture_output=True, text=True,
+                                   timeout=60)
+                if r.returncode != 0:
+                    problems.append("`gh` is not authenticated (`gh auth status` failed) -- "
+                                    "GitHub search would hit the unauthenticated rate limit and "
+                                    "silently drop candidates. Run `gh auth login`.")
+            except (OSError, subprocess.SubprocessError):
+                problems.append("`gh auth status` could not be run -- cannot confirm GitHub access.")
+    return problems
+
+
+def _tool_problems(pmd: str | None, ck: str | None) -> list[str]:
+    """Verify each CONFIGURED Java tool by actually running it on a synthetic god class, so a
+    tool that is present-but-broken (wrong Java, unloadable ruleset, unparsable output) is caught
+    here rather than emptying the Java panel on every repo. A tool left unset is not checked."""
+    problems: list[str] = []
+    if not (pmd or ck):
+        return problems
+    if shutil.which("java") is None:
+        return ["no `java` on PATH -- PMD and CK both need a JRE (install one, or omit "
+                "--pmd/--ck to run without the Java panels)."]
+    smoke = tempfile.mkdtemp(prefix="godc-preflight-")
+    try:
+        with open(os.path.join(smoke, "PreflightGod.java"), "w") as fh:
+            fh.write(_java_smoke_source())
+        if pmd:
+            if not pmd_version(pmd):
+                problems.append(f"--pmd {pmd!r}: PMD does not run here (need PMD {PMD_VERSION}). "
+                                f"Fix the path, or omit --pmd.")
+            else:
+                v = _pmd_violations(pmd, smoke, ["PreflightGod.java"])
+                if v is None:
+                    problems.append(f"--pmd {pmd!r}: PMD ran but produced no parsable report on "
+                                    f"the smoke class -- the design panel would be silently empty.")
+                elif not v:
+                    problems.append(f"--pmd {pmd!r}: PMD's design ruleset flagged nothing on a "
+                                    f"30-method/16-field class -- the ruleset likely did not load, "
+                                    f"so the Java PMD panel would be silently empty.")
+        if ck:
+            if not os.path.isfile(ck):
+                problems.append(f"--ck {ck!r}: CK jar not found. Fix the path, or omit --ck.")
+            elif _ck_gods(ck, smoke, ["PreflightGod.java"]) is None:
+                problems.append(f"--ck {ck!r}: CK produced no class table on the smoke class -- "
+                                f"the CK cohesion/coupling panel would be silently empty.")
+    finally:
+        shutil.rmtree(smoke, ignore_errors=True)
+    return problems
+
+
+def preflight(pmd: str | None, ck: str | None, need_gh: bool = False) -> None:
+    """Fail LOUD and EARLY, before any repository is cloned, if ANYTHING needed to capture the
+    full set of numbers is missing or broken: the pinned lizard parser (not blind), git, the gh
+    CLI authenticated (when sampling), and -- when configured -- PMD and CK actually RUNNING on a
+    synthetic Java class and returning a non-empty panel. A tool left unset is a deliberate
+    choice to skip its panel; that is reported explicitly so an omission is never mistaken for a
+    silent hole. (A tool that runs but is the wrong VERSION stays a soft tool_drift warning.)"""
+    check_parser()                                   # lizard not blind (raises ParserBlind)
+    problems = _env_problems(need_gh) + _tool_problems(pmd, ck)
+    if problems:
+        raise RuntimeError(
+            "PREFLIGHT FAILED -- fix these before running so the study captures every number "
+            "(no silent missing data):\n  - " + "\n  - ".join(problems))
+    have = ([f"PMD design panel (PMD {pmd_version(pmd)})"] if pmd else []) \
+        + (["CK LCOM/TCC/CBO + DECOR Blob"] if ck else [])
+    print("preflight OK: lizard parser not blind, git present"
+          + (", gh authenticated" if need_gh else "")
+          + (f", Java panels verified [{'; '.join(have)}]" if have else "") + ".", flush=True)
+    if not (pmd and ck):
+        missing = ([] if pmd else ["--pmd (PMD GodClass + design panel)"]) \
+            + ([] if ck else ["--ck (CK LCOM/TCC/CBO + DECOR Blob)"])
+        print("NOTE: running WITHOUT " + " and ".join(missing)
+              + " -- the Java composite class oracle(s) (pmd_GodClass, decor_blob) and the CK "
+              + "definitions will NOT be captured; the headline then rests on brain_method and "
+              + "the size references. This is explicit, not a silent hole.", flush=True)
 
 
 def _load_selection(manifest_path: str | None) -> dict:
@@ -593,8 +701,7 @@ def run(repos: list, out_path: str, pmd: str | None, keep: bool,
             results = {r["repo"]: r for r in json.load(open(out_path))}
         except Exception:
             results = {}
-    check_parser()                      # fail closed on a blind Java parser
-    preflight_tools(pmd, ck)            # fail closed on a configured-but-unusable PMD/CK
+    preflight(pmd, ck, need_gh=False)   # fail loud/early: parser, git, and configured PMD/CK
     selection = _load_selection(manifest_path)
     tools = tool_versions(pmd, ck)
     for d in tool_drift(tools):
@@ -749,15 +856,19 @@ WHAT THIS IS
   signal x outlier algorithm x god definition) matrix is in the study JSON; this table is a
   per-repository summary.
 
-THE SIGNALS (per function; class level = per-file sum)
-  cc (cyclomatic), cognitive (Campbell), nloc, tokens, params, nesting; nom (methods per
-  class, class level only). A unit is flagged when its value is a relative outlier under one
-  of several rules (modified z, double MAD, Tukey fence, skew-adjusted boxplot, GPD tail,
-  top percentile, classic z).
+THE SIGNALS (per function; class level = per-file sum / mean / max of each)
+  cc (cyclomatic), cognitive (Campbell), nloc, tokens, params, nesting, cyc_density (cc/nloc),
+  exit_points, hvol (Halstead volume, approximate), mi (maintainability BURDEN = 100 - MI, so
+  higher = worse). At class level each is aggregated three ways ({base}_sum/_mean/_max) and
+  cc_sum = WMC; nom (methods per class) is class level only. A unit is flagged when its value
+  is a relative outlier under one of several rules (modified z, double MAD, Tukey fence,
+  skew-adjusted boxplot, GPD tail, top percentile, classic z).
 
 GOD DEFINITIONS (the tool-derived "ground truth" each signal is scored against)
   god class  = file WMC >= 47          (Lanza-Marinescu size threshold)
-  god method = CC >= 14, cognitive >= 15, nesting >= 5, nloc >= 50, params >= 5
+  god method = CC >= 14, cognitive >= 15, nesting >= 5, nloc >= 50, params >= 5 (single-metric,
+               self-referential) and brain_method = long AND complex AND deeply nested (the
+               composite Lanza-Marinescu Brain Method, minus the NOAV clause)
   Java only  = PMD design panel (GodClass, CouplingBetweenObjects, TooManyMethods, ...)
   Java only  = CK cohesion/coupling (LCOM*, TCC, CBO) + an approximate DECOR Blob
 

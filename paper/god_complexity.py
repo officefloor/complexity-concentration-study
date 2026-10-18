@@ -30,15 +30,25 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
+import random
 import sys
 
 MIN_FUNCS = 50          # the study's substance floor, mirrored from study.MIN_FUNCS/MIN_UNIV
 MIN_UNIV = 15
-PURE = ["cc", "cognitive", "nloc", "tokens", "params", "nesting", "nom"]
-GOD = ["pmd_GodClass", "decor_blob"]            # the actual god-class definitions
-# oracles that are a complexity signal restated as a threshold -> tautological for that signal
+# The signal pool is read from the study (matrix.signals_{level}): at method level the raw
+# complexity fields; at class level each field aggregated {base}_sum/_mean/_max, plus nom.
+# The independent god-class/method targets, per level: composite tool definitions at class
+# level; the composite Brain Method at method level.
+GOD = {"class": ["pmd_GodClass", "decor_blob"], "method": ["brain_method"]}
+# oracles that are a single complexity signal restated as a threshold -> tautological for that
+# signal, so reported apart and never in the headline.
 SELFREF = {"class": ["wmc47"],
            "method": ["cc14", "cognitive15", "loc50", "params5", "nesting5"]}
+# a composite oracle's INGREDIENT signals: their AUC on it is partly built in, so they are
+# flagged (*) and the clean cross-signal tests are the other measures. brain_method is the
+# conjunction of the long-method, high-CC and deep-nesting thresholds.
+INGREDIENTS = {"brain_method": {"nloc", "cc", "nesting"}}
 DEGENERATE_AUC = 0.52
 ALGOS = ["mad_z", "double_mad", "iqr", "adj_boxplot", "evt_pot", "pct_top1", "zscore"]
 # god DEFINITIONS grouped by what they actually measure, so several size restatements do not
@@ -49,7 +59,7 @@ GROUPS = {
                         "pmd_TooManyFields", "pmd_ExcessivePublicCount", "pmd_ExcessiveImports"],
     "cohesion": ["ck_LCOM", "ck_TCClow"],
     "coupling": ["pmd_CouplingBetweenObjects", "ck_CBOhigh"],
-    "composite": ["pmd_GodClass", "decor_blob"],
+    "composite": ["pmd_GodClass", "decor_blob", "brain_method"],
 }
 _NEMENYI_Q = {2: 1.960, 3: 2.343, 4: 2.569, 5: 2.728, 6: 2.850, 7: 2.949, 8: 3.031, 9: 3.102,
               10: 3.164, 11: 3.219, 12: 3.268, 13: 3.313, 14: 3.354, 15: 3.391, 16: 3.426}
@@ -114,6 +124,95 @@ def friedman(rank_rows, methods):
             "mean_rank": mr, "cd": round(cd, 3)}
 
 
+def spearman(xs, ys):
+    """Rank correlation of two equal-length per-unit vectors (tie-aware). None if degenerate."""
+    n = len(xs)
+    if n < 3 or len(ys) != n:
+        return None
+
+    def rank(a):
+        order = sorted(range(n), key=lambda i: a[i])
+        r = [0.0] * n
+        i = 0
+        while i < n:
+            j = i
+            while j + 1 < n and a[order[j + 1]] == a[order[i]]:
+                j += 1
+            for t in range(i, j + 1):
+                r[order[t]] = (i + j) / 2 + 1
+            i = j + 1
+        return r
+    rx, ry = rank(xs), rank(ys)
+    mx, my = sum(rx) / n, sum(ry) / n
+    num = sum((rx[i] - mx) * (ry[i] - my) for i in range(n))
+    dx = math.sqrt(sum((rx[i] - mx) ** 2 for i in range(n)))
+    dy = math.sqrt(sum((ry[i] - my) ** 2 for i in range(n)))
+    return num / (dx * dy) if dx > 0 and dy > 0 else None
+
+
+def _mcc_counts(tp, fp, fn, tn):
+    den = (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)
+    return 0.0 if den <= 0 else (tp * tn - fp * fn) / math.sqrt(den)
+
+
+def best_global_cutoff(pairs):
+    """Over pooled (value, is_god) pairs from many repos, the SINGLE absolute cutoff k (flag
+    value >= k) that maximises the pooled MCC -- i.e. the best a one-size-fits-all constant can
+    do, tuned with full hindsight. Returns (mcc, k, precision, recall) or None."""
+    P = sum(g for _, g in pairs)
+    N = len(pairs) - P
+    if P == 0 or N == 0:
+        return None
+    by = {}
+    for v, g in pairs:
+        t = by.setdefault(v, [0, 0])
+        t[0] += 1
+        t[1] += g
+    tp = fp = 0
+    best = None
+    for v in sorted(by, reverse=True):             # lower the cutoff, flagging more
+        cnt, gc = by[v]
+        tp += gc
+        fp += cnt - gc
+        m = _mcc_counts(tp, fp, P - tp, N - fp)
+        if best is None or m > best[0]:
+            best = (m, v, tp / (tp + fp) if tp + fp else 0.0, tp / P)
+    return best
+
+
+def bootstrap_ci(values, b=2000, seed=12345):
+    """95% percentile bootstrap CI of the MEAN of per-repo values (resampling repos)."""
+    vals = [v for v in values if v is not None]
+    if len(vals) < 5:
+        return None
+    rnd = random.Random(seed)
+    n = len(vals)
+    means = sorted(sum(vals[rnd.randrange(n)] for _ in range(n)) / n for _ in range(b))
+    return means[int(0.025 * b)], means[int(0.975 * b)]
+
+
+def load_units(path, lvl, repos):
+    """Per-unit payloads for `repos` at one level, from the append-only `*.units.jsonl` sidecar.
+    {} if the sidecar is absent (older runs) -- the sidecar-based sections then quietly skip."""
+    out = {}
+    try:
+        fh = open(path)
+    except OSError:
+        return out
+    with fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                d = json.loads(line)
+            except Exception:
+                continue
+            if d.get("repo") in repos and lvl in d:
+                out[d["repo"]] = d[lvl]
+    return out
+
+
 def _cell(r, lvl, s, a, o):
     return _dig(r, ["matrix", lvl, "cells", s, a, o])
 
@@ -141,8 +240,12 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("study")
     ap.add_argument("--level", choices=["class", "method"], default="class")
+    ap.add_argument("--units", default=None,
+                    help="per-unit sidecar (default: <study>.units.jsonl); enables the "
+                         "conservation and relative-vs-absolute sections")
     args = ap.parse_args(argv)
     lvl = args.level
+    units_path = args.units or (os.path.splitext(args.study)[0] + ".units.jsonl")
     rows = [r for r in json.load(open(args.study))
             if not r.get("error") and not r.get("excluded_min_substance")
             and (r.get("n_funcs") or 0) >= MIN_FUNCS
@@ -153,13 +256,14 @@ def main(argv=None):
         return 1
     explore = [r for r in rows if half_of(r["repo"]) == "explore"]
     confirm = [r for r in rows if half_of(r["repo"]) == "confirm"]
-    allsignals = rows[0]["matrix"][f"signals_{lvl}"]
-    signals = [s for s in PURE if s in allsignals]
-    # every signal's AUC block lists the same oracles; use cc (always present) to enumerate
+    signals = list(rows[0]["matrix"][f"signals_{lvl}"])   # the full pool, read from the study
+    ref_sig = signals[0]                                  # a signal present in every row's blocks
+    # every signal's AUC block lists the same oracles; use a reference signal to enumerate them
     oracles = sorted({o for r in rows
-                      for o in (_dig(r, ["matrix", lvl, "auc", "cc"]) or {})})
+                      for o in (_dig(r, ["matrix", lvl, "auc", ref_sig]) or {})})
     selfref = [o for o in SELFREF[lvl] if o in oracles]
-    god = [o for o in GOD if o in oracles]
+    god = [o for o in GOD[lvl] if o in oracles]
+    ingred = {o: INGREDIENTS.get(o, set()) for o in god}
     grp_of = {o: g for g, lst in GROUPS.items() for o in lst}
 
     def auc(r, s, o):
@@ -167,7 +271,7 @@ def main(argv=None):
         return b.get("auc") if isinstance(b, dict) else None
 
     def has_gods(r, o):
-        b = _dig(r, ["matrix", lvl, "auc", "cc", o])
+        b = _dig(r, ["matrix", lvl, "auc", ref_sig, o])
         return bool(b and b.get("n_god"))
 
     def repo_auc(r, s, defs):
@@ -187,22 +291,33 @@ def main(argv=None):
     print(f"    independent god targets: {god or '(none in this run)'}"
           f"   self-referential (reported apart): {selfref or '(none)'}")
 
-    # ---- 1. THE god-class headline: the composite tool definitions, chosen out of sample ----
+    # ---- 1. THE god headline: the composite definition(s), chosen out of sample ----
     if god:
-        print(f"\n1. GOD-CLASS DETECTION vs {god}  (the composite tool definitions)")
+        ing_all = set().union(*ingred.values()) if ingred else set()
+        kind = "composite tool definitions" if lvl == "class" else "composite Brain Method"
+        print(f"\n1. GOD DETECTION vs {god}  (the {kind})")
         ex = {s: mean([repo_auc(r, s, god) for r in explore]) for s in active}
         co = {s: mean([repo_auc(r, s, god) for r in confirm]) for s in active}
         al = {s: mean([repo_auc(r, s, god) for r in rows]) for s in active}
         order = sorted((s for s in active if ex[s] is not None), key=lambda s: -ex[s])
-        print("   signal          AUC(all) AUC(explore) AUC(confirm)   [signal chosen on explore]")
+        print("   signal              AUC(all) AUC(explore) AUC(confirm)   (* = ingredient of "
+              "the oracle)")
         for s in order:
-            print(f"   {s:14}  {al[s]:.3f}      {ex[s]:.3f}        "
+            star = "*" if s in ing_all else " "
+            print(f"   {s:18}{star} {al[s]:.3f}      {ex[s]:.3f}        "
                   f"{(co[s] if co[s] is not None else float('nan')):.3f}")
-        best = order[0]
+        # the out-of-sample headline is the best CLEAN (non-ingredient) signal
+        clean = [s for s in order if s not in ing_all]
+        best = clean[0] if clean else order[0]
+        if ing_all:
+            print(f"   (* {sorted(ing_all)} are ingredients of {god}, so their AUC is partly "
+                  f"built in; the headline uses the best non-ingredient signal.)")
+        ci = bootstrap_ci([repo_auc(r, best, god) for r in confirm])
+        ci_s = f", 95% CI [{ci[0]:.3f}, {ci[1]:.3f}]" if ci else ""
         print(f"\n   -> best complexity signal on explore: '{best}'  "
-              f"(held-out confirm AUC={co[best]:.3f})")
-        print("   operating point of that signal, by algorithm (micro-avg over repos x the two "
-              "defs, all repos):")
+              f"(held-out confirm AUC={co[best]:.3f}{ci_s})")
+        print(f"   operating point of that signal, by algorithm (micro-avg over repos x "
+              f"{len(god)} def(s), all repos):")
         print("     algorithm     precision  recall   MCC")
         for a in sorted(ALGOS, key=lambda a: -(pooled(rows, lvl, best, a, god)[2] or -9)):
             p, rc, m, k, ng, n = pooled(rows, lvl, best, a, god)
@@ -274,9 +389,64 @@ def main(argv=None):
     per_def([o for o in oracles if o not in selfref], "INDEPENDENT definitions:")
     per_def(selfref, "SELF-REFERENTIAL definitions (AUC~1 for the matching signal is tautology):")
 
-    print("\n(Oracles are tool-derived, not human truth; PMD/CK/DECOR are Java-only, so "
-          "non-size targets are a Java result. Sections 2-4 are exploratory; section 1's best "
-          "signal is chosen on explore and its AUC read on the held-out confirm half.)")
+    # ---- 5 & 6. sidecar-based: conservation and the no-calibration head-to-head ----
+    units = load_units(units_path, lvl, {r["repo"] for r in rows})
+    base = best if god else (active[0] if active else None)
+    if units and base:
+        # 5. do different complexity measures rank the same units? (conservation of complexity)
+        print(f"\n5. CONSERVATION: do the complexity measures agree? (mean within-repo Spearman "
+              f"to '{base}', over {len(units)} repos)")
+        corr = {}
+        for s in active:
+            rs = []
+            for pl in units.values():
+                vb, vs = pl["values"].get(base), pl["values"].get(s)
+                if vb and vs:
+                    rho = spearman(vs, vb)
+                    if rho is not None:
+                        rs.append(rho)
+            corr[s] = mean(rs)
+        pairwise = mean([corr[s] for s in active if s != base and corr[s] is not None])
+        for s in sorted((s for s in active if s != base and corr[s] is not None),
+                        key=lambda s: -corr[s]):
+            print(f"     rho(->{base}) {corr[s]:+.2f}   {s}")
+        if pairwise is not None:
+            print(f"   -> mean correlation of the measures to '{base}' = {pairwise:+.2f}  "
+                  f"(high => they measure one concentrated thing; the measure matters less than "
+                  f"the outlier)")
+
+        # 6. the hypothesis test: a self-calibrating per-repo rule vs the best tuned constant
+        if god:
+            print("\n6. NO CALIBRATION NEEDED: per-repo RELATIVE outlier vs the best GLOBAL "
+                  "ABSOLUTE cutoff")
+            print(f"   signal '{base}', pooled MCC over all repos where the oracle has gods:")
+            for o in god:
+                _, _, rel, _, _, _ = pooled(rows, lvl, base, "mad_z", [o])
+                pairs = []
+                for pl in units.values():
+                    vals, gi = pl["values"].get(base), pl["god_idx"].get(o)
+                    if not vals or not gi:
+                        continue
+                    gods = set(gi)
+                    pairs.extend((v, 1 if i in gods else 0) for i, v in enumerate(vals))
+                bg = best_global_cutoff(pairs)
+                if rel is None or bg is None:
+                    continue
+                verdict = ("relative matches/beats the tuned constant"
+                           if rel >= bg[0] - 1e-9 else "the tuned constant is ahead here")
+                print(f"     [{o:14}] relative mad_z (NO tuning) MCC={rel:.3f}   vs   best single "
+                      f"cutoff {base}>={bg[1]:g} (tuned on all data) MCC={bg[0]:.3f}  -> {verdict}")
+            print("   (the relative rule picks its own threshold per repo from the local "
+                  "distribution; the absolute cutoff is one constant for every repo, chosen with "
+                  "full hindsight -- yet cannot adapt to per-repo scale.)")
+
+    note = ("PMD/CK/DECOR are Java-only, so non-size targets are a Java result"
+            if lvl == "class" else
+            "brain_method is language-neutral (built from the lexical signals), so this is a "
+            "cross-language result; nloc/cc/nesting are its ingredients")
+    print(f"\n(Oracles are tool-derived, not human truth; {note}. Sections 2-4 are exploratory; "
+          "section 1's best signal is chosen on explore and its AUC read on the held-out "
+          "confirm half.)")
     return 0
 
 

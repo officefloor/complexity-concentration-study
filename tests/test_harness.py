@@ -202,6 +202,40 @@ def test_explore_confirm_split_is_deterministic_and_balanced():
     assert 150 < halves.count("confirm") < 250
 
 
+# --- reporter statistics for the conservation / no-calibration sections ---------------------
+
+def test_spearman_matches_hand_values():
+    gcr = god_complexity_report
+    assert abs(gcr.spearman([1, 2, 3, 4], [1, 2, 3, 4]) - 1.0) < 1e-9
+    assert abs(gcr.spearman([1, 2, 3, 4], [4, 3, 2, 1]) + 1.0) < 1e-9
+    assert abs(gcr.spearman([1, 2, 3, 4, 5], [2, 1, 4, 3, 5]) - 0.8) < 1e-9   # 1-6*4/120
+
+
+def test_best_global_cutoff_finds_the_separating_threshold():
+    gcr = god_complexity_report
+    # values 1..6, gods {5,6}: a single cutoff >=5 separates them perfectly (MCC 1.0)
+    m, k, p, r = gcr.best_global_cutoff([(1, 0), (2, 0), (3, 0), (4, 0), (5, 1), (6, 1)])
+    assert round(m, 6) == 1.0 and k == 5 and p == 1.0 and r == 1.0
+    assert gcr.best_global_cutoff([(1, 0), (2, 0)]) is None       # no gods
+
+
+def test_bootstrap_ci_brackets_a_constant_and_needs_enough():
+    gcr = god_complexity_report
+    lo, hi = gcr.bootstrap_ci([0.9] * 50)
+    assert abs(lo - 0.9) < 1e-9 and abs(hi - 0.9) < 1e-9
+    assert gcr.bootstrap_ci([0.5, 0.5]) is None                   # fewer than 5 repos
+
+
+# --- preflight (no silent missing data) -----------------------------------------------------
+
+def test_preflight_passes_with_no_java_tools_and_smoke_class_is_god_like():
+    # with no PMD/CK and no sampling, preflight needs only lizard + git (both present here)
+    study.preflight(None, None, need_gh=False)        # must not raise
+    assert study._tool_problems(None, None) == []
+    src = study._java_smoke_source()
+    assert src.count("public int m") == 30 and src.count("public int f") == 16
+
+
 # --- pinned tools ---------------------------------------------------------------------------
 
 def test_installed_lizard_is_the_pinned_one_and_sees_annotated_classes():

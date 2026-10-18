@@ -6,7 +6,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from god_complexity import metrics
+from god_complexity import extract, halstead, metrics
 
 
 def test_auc_perfect_separation():
@@ -68,10 +68,48 @@ def test_all_algorithms_return_sets():
 
 
 def test_signal_registries():
-    # signals are the pure complexity definitions; nom is class-level only; no flow signal
-    assert "cc" in metrics.METHOD_SIGNALS and "cognitive" in metrics.METHOD_SIGNALS
+    # method signals are the raw per-function complexity fields, including the derived ones
+    for f in ("cc", "cognitive", "nloc", "tokens", "params", "nesting",
+              "cyc_density", "exit_points", "hvol", "mi"):
+        assert f in metrics.METHOD_SIGNALS, f
+    assert metrics.METHOD_SIGNALS == extract.COMPLEXITY_FIELDS
+    # class signals are each base measure aggregated sum/mean/max, plus nom; no flow signal
     assert "nom" in metrics.CLASS_SIGNALS and "nom" not in metrics.METHOD_SIGNALS
+    for base in extract.COMPLEXITY_FIELDS:
+        for agg in ("sum", "mean", "max"):
+            assert f"{base}_{agg}" in metrics.CLASS_SIGNALS, (base, agg)
+    assert len(metrics.CLASS_SIGNALS) == 3 * len(extract.COMPLEXITY_FIELDS) + 1
+    assert "cc_sum" in metrics.CLASS_SIGNALS            # == WMC, the size reference
     assert not any(s.startswith("div") for s in metrics.CLASS_SIGNALS)
+
+
+def test_class_aggregation_is_sum_mean_max():
+    # one file, two methods with cc 2 and 8: sum=10, mean=5, max=8; nom=2
+    funcs = {("f.py", "a"): {b: 0 for b in extract.COMPLEXITY_FIELDS},
+             ("f.py", "b"): {b: 0 for b in extract.COMPLEXITY_FIELDS}}
+    funcs[("f.py", "a")]["cc"] = 2
+    funcs[("f.py", "b")]["cc"] = 8
+    mx = metrics.matrix_outliers(funcs, {"f.py": 10})
+    v = mx["class"]["_vals"]
+    assert v["cc_sum"]["f.py"] == 10 and v["cc_mean"]["f.py"] == 5 and v["cc_max"]["f.py"] == 8
+    assert v["nom"]["f.py"] == 2
+
+
+def test_halstead_volume_grows_with_vocabulary_and_is_zero_when_trivial():
+    assert halstead.halstead_volume("") == 0.0
+    assert halstead.halstead_volume("x") == 0.0               # single token, vocab < 2
+    small = halstead.halstead_volume("a = b + c;")
+    big = halstead.halstead_volume("result = alpha + beta * gamma - delta / epsilon + zeta;")
+    assert 0 < small < big, (small, big)
+
+
+def test_maintainability_burden_is_bounded_and_rises_with_complexity():
+    # higher Halstead volume, CC and length => lower MI => higher burden; always within [0,100]
+    simple = extract.maintainability_burden(hvol=50, cc=1, nloc=5)
+    gnarly = extract.maintainability_burden(hvol=5000, cc=40, nloc=400)
+    assert 0.0 <= simple <= 100.0 and 0.0 <= gnarly <= 100.0
+    assert gnarly > simple, (simple, gnarly)
+    assert extract.maintainability_burden(hvol=0, cc=5, nloc=10) == 0.0   # degenerate body
 
 
 if __name__ == "__main__":

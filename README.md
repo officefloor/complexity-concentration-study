@@ -9,16 +9,54 @@ It is **identification, not prediction**, measured on freshly sampled repositori
 package is `god_complexity`; it measures only per-unit code complexity and compares a relative
 outlier in it against textbook god definitions.
 
+## What this is looking to achieve
+
+A god class is **complexity concentrated** — one unit holding what should be spread across
+many. Every textbook detector marks that concentration with an **absolute threshold**:
+`WMC ≥ 47`, `CC ≥ 14`, `cognitive ≥ 15`, `LOC ≥ 50`. Those constants are proxies for *a human's*
+comprehension budget — the point past which a person can no longer hold the unit in their head.
+
+That budget is no longer fixed. As AI agents read, write and maintain code, the effective
+"developer" gets steadily more capable, and every one of those constants drifts out of
+calibration: a method that overwhelmed a 2015 human is routine for a 2025 agent, so a fixed
+`CC ≥ 14` increasingly flags units that are not problems, and will keep being wrong in a moving
+way. Keeping absolute-threshold metrics honest means **re-deriving every constant each time the
+reader's capability changes** — a treadmill with no end.
+
+This harness tests a detector that steps off that treadmill. A **relative complexity outlier**
+carries **no absolute constant**: it asks only whether a unit is *unusually concentrated
+relative to its own codebase*. That question means the same thing whether the reader is a 1970s
+human or a 2030 agent — the detector **self-calibrates to each codebase** and needs no settings,
+no benchmark corpus, and no re-tuning, ever. Point it at a repository and it names the
+concentration with no assistance.
+
+The hypothesis under test:
+
+> An unsupervised, **threshold-free** relative outlier in *any* reasonable complexity measure
+> identifies the same god classes a tuned, absolute-threshold tool marks — because, under
+> **conservation of complexity**, a god is defined by the *concentration*, not by the absolute
+> level, so the act of finding the outlier matters more than which measure is used.
+
+That is why the harness varies the complexity measure and the outlier rule as widely as it does
+(below): if the result holds across measures, the finding is about concentration itself, and the
+reader is free to pick whichever measure they like — the paper reports which ones, and which
+outlier rules, do it best.
+
 ## What the harness varies
 
 - **signal** — each per-unit complexity definition: `cc` (cyclomatic), `cognitive`, `nloc`,
-  `tokens`, `params`, `nesting`; plus `nom` (methods per class) at class level. A class-level
-  signal is the per-file sum of its per-method values.
+  `tokens`, `params`, `nesting`, `cyc_density` (cc/nloc), `exit_points`, `hvol` (Halstead
+  volume, approximate) and `mi` (maintainability *burden*, `100 − MI`, so higher is worse).
+  At **class level** each is aggregated three ways — `{base}_sum`, `_mean`, `_max` — so the
+  matrix shows which complexity measure *and* which aggregation concentrates onto god classes;
+  `cc_sum` is WMC, and `nom` (methods per class) is a class-level-only count.
 - **algorithm** — the relative outlier rule that turns a signal into a flagged set: `mad_z`,
   `double_mad`, `iqr`, `adj_boxplot`, `evt_pot`, `pct_top1`, `zscore`.
-- **definition (oracle)** — `WMC≥47`, the PMD design panel, the CK cohesion/coupling
-  definitions and an approximate DECOR Blob (Java only); at method level `CC≥14`,
-  `cognitive≥15`, `nesting≥5`, `nloc≥50`, `params≥5`.
+- **definition (oracle)** — at class level `WMC≥47`, the PMD design panel, the CK
+  cohesion/coupling definitions and an approximate DECOR Blob (Java only); at method level the
+  single-metric thresholds `CC≥14`, `cognitive≥15`, `nesting≥5`, `nloc≥50`, `params≥5` and the
+  composite, language-neutral `brain_method` (long ∧ complex ∧ deeply nested — a
+  faithful-but-partial Lanza–Marinescu Brain Method).
 
 Signal quality is scored threshold-free by **AUC**; algorithm quality by **MCC**; repositories
 are split into explore/confirm so the headline is out of sample. See
@@ -55,14 +93,23 @@ fixes the draw — a different seed draws a different, independent sample:
 It clones hundreds of repositories (PMD + CK on every Java one) and is resumable — re-running
 the same command skips repositories already recorded. A configured PMD or CK that cannot run
 aborts at preflight before any clone, and any repository a configured tool fails on is flagged
-per-repo and in the summary, so a run never carries silent oracle holes.
+per-repo and in the summary, so a run never carries silent oracle holes. Alongside the lean
+`study.json` it writes an append-only `study.units.jsonl` sidecar holding each repo's per-unit
+raw values and god membership — the substrate for the conservation and no-calibration analyses.
 
 Analyse the matrix (any `python3`, no dependencies):
 
     python3 paper/god_complexity.py paper/data/run/study.json --level class
 
+The report covers: the out-of-sample AUC headline (with a bootstrap CI), the signal and
+outlier-rule rankings, the **conservation** check (do different complexity measures rank the
+same units?) and the **no-calibration head-to-head** (the self-calibrating per-repo relative
+rule vs the best single tuned global threshold). The last two appear when the `.units.jsonl`
+sidecar is beside the study file; it is found automatically, or pass `--units`.
+
 ## Results stay off GitHub
 
-Everything a run produces — `study.json`, the CSV, the sample, the ancillary package — is
-written under `paper/data/` and is **git-ignored**. Results are never committed; a curated
-subset is published as the paper's ancillary data. This keeps the repository to the harness.
+Everything a run produces — `study.json`, the `study.units.jsonl` sidecar, the CSV, the sample,
+the ancillary package — is written under `paper/data/` and is **git-ignored**. Results are never
+committed; a curated subset is published as the paper's ancillary data. This keeps the
+repository to the harness.

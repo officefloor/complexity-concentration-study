@@ -169,6 +169,11 @@ def grow(langs: list[str], tiers: list[str], target: int, cap: int, hw: float, s
         d = os.path.dirname(p)
         if d:
             os.makedirs(d, exist_ok=True)
+    # Per-unit raw values + god membership go to an APPEND-ONLY sidecar beside study.json (one
+    # JSON line per repo), so study.json -- rewritten in full every repo -- stays lean while the
+    # cross-repo analyses (measure correlation, relative-vs-absolute threshold, bootstrap) keep
+    # their substrate on disk. Git-ignored like the rest of paper/data, published as ancillary.
+    units_path = os.path.splitext(out_path)[0] + ".units.jsonl"
 
     results: dict = {}
     if os.path.exists(out_path):                     # resume
@@ -202,9 +207,10 @@ def grow(langs: list[str], tiers: list[str], target: int, cap: int, hw: float, s
                   + (f"  SEARCH ERROR {err}" if err else ""), flush=True)
         return cand_cache[key]
 
-    study.check_parser()                # fail closed on a blind Java parser
-    study.preflight_tools(pmd, ck)      # fail closed on a configured-but-unusable PMD/CK
-    work = tempfile.mkdtemp(prefix="cdiv-grow-")
+    # Fail loud/early, before any clone: lizard parser, git, authenticated gh, and -- when
+    # configured -- PMD and CK actually running on a synthetic Java class (no silent panel holes).
+    study.preflight(pmd, ck, need_gh=True)
+    work = tempfile.mkdtemp(prefix="godc-grow-")
     tools = study.tool_versions(pmd, ck)
     selection: dict = {}
     n_cloned = 0
@@ -240,8 +246,12 @@ def grow(langs: list[str], tiers: list[str], target: int, cap: int, hw: float, s
             # substance floor: recorded for audit, but does not count toward any target
             if not a.get("error") and (a.get("n_funcs") or 0) < min_funcs:
                 row["excluded_min_substance"] = True
+        units = row.pop("_units", None)          # keep the per-unit payload out of study.json
         results[url] = row
         json.dump(list(results.values()), open(out_path, "w"), indent=2)
+        if units is not None:
+            with open(units_path, "a") as fh:
+                fh.write(json.dumps({"repo": url, **units}) + "\n")
         if not keep and os.path.isdir(dest):
             shutil.rmtree(dest, ignore_errors=True)
         cm = (row.get("matrix") or {}).get("class") or {}

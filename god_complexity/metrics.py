@@ -351,13 +351,17 @@ ALGORITHMS = {
 }
 
 
-# The SIGNALS we compare: each complexity definition on its own. Each is a per-function
-# field (COMPLEXITY_FIELDS from extract), summed per file at class level; "nom" (methods per
-# class) is a class-level-only signal.
+# The SIGNALS we compare: each complexity definition on its own. METHOD signals are the raw
+# per-function fields (COMPLEXITY_FIELDS from extract). CLASS signals are those fields
+# aggregated per file three ways -- sum, mean, max -- so the matrix can show which complexity
+# measure AND which aggregation concentrates onto god classes; "nom" (methods per class) is a
+# class-level-only count, and `cc_sum` equals WMC (the textbook size reference).
 from .extract import COMPLEXITY_FIELDS
 
+AGGREGATIONS = ("sum", "mean", "max")
 METHOD_SIGNALS = COMPLEXITY_FIELDS
-CLASS_SIGNALS = METHOD_SIGNALS + ("nom",)
+CLASS_SIGNALS = tuple(f"{base}_{agg}" for base in COMPLEXITY_FIELDS for agg in AGGREGATIONS) \
+    + ("nom",)
 
 
 def signal_value(signal: str, r: dict) -> float:
@@ -365,25 +369,40 @@ def signal_value(signal: str, r: dict) -> float:
     return r.get(signal, 0)
 
 
+def _aggregate(vals: list[float], agg: str) -> float:
+    """Combine one base measure's per-method values into a class-level value."""
+    if not vals:
+        return 0.0
+    if agg == "sum":
+        return sum(vals)
+    if agg == "max":
+        return max(vals)
+    return sum(vals) / len(vals)                 # mean
+
+
 def matrix_outliers(funcs: dict, wmc: dict) -> dict:
     """Outlier sets for every (level, signal, algorithm) cell, plus the per-level universe.
-    Signals: each complexity definition; plus nom at class level. Class-level value of a
-    signal is the per-file sum of its per-method values. Enrichment against the oracles is
-    left to study.analyse (which owns the PMD / CK panels)."""
+    Method signals are the raw complexity fields; class signals are those fields aggregated
+    per file as {base}_sum / _mean / _max, plus nom (method count). Enrichment against the
+    oracles is left to study.analyse (which owns the PMD / CK panels)."""
     def run(vmap):
         return {name: algo(_pos(vmap)) for name, algo in ALGORITHMS.items()}
 
     method_vals = {sig: {fid: signal_value(sig, r) for fid, r in funcs.items()}
                    for sig in METHOD_SIGNALS}
 
-    # class level: per-file sum of each signal's per-method value (nom = method count)
-    byfile: dict = {}
+    # class level: per-file sum / mean / max of each base measure (nom = method count)
+    per_file: dict = {}                          # file -> base -> list of per-method values
     for fid, r in funcs.items():
-        d = byfile.setdefault(fid[0], {})
-        for sig in METHOD_SIGNALS:
-            d[sig] = d.get(sig, 0) + signal_value(sig, r)
-        d["nom"] = d.get("nom", 0) + 1
-    class_vals = {sig: {f: d.get(sig, 0) for f, d in byfile.items()} for sig in CLASS_SIGNALS}
+        d = per_file.setdefault(fid[0], {b: [] for b in COMPLEXITY_FIELDS})
+        for base in COMPLEXITY_FIELDS:
+            d[base].append(signal_value(base, r))
+    class_vals: dict = {}
+    for base in COMPLEXITY_FIELDS:
+        for agg in AGGREGATIONS:
+            class_vals[f"{base}_{agg}"] = {f: _aggregate(d[base], agg)
+                                           for f, d in per_file.items()}
+    class_vals["nom"] = {f: len(d[COMPLEXITY_FIELDS[0]]) for f, d in per_file.items()}
 
     method = {sig: run(method_vals[sig]) for sig in METHOD_SIGNALS}
     cls = {sig: run(class_vals[sig]) for sig in CLASS_SIGNALS}
