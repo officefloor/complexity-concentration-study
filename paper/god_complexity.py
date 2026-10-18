@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Can an unsupervised, relative COMPLEXITY outlier reproduce a tool-defined god class?
 
-    python god_complexity.py <study.json> [--level class|method]
+    python god_complexity.py [--results results/<date> | <study.json>] [--level class|method]
+
+With neither a path nor --results, it reads the latest results/<date>/study.json.
 
 The self-contained detector question: given only a per-unit complexity definition and a
 relative-outlier rule, how well does the flagged set agree with a textbook god-class
@@ -236,17 +238,50 @@ def pooled(rows, lvl, s, a, defs):
     return (tp / pp if pp else None, tp / ap if ap else None, m, k, ap, n)
 
 
+def _results_base():
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # project root (../ of paper/)
+    return os.environ.get("GODC_RESULTS") or os.path.join(root, "results")
+
+
+def _latest_results_dir():
+    base = _results_base()
+    try:
+        subs = sorted(d for d in os.listdir(base)
+                      if os.path.exists(os.path.join(base, d, "study.json")))
+    except OSError:
+        return None
+    return os.path.join(base, subs[-1]) if subs else None     # ISO dates sort chronologically
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("study")
+    ap.add_argument("study", nargs="?", default=None,
+                    help="path to a study.json (or use --results); default: the latest "
+                         "results/<date>/study.json")
+    ap.add_argument("--results", default=None,
+                    help="a results/<date> directory; reads study.json + study.units.jsonl from it")
     ap.add_argument("--level", choices=["class", "method"], default="class")
     ap.add_argument("--units", default=None,
-                    help="per-unit sidecar (default: <study>.units.jsonl); enables the "
+                    help="per-unit sidecar (default: beside the study file); enables the "
                          "conservation and relative-vs-absolute sections")
     args = ap.parse_args(argv)
     lvl = args.level
-    units_path = args.units or (os.path.splitext(args.study)[0] + ".units.jsonl")
-    rows = [r for r in json.load(open(args.study))
+    if args.results:
+        study_path = os.path.join(args.results, "study.json")
+        units_path = args.units or os.path.join(args.results, "study.units.jsonl")
+    elif args.study:
+        study_path = args.study
+        units_path = args.units or (os.path.splitext(args.study)[0] + ".units.jsonl")
+    else:
+        latest = _latest_results_dir()
+        if not latest:
+            print("no study given and no results/<date>/study.json found; pass a study.json "
+                  "path or --results DIR", file=sys.stderr)
+            return 1
+        study_path = os.path.join(latest, "study.json")
+        units_path = args.units or os.path.join(latest, "study.units.jsonl")
+        print(f"(using latest run: {latest})", file=sys.stderr)
+    rows = [r for r in json.load(open(study_path))
             if not r.get("error") and not r.get("excluded_min_substance")
             and (r.get("n_funcs") or 0) >= MIN_FUNCS
             and (_dig(r, ["matrix", "class", "n_univ"]) or 0) >= MIN_UNIV

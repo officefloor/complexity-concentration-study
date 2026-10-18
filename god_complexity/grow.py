@@ -32,7 +32,7 @@ import sys
 import tempfile
 import time
 
-from . import study, extract
+from . import study, extract, deps
 from .sample import LANGS, TIERS, TIER_BANDS, EXCLUDE_OWNERS
 
 BATCH_PER_TIER = 2          # repos drawn per tier, per short language, per round
@@ -404,9 +404,13 @@ def _report_targets(rows, langs, target, cap, hw, min_funcs, min_univ, exhausted
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("-o", "--out", default="repos.txt", help="(informational) repo list path")
-    ap.add_argument("-O", "--study-out", default="god_complexity_study.json")
-    ap.add_argument("-m", "--manifest", default="sampling-manifest.json")
+    ap.add_argument("--out-dir", default=None, help="base directory for all run output "
+                    "(default: results/<date>); study.json, the units sidecar, repos.txt, the "
+                    "manifest and the ancillary package all land here unless overridden")
+    ap.add_argument("-o", "--out", default=None, help="repo list path (default <out-dir>/repos.txt)")
+    ap.add_argument("-O", "--study-out", default=None, help="(default <out-dir>/study.json)")
+    ap.add_argument("-m", "--manifest", default=None,
+                    help="(default <out-dir>/sampling-manifest.json)")
     ap.add_argument("--target", type=int, default=STUDY["target"],
                     help=f"usable repos per language, the floor (study default {STUDY['target']})")
     ap.add_argument("--cap", type=int, default=STUDY["cap"],
@@ -424,11 +428,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--min-univ", type=int, default=STUDY["min_univ"],
                     help=f"substance floor: minimum class-level universe for a usable "
                          f"observation (study default {STUDY['min_univ']})")
-    ap.add_argument("--pmd", default=None, help="PMD binary for the Java GodClass reference; "
-                    "if omitted, a `pmd` on PATH is used automatically")
-    ap.add_argument("--ck", default=None, help="CK jar (mauricioaniche/ck) for the Java "
-                    "LCOM/TCC/CBO cohesion-and-coupling god definitions (optional)")
-    ap.add_argument("--anc", default=None, help="write the ancillary-data package here")
+    ap.add_argument("--pmd", default=None, help="PMD binary (default: the ./lib PMD from `deps`)")
+    ap.add_argument("--ck", default=None, help="CK jar (default: the ./lib CK from `deps`) for "
+                    "the Java LCOM/TCC/CBO cohesion-and-coupling god definitions")
+    ap.add_argument("--lib", default=None, help="dependency dir to default --pmd/--ck from "
+                    "(or $GODC_LIB; default ./lib)")
+    ap.add_argument("--anc", default=None, help="ancillary-data package dir (default <out-dir>/anc)")
     ap.add_argument("--keep", action="store_true", help="do not delete clones")
     ap.add_argument("--max-clones", type=int, default=STUDY["max_clones"],
                     help=f"hard ceiling on total clones (study default {STUDY['max_clones']})")
@@ -437,20 +442,28 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--langs", default=STUDY["langs"])
     ap.add_argument("--tiers", default=STUDY["tiers"])
     args = ap.parse_args(argv)
-    if not args.pmd:
-        args.pmd = shutil.which("pmd")      # auto-detect so the Java reference needs no flag
-    if not args.ck and os.environ.get("CK_JAR") and os.path.isfile(os.environ["CK_JAR"]):
-        args.ck = os.environ["CK_JAR"]      # CK has no PATH convention; take it from CK_JAR
+    # Output defaults to results/<date>/ so a run needs only the key flags; everything lands
+    # together and is easy to point the paper scripts at later.
+    out_dir = args.out_dir or os.path.join(deps.default_results(),
+                                           datetime.date.today().isoformat())
+    os.makedirs(out_dir, exist_ok=True)
+    study_out = args.study_out or os.path.join(out_dir, "study.json")
+    manifest = args.manifest or os.path.join(out_dir, "sampling-manifest.json")
+    repos_out = args.out or os.path.join(out_dir, "repos.txt")
+    anc_dir = args.anc or os.path.join(out_dir, "anc")
+    # PMD/CK default to the project's downloaded tools (./lib via `deps`); override with flags.
+    pmd = args.pmd or deps.default_pmd(args.lib)
+    ck = args.ck or deps.default_ck(args.lib)
     langs = [x.strip() for x in args.langs.split(",") if x.strip() in LANGS]
     tiers = [x.strip() for x in args.tiers.split(",") if x.strip() in TIERS]
     params_default = all(getattr(args, k.replace("-", "_")) == v for k, v in STUDY.items())
     # The oracles are part of the study: without PMD there is no GodClass reference, and
     # without CK there are no cohesion/coupling (CK/DECOR) god definitions.
-    missing = [n for n, v in (("PMD", args.pmd), ("CK", args.ck)) if not v]
-    drift = study.tool_drift(study.tool_versions(args.pmd, args.ck))
+    missing = [n for n, v in (("PMD", pmd), ("CK", ck)) if not v]
+    drift = study.tool_drift(study.tool_versions(pmd, ck))
     canonical = params_default and not missing and not drift
-    pmd_label = args.pmd or "not found on PATH -- Java rows will omit the PMD comparison"
-    ck_label = args.ck or "not given (--ck or CK_JAR) -- no CK/DECOR cohesion/coupling definitions"
+    pmd_label = pmd or "not installed (run `deps`) -- Java rows will omit the PMD comparison"
+    ck_label = ck or "not installed (run `deps`) -- no CK/DECOR cohesion/coupling definitions"
     banner = ("=> DEFAULT CONFIGURATION (GitHub moves, so a given sample is re-measurable "
               "with `study --repos <repos.txt>`)" if canonical
               else "=> non-default parameters: this is a DIFFERENT study" if not params_default
@@ -465,12 +478,12 @@ def main(argv: list[str] | None = None) -> int:
           f"Java cohesion/coupling panel (CK): {ck_label}\n"
           f"pinned tools: lizard {study.LIZARD_VERSION}, PMD {study.PMD_VERSION}, "
           f"CK {study.CK_VERSION}\n"
+          f"output -> {out_dir}/\n"
           f"{banner}\n", flush=True)
     rows = grow(langs, tiers, args.target, args.cap, args.hw, args.seed, args.pool,
-                args.min_funcs, args.min_univ, args.pmd, args.study_out, args.manifest,
-                args.out, args.keep, args.pause, args.max_clones, ck=args.ck)
-    if args.anc:
-        study.write_anc(rows, args.anc, frame_files=[args.out, args.manifest])
+                args.min_funcs, args.min_univ, pmd, study_out, manifest,
+                repos_out, args.keep, args.pause, args.max_clones, ck=ck)
+    study.write_anc(rows, anc_dir, frame_files=[repos_out, manifest])
     return 0
 
 

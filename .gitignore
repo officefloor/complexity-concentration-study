@@ -23,3 +23,9 @@ paper/build.log
 # Regenerate by running the study, or use the curated subset published as the
 # paper's ancillary data. Readers who want all the data run the project themselves.
 paper/data/
+/results/
+
+# Downloaded (non-pip) dependencies: PMD and CK, fetched into ./lib by `setup.sh`
+# (god-complexity deps), verified against their pinned sha256. Not committed -- every
+# machine downloads the exact pinned artifacts itself.
+/lib/

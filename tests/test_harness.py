@@ -227,6 +227,41 @@ def test_bootstrap_ci_brackets_a_constant_and_needs_enough():
     assert gcr.bootstrap_ci([0.5, 0.5]) is None                   # fewer than 5 repos
 
 
+# --- dependency locations and results resolution --------------------------------------------
+
+def test_deps_paths_defaults_and_pinned_urls():
+    from god_complexity import deps
+    os.environ["GODC_LIB"] = "/tmp/xlib"
+    try:
+        assert deps.default_lib() == "/tmp/xlib"
+        assert deps.pmd_path().endswith(f"pmd-bin-{study.PMD_VERSION}/bin/pmd")
+        assert deps.ck_path().endswith(f"ck/ck-{study.CK_VERSION}.jar")
+    finally:
+        del os.environ["GODC_LIB"]
+    lib = tempfile.mkdtemp()
+    assert deps.default_pmd(lib) is None and deps.default_ck(lib) is None   # nothing installed
+    for p in (deps.pmd_path(lib), deps.ck_path(lib)):
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        open(p, "w").close()
+    assert deps.default_pmd(lib) == deps.pmd_path(lib)
+    assert deps.default_ck(lib) == deps.ck_path(lib)
+    assert study.PMD_VERSION in deps.PMD_URL and study.CK_VERSION in deps.CK_URL
+
+
+def test_reporter_latest_results_dir():
+    gcr = god_complexity_report
+    base = tempfile.mkdtemp()
+    os.environ["GODC_RESULTS"] = base
+    try:
+        assert gcr._latest_results_dir() is None                 # empty: nothing to pick
+        for d in ("2026-10-10", "2026-10-18", "2026-10-12"):
+            os.makedirs(os.path.join(base, d))
+            open(os.path.join(base, d, "study.json"), "w").write("[]")
+        assert gcr._latest_results_dir() == os.path.join(base, "2026-10-18")   # newest ISO date
+    finally:
+        del os.environ["GODC_RESULTS"]
+
+
 # --- preflight (no silent missing data) -----------------------------------------------------
 
 def test_preflight_passes_with_no_java_tools_and_smoke_class_is_god_like():

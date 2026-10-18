@@ -73,50 +73,60 @@ are split into explore/confirm so the headline is out of sample. See
 
 ## Running it
 
-Set up the environment (needs **lizard 1.23.0** — 1.24.x has a Java regression that returns no
-functions for annotated classes; the package pins it and the harness fails closed if the parser
-is blind):
+One-command setup — creates the venv, installs the pinned Python dependencies, and downloads the
+non-pip tools (**PMD 7.27.0**, **CK 0.7.0**) into `./lib`, each verified against its pinned
+sha256:
 
-    python3 -m venv .venv && .venv/bin/pip install -e .     # installs lizard==1.23.0
+    ./setup.sh
 
-Draw a sample and measure it. Needs the `gh` CLI (authenticated); **PMD 7.27.0** and the CK jar
-add the Java PMD/CK/DECOR oracle panels (omit them to run with the WMC/threshold/`brain_method`
-oracles only). The seed fixes the draw — a different seed draws a different, independent sample:
+(Equivalently: `python3 -m venv .venv && .venv/bin/pip install -e . && .venv/bin/python -m
+god_complexity.cli deps`. `pip` pins **lizard 1.23.0** — 1.24.x has a Java regression that returns
+no functions for annotated classes.)
+
+Then draw a sample and measure it. With setup done, PMD/CK default to `./lib` and output defaults
+to `results/<date>/`, so a run needs only the seed (which fixes the draw — a different seed draws
+a different, independent sample). Sampling needs the `gh` CLI, authenticated:
+
+    .venv/bin/python -m god_complexity.cli grow --seed 1
+
+That is the whole command. Override any default when you need to:
 
     .venv/bin/python -m god_complexity.cli grow --seed 1 \
-      -O  paper/data/run/study.json \
-      -m  paper/data/run/sampling-manifest.json \
-      -o  paper/data/run/repos.txt \
-      --anc paper/data/run/anc/ \
-      --pmd /path/to/pmd-bin-7.27.0/bin/pmd --ck /path/to/ck.jar
+      --out-dir results/my-run \        # where output goes (default results/<date>)
+      --lib /path/to/deps \             # where PMD/CK live (default ./lib, or $GODC_LIB)
+      --pmd /path/to/pmd --ck /path/to/ck.jar   # exact tool paths, if not in --lib
 
-It clones hundreds of repositories (PMD + CK on every Java one) and is resumable — re-running
-the same command skips repositories already recorded. Alongside the lean `study.json` it writes
-an append-only `study.units.jsonl` sidecar with each repo's per-unit values and god membership —
-the substrate for the conservation and no-calibration analyses.
+It clones hundreds of repositories (PMD + CK on every Java one) and is resumable — re-running the
+same command (same `--out-dir`) skips repositories already recorded. Alongside the lean
+`study.json` it writes an append-only `study.units.jsonl` sidecar with each repo's per-unit values
+and god membership — the substrate for the conservation and no-calibration analyses.
 
-**No silent missing data, no version drift.** A single preflight runs before any clone and
-fails loud on: a blind lizard parser, missing `git`, an unauthenticated `gh`, or a configured
-PMD/CK that does not actually run and return a non-empty panel on a synthetic god class. It also
-enforces the **exact tool pins** — lizard `1.23.0`, PMD `7.27.0`, the CK `0.7.0` jar by sha256 —
-as a **hard failure**, not a warning, so every run and every independent review uses identical
-tools and the numbers are comparable. To use a different version deliberately, change the pin in
-`god_complexity/study.py`: that makes the choice a git-auditable code change, and any difference
-in the results is then traceable to it. An omitted panel is announced explicitly, never silent.
+**No silent missing data, no version drift.** A single preflight runs before any clone and fails
+loud on: a blind lizard parser, missing `git`, an unauthenticated `gh`, or a configured PMD/CK
+that does not actually run and return a non-empty panel on a synthetic god class. It also enforces
+the **exact tool pins** — lizard `1.23.0`, PMD `7.27.0`, the CK `0.7.0` jar by sha256 — as a
+**hard failure**, not a warning, so every run and every independent review uses identical tools and
+the numbers are comparable. To use a different version deliberately, change the pin in
+`god_complexity/study.py`: that makes the choice a git-auditable code change, and any difference in
+the results is then traceable to it. An omitted panel is announced explicitly, never silent.
 
-Analyse the matrix (any `python3`, no dependencies):
+Analyse a run (any `python3`, no dependencies) — point it at a results directory, or let it pick
+the latest:
 
-    python3 paper/god_complexity.py paper/data/run/study.json --level class
+    python3 paper/god_complexity.py --results results/<date> --level class
+    python3 paper/god_complexity.py --level class          # uses the latest results/<date>
 
 The report covers: the out-of-sample AUC headline (with a bootstrap CI), the signal and
-outlier-rule rankings, the **conservation** check (do different complexity measures rank the
-same units?) and the **no-calibration head-to-head** (the self-calibrating per-repo relative
-rule vs the best single tuned global threshold). The last two appear when the `.units.jsonl`
-sidecar is beside the study file; it is found automatically, or pass `--units`.
+outlier-rule rankings, the **conservation** check (do different complexity measures rank the same
+units?) and the **no-calibration head-to-head** (the self-calibrating per-repo relative rule vs
+the best single tuned global threshold). The last two appear when the `study.units.jsonl` sidecar
+is in the results directory. Further scripts that build the paper's tables from a results
+directory also live in `paper/` (added as the write-up is done).
 
-## Results stay off GitHub
+## What is and isn't committed
 
-Everything a run produces — `study.json`, the `study.units.jsonl` sidecar, the CSV, the sample,
-the ancillary package — is written under `paper/data/` and is **git-ignored**. Results are never
-committed; a curated subset is published as the paper's ancillary data. This keeps the
-repository to the harness.
+Code only. Both **dependencies** (`./lib`) and **results** (`results/<date>/` — `study.json`, the
+`study.units.jsonl` sidecar, the CSV, the sample, the ancillary package) are **git-ignored**:
+every machine downloads the exact pinned tools itself, and results are regenerated by running the
+study (a curated subset is published as the paper's ancillary data). This keeps the repository to
+the harness and makes the method fully inspectable in code.
