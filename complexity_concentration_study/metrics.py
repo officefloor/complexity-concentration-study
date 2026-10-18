@@ -2,22 +2,17 @@
 standard library.
 
 Every metric here reads only the per-node complexity aggregates `extract.analyze_tree`
-produces (the COMPLEXITY_FIELDS per function and their per-file sums). None of them
+produces (the COMPLEXITY_FIELDS per function and their per-file aggregates). None of them
 reconstructs the call graph, so they stay type-blind and snapshot-only.
 
-Two reusable ideas:
+`matrix_outliers()` turns each complexity signal into flagged sets under every relative outlier
+rule, over the common per-level UNIVERSE (every rule is fitted on exactly the population it
+scores, zeros included). The enrichment of each flagged set against the study's god
+definitions stays in study.analyse, which owns the oracle panels.
 
-  concentration : how unevenly a quantity is spread (Shannon entropy, Gini, Theil). Low
-                  entropy / high Gini == piled up in a few units.
-
-  evt           : is the quantity heavy-tailed? Hill tail index and a peaks-over-threshold
-                  GPD shape xi (xi>0 == Pareto-type tail), plus calibrated "1-in-N"
-                  severity of the top units. A heavy tail is what justifies an extreme-value
-                  cutoff over the symmetric modified z-score.
-
-`matrix_outliers()` turns each complexity definition into flagged sets under every outlier
-algorithm; the enrichment of each against the study's god-class oracles (WMC>=47, the
-method-level thresholds, PMD, CK) stays in study.analyse, which owns the oracle panels.
+Two reusable extras kept for descriptive use (not part of the matrix):
+  concentration : how unevenly a quantity is spread (Shannon entropy, Gini, Theil).
+  evt           : is the quantity heavy-tailed? Hill tail index and a GPD shape estimate.
 """
 from __future__ import annotations
 
@@ -39,7 +34,7 @@ def median(xs: list[float]):
 
 def entropy_norm(xs: list[float]):
     """Shannon entropy of the share distribution, normalised to [0,1]. 1 == perfectly even
-    spread, 0 == one unit holds everything. The direct reading of "concentration"."""
+    spread, 0 == one unit holds everything."""
     xs = [x for x in xs if x > 0]
     s = sum(xs)
     if s <= 0 or len(xs) < 2:
@@ -70,8 +65,7 @@ def theil(xs: list[float]):
 
 
 def hill_alpha(xs: list[float], frac: float = 0.10):
-    """Hill tail-index estimate on the top `frac` of values. alpha < ~2 is a very heavy
-    (infinite-variance) tail; large alpha is a light tail. None if too few values."""
+    """Hill tail-index estimate on the top `frac` of values. None if too few values."""
     xs = sorted((x for x in xs if x > 0), reverse=True)
     k = max(5, int(len(xs) * frac))
     if len(xs) <= k + 1:
@@ -83,7 +77,7 @@ def hill_alpha(xs: list[float], frac: float = 0.10):
 
 def gpd_shape_mom(xs: list[float], q: float = 0.90):
     """Peaks-over-threshold GPD shape xi by method of moments (xi>0 == Pareto-type heavy
-    tail). Returns None when there are too few exceedances to estimate it."""
+    tail). None when there are too few exceedances."""
     xs = sorted(x for x in xs if x > 0)
     n = len(xs)
     if n < 20:
@@ -115,27 +109,16 @@ def evt(values: list[float]) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# outlier sets and the combined signal
+# threshold-free signal quality
 # ---------------------------------------------------------------------------
-def z_outliers(value_map: dict) -> set:
-    """Keys whose positive value is a modified-z outlier (>= OUTLIER_Z). The generic
-    relative-outlier form, shared by the complexity spikes."""
-    xs = [v for v in value_map.values() if v > 0]
-    if not xs:
-        return set()
-    z = extract.modified_z(xs)
-    return {k for k, v in value_map.items() if v > 0 and z(v) >= extract.OUTLIER_Z}
-
-
 def jaccard(a: set, b: set):
     u = a | b
     return round(len(a & b) / len(u), 4) if u else None
 
 
 def auc_ap(values: dict, gods: set, universe):
-    """Threshold-free quality of a continuous signal as a god detector over `universe`,
-    independent of any outlier algorithm: this separates "which signal ranks gods best"
-    from "which threshold an algorithm picked".
+    """Quality of a continuous signal as a god detector over `universe`, independent of any
+    outlier rule: this separates "which signal ranks gods best" from "which cut a rule picked".
       AUC = P(a random god scores above a random non-god), Mann-Whitney, tie-corrected.
       AP  = average precision (area under the precision-recall curve).
     Returns (auc, ap, n_god, n_universe); auc/ap are None when a class is empty."""
@@ -180,18 +163,19 @@ def auc_ap(values: dict, gods: set, universe):
 
 
 # ---------------------------------------------------------------------------
-# outlier/spike ALGORITHMS  (each: {key: value} -> set of flagged keys)
-# All are relative / threshold-free so they transfer across repos and languages,
-# following the paper's design principle. They run on the positive values only (the
-# universe of generators / complex units), matching the enrichment universe.
-# Literature: Iglewicz-Hoaglin (modified z); Rosenmai / Brys-Hubert (double MAD, adjusted
-# outlyingness); Tukey (boxplot fence); Hubert-Vandervieren 2008 (skew-adjusted boxplot via
-# the medcouple); Bhattacharya 2023 and classical EVT (peaks-over-threshold GPD).
+# RELATIVE outlier rules  (each: {key: value} -> set of flagged keys)
+#
+# Each rule is SCALE-FREE: it standardises by the local distribution (median/MAD, quartiles,
+# fitted tail) and then applies a constant on that standardised axis. The constants are the
+# literature defaults (Iglewicz-Hoaglin 3.5; Tukey k=1.5; Hubert-Vandervieren c=3/4; top 1%;
+# z=3) and are stated here because they ARE constants -- "relative" means no RAW-scale
+# constant, not no constant. Every rule is fitted on exactly the population it scores (the
+# common per-level universe, zeros included), never on a positive-only subset.
+#
+# Literature: Iglewicz-Hoaglin 1993 (modified z); Rosenmai / Brys-Hubert (double MAD, adjusted
+# outlyingness); Tukey 1977 (boxplot fence); Hubert-Vandervieren 2008 (skew-adjusted boxplot
+# via the medcouple); Pickands 1975 / classical EVT (peaks-over-threshold GPD).
 # ---------------------------------------------------------------------------
-def _pos(vmap: dict) -> dict:
-    return {k: v for k, v in vmap.items() if v > 0}
-
-
 def _quantile(xs: list[float], q: float) -> float:
     n = len(xs)
     if n == 1:
@@ -230,8 +214,7 @@ def _medcouple(sorted_xs: list[float]) -> float:
 
 
 def mad_z(vmap: dict, cut: float = extract.OUTLIER_Z) -> set:
-    """Iglewicz-Hoaglin modified z-score (MAD-based). The paper's baseline detector."""
-    vmap = _pos(vmap)
+    """Iglewicz-Hoaglin modified z-score (MAD-based), flag z >= cut. The study's baseline."""
     if not vmap:
         return set()
     z = extract.modified_z(list(vmap.values()))
@@ -240,8 +223,7 @@ def mad_z(vmap: dict, cut: float = extract.OUTLIER_Z) -> set:
 
 def double_mad(vmap: dict, cut: float = extract.OUTLIER_Z) -> set:
     """Upper (one-sided) MAD: deviation scale taken from the right half only, for the
-    right-skewed flow/complexity distributions (double-MAD / adjusted-outlyingness family)."""
-    vmap = _pos(vmap)
+    right-skewed complexity distributions (double-MAD / adjusted-outlyingness family)."""
     xs = sorted(vmap.values())
     n = len(xs)
     if n < 3:
@@ -256,7 +238,6 @@ def double_mad(vmap: dict, cut: float = extract.OUTLIER_Z) -> set:
 
 def iqr_fence(vmap: dict, k: float = 1.5) -> set:
     """Tukey boxplot upper fence Q3 + k*IQR."""
-    vmap = _pos(vmap)
     xs = sorted(vmap.values())
     if len(xs) < 4:
         return set()
@@ -268,7 +249,6 @@ def iqr_fence(vmap: dict, k: float = 1.5) -> set:
 def adjusted_boxplot(vmap: dict, k: float = 1.5) -> set:
     """Hubert-Vandervieren (2008) skew-adjusted boxplot: upper whisker
     Q3 + k*exp(c*MC)*IQR with the medcouple MC (c=3 for the upper fence, MC>=0)."""
-    vmap = _pos(vmap)
     xs = sorted(vmap.values())
     if len(xs) < 5:
         return set()
@@ -280,9 +260,10 @@ def adjusted_boxplot(vmap: dict, k: float = 1.5) -> set:
 
 
 def evt_pot(vmap: dict, p: float | None = None, q: float = 0.90) -> set:
-    """Peaks-over-threshold GPD: flag values whose fitted upper-tail survival is below p
-    (default 1/n -- 'not expected even once in a sample this size')."""
-    vmap = _pos(vmap)
+    """Peaks-over-threshold GPD (method-of-moments fit above the q-quantile): flag values whose
+    fitted upper-tail survival is below p. Default p = 1/n ('not expected even once in a
+    sample this size') is a deliberately strict floor; expect low recall at this default and
+    tune p on EXPLORE data before reading it as a fair representative of EVT."""
     xs = sorted(vmap.values())
     n = len(xs)
     if n < 20:
@@ -314,8 +295,8 @@ def evt_pot(vmap: dict, p: float | None = None, q: float = 0.90) -> set:
 
 
 def percentile_top(vmap: dict, q: float = 0.99) -> set:
-    """Flag the top (1-q) fraction by value -- a trivial relative baseline / floor."""
-    vmap = _pos(vmap)
+    """Flag the top (1-q) fraction by value -- a trivial relative baseline / floor. Never flags
+    a unit tied with the minimum (a flat distribution yields nothing)."""
     xs = sorted(vmap.values())
     n = len(xs)
     if n < 2:
@@ -327,7 +308,6 @@ def percentile_top(vmap: dict, q: float = 0.99) -> set:
 def zscore_classic(vmap: dict, k: float = 3.0) -> set:
     """Classic mean/SD z-score (parametric CONTROL; expected to fail on heavy tails because
     one extreme inflates the SD and masks the next -- included to show robustness matters)."""
-    vmap = _pos(vmap)
     xs = list(vmap.values())
     n = len(xs)
     if n < 3:
@@ -349,19 +329,53 @@ ALGORITHMS = {
     "pct_top1": percentile_top,     # top 1% (relative floor)
     "zscore": zscore_classic,       # classic mean/SD (parametric control)
 }
+# The standardised-axis constant each rule applies at its default, recorded with every run so
+# the analysis can state (and tune) them rather than call the rules constant-free.
+ALGORITHM_CONSTANTS = {
+    "mad_z": {"cut": extract.OUTLIER_Z}, "double_mad": {"cut": extract.OUTLIER_Z},
+    "iqr": {"k": 1.5}, "adj_boxplot": {"k": 1.5, "c_upper": 3, "c_lower": 4},
+    "evt_pot": {"p": "1/n", "q": 0.90}, "pct_top1": {"q": 0.99}, "zscore": {"k": 3.0},
+}
 
 
 # The SIGNALS we compare: each complexity definition on its own. METHOD signals are the raw
 # per-function fields (COMPLEXITY_FIELDS from extract). CLASS signals are those fields
 # aggregated per file three ways -- sum, mean, max -- so the matrix can show which complexity
 # measure AND which aggregation concentrates onto god classes; "nom" (methods per class) is a
-# class-level-only count, and `cc_sum` equals WMC (the textbook size reference).
+# class-level-only count, and `cc_sum` IS WMC (the textbook size reference).
 from .extract import COMPLEXITY_FIELDS
 
 AGGREGATIONS = ("sum", "mean", "max")
 METHOD_SIGNALS = COMPLEXITY_FIELDS
 CLASS_SIGNALS = tuple(f"{base}_{agg}" for base in COMPLEXITY_FIELDS for agg in AGGREGATIONS) \
     + ("nom",)
+
+# SIGNAL FAMILIES. The ingredient rule (study.ingredients) excludes a definition's DEFINITIONAL
+# inputs, but the confound that matters is STATISTICAL: every per-file sum (and nom) is
+# near-collinear with WMC and method count, so a sum recovering a definition whose first clause
+# is a size threshold is "size recovers size". Signals are therefore pre-assigned to families
+# that the analysis reports separately, and a cross-measure claim must hold in a family that
+# is not size.
+#   method: size      nloc, tokens, hvol           (how much code)
+#           structure cc, cognitive, nesting, exit_points  (how it branches)
+#           density   cyc_density, mi, params      (per-line / per-unit, size-normalised)
+#   class:  size      every {base}_sum and nom     (grows with method count)
+#           peak      every {base}_max             (the single worst method)
+#           density   every {base}_mean            (size-normalised per method)
+METHOD_FAMILIES = {"size": ("nloc", "tokens", "hvol"),
+                   "structure": ("cc", "cognitive", "nesting", "exit_points"),
+                   "density": ("cyc_density", "mi", "params")}
+CLASS_FAMILIES = {"size": tuple(f"{b}_sum" for b in COMPLEXITY_FIELDS) + ("nom",),
+                  "peak": tuple(f"{b}_max" for b in COMPLEXITY_FIELDS),
+                  "density": tuple(f"{b}_mean" for b in COMPLEXITY_FIELDS)}
+FAMILIES = {"method": METHOD_FAMILIES, "class": CLASS_FAMILIES}
+
+
+def family_of(level: str, signal: str) -> str | None:
+    for fam, sigs in FAMILIES[level].items():
+        if signal in sigs:
+            return fam
+    return None
 
 
 def signal_value(signal: str, r: dict) -> float:
@@ -383,10 +397,26 @@ def _aggregate(vals: list[float], agg: str) -> float:
 def matrix_outliers(funcs: dict, wmc: dict) -> dict:
     """Outlier sets for every (level, signal, algorithm) cell, plus the per-level universe.
     Method signals are the raw complexity fields; class signals are those fields aggregated
-    per file as {base}_sum / _mean / _max, plus nom (method count). Enrichment against the
-    oracles is left to study.analyse (which owns the PMD / CK panels)."""
-    def run(vmap):
-        return {name: algo(_pos(vmap)) for name, algo in ALGORITHMS.items()}
+    per file as {base}_sum / _mean / _max, plus nom (method count). Each rule is fitted on and
+    applied to the common per-level universe (funcs with cc>0 / files with wmc>0 -- i.e. every
+    unit with at least one function), zeros included. Enrichment against the oracles is left
+    to study.analyse (which owns the PMD / CK / human panels)."""
+    m_univ = {fid for fid, r in funcs.items() if r.get("cc", 0) > 0}
+    c_univ = {f for f in wmc if wmc[f] > 0}
+
+    def run(vmap, universe):
+        pop = {k: v for k, v in vmap.items() if k in universe}
+        return {name: algo(pop) for name, algo in ALGORITHMS.items()}
+
+    def diagnostics(vmap, universe):
+        """Per signal: which scale the modified z used on THIS population ("mad", "mean_ad" or
+        "constant") and the share of zeros. A rule's standardised constant only transfers
+        between repositories whose standardised axis means the same thing; the analysis must
+        report these before any accuracy number."""
+        pop = [v for k, v in vmap.items() if k in universe]
+        kind, _ = extract.modified_z_scale(pop)
+        return {"scale": kind,
+                "zero_frac": round(sum(1 for v in pop if v == 0) / len(pop), 4) if pop else None}
 
     method_vals = {sig: {fid: signal_value(sig, r) for fid, r in funcs.items()}
                    for sig in METHOD_SIGNALS}
@@ -394,7 +424,7 @@ def matrix_outliers(funcs: dict, wmc: dict) -> dict:
     # class level: per-file sum / mean / max of each base measure (nom = method count)
     per_file: dict = {}                          # file -> base -> list of per-method values
     for fid, r in funcs.items():
-        d = per_file.setdefault(fid[0], {b: [] for b in COMPLEXITY_FIELDS})
+        d = per_file.setdefault(r["file"], {b: [] for b in COMPLEXITY_FIELDS})
         for base in COMPLEXITY_FIELDS:
             d[base].append(signal_value(base, r))
     class_vals: dict = {}
@@ -404,10 +434,13 @@ def matrix_outliers(funcs: dict, wmc: dict) -> dict:
                                            for f, d in per_file.items()}
     class_vals["nom"] = {f: len(d[COMPLEXITY_FIELDS[0]]) for f, d in per_file.items()}
 
-    method = {sig: run(method_vals[sig]) for sig in METHOD_SIGNALS}
-    cls = {sig: run(class_vals[sig]) for sig in CLASS_SIGNALS}
-    m_univ = {fid for fid, r in funcs.items() if r.get("cc", 0) > 0}
-    c_univ = {f for f in wmc if wmc[f] > 0}
-    # "_vals" holds the raw per-unit signal values for threshold-free AUC/AP (not serialised)
-    return {"method": {**method, "universe": m_univ, "_vals": method_vals},
-            "class": {**cls, "universe": c_univ, "_vals": class_vals}}
+    method = {sig: run(method_vals[sig], m_univ) for sig in METHOD_SIGNALS}
+    cls = {sig: run(class_vals[sig], c_univ) for sig in CLASS_SIGNALS}
+    # "_vals" holds the raw per-unit signal values for threshold-free AUC/AP (not serialised);
+    # "_diag" the per-signal scale kind and zero share (serialised by study._matrix_block).
+    return {"method": {**method, "universe": m_univ, "_vals": method_vals,
+                       "_diag": {sig: diagnostics(method_vals[sig], m_univ)
+                                 for sig in METHOD_SIGNALS}},
+            "class": {**cls, "universe": c_univ, "_vals": class_vals,
+                      "_diag": {sig: diagnostics(class_vals[sig], c_univ)
+                                for sig in CLASS_SIGNALS}}}

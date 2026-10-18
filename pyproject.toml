@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "complexity-concentration-study"
-version = "0.0.1"
-description = "Identify god classes/methods as relative outliers in per-unit code complexity."
+version = "0.0.2"
+description = "Do scale-free relative outliers in per-unit code complexity identify textbook god classes and methods? A measurement harness."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"

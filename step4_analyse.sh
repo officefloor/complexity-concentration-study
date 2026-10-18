@@ -4,10 +4,10 @@
 #
 #   ./step4_analyse.sh --results results/<date>      # or omit --results to use the latest run
 #
-# Prints the full report at BOTH levels (class = god classes, method = god methods / brain
-# method): the out-of-sample AUC headline with bootstrap CI, the signal and outlier-rule
-# rankings, the conservation check, and the no-calibration head-to-head. Any extra flags are
-# passed through to paper/analyse.py.
+# Prints the report to the README's rules and PLAN.md (diagnostics first, then the primary
+# estimand chosen on explore and read on confirm, the secondary definitions in headline order,
+# the Friedman comparisons, and the exploratory tables) and writes analysis.json beside the
+# run. Any extra flags are passed through to `complexity-concentration-study analyse`.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -23,16 +23,12 @@ done
 RESARG=()
 [ -n "$RESULTS" ] && RESARG=(--results "$RESULTS")
 
+VENV="${VENV:-.venv}"
 echo "=== STEP 4/4: analyse ${RESULTS:-the latest run} ==="
-for LVL in class method; do
-  echo
-  echo "############################## level = $LVL ##############################"
-  python3 paper/analyse.py ${RESARG[@]+"${RESARG[@]}"} --level "$LVL" ${PASS[@]+"${PASS[@]}"}
-done
+"$VENV/bin/python" -m complexity_concentration_study.cli analyse ${RESARG[@]+"${RESARG[@]}"} ${PASS[@]+"${PASS[@]}"}
 
 echo
 echo "=== STEP 4 complete. ==="
-echo "Re-run a single level any time, e.g.:"
-echo
-echo "    python3 paper/analyse.py ${RESULTS:+--results $RESULTS }--level class"
+echo "The first run of this step on a confirmatory sample is the confirmatory analysis; later"
+echo "runs are exploratory (PLAN.md). analysis.json beside study.json holds the numbers."
 echo

@@ -1,23 +1,35 @@
 #!/usr/bin/env bash
 #
-# Step 2 of 4 — draw the sample of repositories, with open-source-repository-sampler.
+# Step 2 of 4 — draw the samples of repositories, with open-source-repository-sampler.
 #
-#   ./step2_sample.sh [--out-dir DIR] [any other `open-source-repository-sampler sample` flag]
+#   ./step2_sample.sh [--out-dir DIR] [--java-target N] [any other `open-source-repository-sampler sample` flag]
 #
-# Writes open-source-repository-sample.csv (every candidate drawn, each pinned to the commit that
-# met the criteria) and open-source-repository-sample.derivation.json (how it was drawn) into
-# sample/ (or --out-dir). Those two files are the study population and go in the paper's
-# ancillary data unchanged. Skip this step to reuse an existing sample.
+# Draws TWO samples into sample/ (or --out-dir), each a pair of files -- the CSV of every candidate
+# drawn (usable or excluded with its reason, each pinned to the commit that met the criteria) and
+# the .derivation.json of how it was drawn:
+#
+#   open-source-repository-sample.csv                   the MAIN sample: every language in
+#                                                       study.SAMPLED_LANGUAGES x 3 tiers, 30 usable
+#                                                       repositories per language (Ruby is not
+#                                                       sampled: see study.EXCLUDED_LANGUAGES)
+#   open-source-repository-sample.java-supplement.csv   the JAVA SUPPLEMENT: Java only, grown to
+#                                                       --java-target (default 120) usable repos
+#
+# Why a Java supplement: every composite class-level god definition (PMD GodClass, DECOR Blob)
+# and every tool method-level definition is Java-only, so the class-level headline's effective
+# sample is the number of JAVA repositories, not the number of repositories. 30 is too few for a
+# held-out confirm half with a median of ~2 god classes per repository. Same seed and criteria:
+# the supplement's draw ORDER is identical to the main sample's Java draw, so its first 30 usable
+# Java repositories ARE the main sample's; step 3 measures each repository once.
 #
 # The study's sampling criteria are set here, once, as code. Each flag is written out even when it
 # equals the sampler's default, so the design is readable here and recorded in the derivation:
-#   - all 11 languages x 3 popularity tiers, grown until each language has 30 usable repositories;
 #   - the substance floor the analysis uses (study.MIN_FUNCS / MIN_UNIV): >= 50 functions in
 #     >= 15 source files with a function;
 #   - the author's own ecosystem excluded (the conflict-of-interest guard);
 #   - no history criterion, so every candidate is shallow-cloned for inspection.
-# Extra flags are passed straight through (a later flag overrides an earlier one), e.g. a
-# different --seed for an independent sample. Interrupted? Re-run the same command to resume.
+# Extra flags are passed straight through to BOTH draws (a later flag overrides an earlier one),
+# e.g. a different --seed for an independent pair of samples. Interrupted? Re-run to resume.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -26,32 +38,39 @@ SAMPLER="$VENV/bin/open-source-repository-sampler"
 [ -x "$SAMPLER" ] || { echo "ERROR: $SAMPLER not found — run ./step1_setup.sh first"; exit 1; }
 
 OUTDIR="sample"
+JAVA_TARGET=120
 ARGS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     --out-dir) OUTDIR="$2"; shift 2 ;;
     --out-dir=*) OUTDIR="${1#*=}"; shift ;;
+    --java-target) JAVA_TARGET="$2"; shift 2 ;;
+    --java-target=*) JAVA_TARGET="${1#*=}"; shift ;;
     *) ARGS+=("$1"); shift ;;
   esac
 done
 
-CRITERIA=(
-  --langs java,python,javascript,typescript,go,c,c++,c#,ruby,php,rust
+COMMON=(
   --tiers high,mid,low
-  --target 30
   --seed 1
-  --pool 400
   --min-functions 50
   --min-files-with-functions 15
   --exclude-owners officefloor,sagenschneider
 )
+LANGS="$("$VENV/bin/python" -c 'from complexity_concentration_study.study import SAMPLED_LANGUAGES as L; print(",".join(L))')"
+MAIN=(--langs "$LANGS" --target 30 --pool 400)
+JAVA=(--langs java --target "$JAVA_TARGET" --pool 400 --label java-supplement)
 
-echo "=== STEP 2/4: draw the sample -> $OUTDIR ==="
-"$SAMPLER" sample "${CRITERIA[@]}" --out-dir "$OUTDIR" ${ARGS[@]+"${ARGS[@]}"}
+echo "=== STEP 2/4: draw the MAIN sample ($LANGS x 30) -> $OUTDIR ==="
+"$SAMPLER" sample "${COMMON[@]}" "${MAIN[@]}" --out-dir "$OUTDIR" ${ARGS[@]+"${ARGS[@]}"}
+
+echo
+echo "=== STEP 2/4: draw the JAVA SUPPLEMENT (java x $JAVA_TARGET) -> $OUTDIR ==="
+"$SAMPLER" sample "${COMMON[@]}" "${JAVA[@]}" --out-dir "$OUTDIR" ${ARGS[@]+"${ARGS[@]}"}
 
 echo
 echo "=== STEP 2 complete. ==="
-echo "Next — measure every repository of this sample:"
+echo "Next — measure every repository of both samples (each once):"
 echo
-echo "    ./step3_run.sh --sample $OUTDIR/open-source-repository-sample.csv"
+echo "    ./step3_run.sh --sample $OUTDIR/open-source-repository-sample.csv --sample $OUTDIR/open-source-repository-sample.java-supplement.csv"
 echo

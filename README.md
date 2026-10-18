@@ -1,153 +1,428 @@
 # Complexity concentration → god classes and methods
 
-A test harness for one question: at a single checkout, does an **unsupervised, relative
-complexity outlier** — a concentration spike in a per-unit complexity definition — mark the
-same classes/methods that a tool-defined god-class/method definition marks, and *which*
-complexity definition and *which* outlier rule do it best?
+A measurement harness for one question: at a single checkout, does an **unsupervised,
+scale-free relative outlier** in a per-unit complexity measure mark the same classes and methods
+that textbook, absolute-threshold god-class/method definitions (and, where supplied, human
+experts) mark, and *which* complexity measure and *which* outlier rule do it best?
 
-It is **identification, not prediction**, measured on freshly sampled repositories. The
-package is `complexity_concentration_study`; it measures only per-unit code complexity and compares a relative
-outlier in it against textbook god definitions.
+It is **identification, not prediction**, measured on freshly sampled repositories. The package
+`complexity_concentration_study` measures per-unit code complexity, applies relative outlier
+rules, and scores the flagged sets against a registry of god definitions. The analysis of a run
+is the paper's job; this README states the rules that analysis must follow (below, *Analysing a
+run*), and the harness ships the statistics it must use.
 
-## What this is looking to achieve
+## The claim under test
 
-A god class is **complexity concentrated** — one unit holding what should be spread across
-many. Every textbook detector marks that concentration with an **absolute threshold**:
-`WMC ≥ 47`, `CC ≥ 14`, `cognitive ≥ 15`, `LOC ≥ 50`. Those constants are proxies for *a human's*
-comprehension budget — the point past which a person can no longer hold the unit in their head.
+A god class is **complexity concentrated** into one unit. Every textbook detector marks that
+concentration with an **absolute threshold** on a raw scale: `WMC ≥ 47`, `CC ≥ 14`,
+`cognitive ≥ 15`, `LOC ≥ 50`. Those constants are not arbitrary: Lanza and Marinescu's are
+frozen percentiles of a 45-project corpus, DECOR's cohesion cut is box-plot derived, and the
+benchmark-derived thresholds (Alves et al. 2010; Oliveira, Valente and Lima 2014) replace
+expert opinion with a corpus percentile. Each still ships a raw-scale constant that has to be
+re-fitted whenever the population moves.
 
-That budget is no longer fixed. As AI agents read, write and maintain code, the effective
-"developer" gets steadily more capable, and every one of those constants drifts out of
-calibration: a method that overwhelmed a 2015 human is routine for a 2025 agent, so a fixed
-`CC ≥ 14` increasingly flags units that are not problems, and will keep being wrong in a moving
-way. Keeping absolute-threshold metrics honest means **re-deriving every constant each time the
-reader's capability changes** — a treadmill with no end.
+A **relative outlier rule** standardises each unit by its own codebase's distribution (median
+and MAD, quartiles, a fitted tail) and applies its constant on that standardised axis. The
+question is therefore **a per-repository percentile against a corpus percentile**, and the
+testable claim is:
 
-This harness tests a detector that steps off that treadmill. A **relative complexity outlier**
-carries **no absolute constant**: it asks only whether a unit is *unusually concentrated
-relative to its own codebase*. That question means the same thing whether the reader is a 1970s
-human or a 2030 agent — the detector **self-calibrates to each codebase** and needs no settings,
-no benchmark corpus, and no re-tuning, ever. Point it at a repository and it names the
-concentration with no assistance.
+> A scale-free relative outlier in a reasonable per-unit complexity measure recovers the
+> classes and methods that tuned, absolute-threshold definitions mark, without a raw-scale
+> constant and without a benchmark corpus; and it does so in measures that are not size, so
+> the finding is about the *concentration* rather than about one metric.
 
-The hypothesis under test:
+It is falsifiable three ways, and the harness records what each needs. Read the limits with
+each:
 
-> An unsupervised, **threshold-free** relative outlier in *any* reasonable complexity measure
-> identifies the same god classes a tuned, absolute-threshold tool marks — because, under
-> **conservation of complexity**, a god is defined by the *concentration*, not by the absolute
-> level, so the act of finding the outlier matters more than which measure is used.
+1. **Ranking quality.** The AUC of the raw signal against each headline definition within a
+   repository, read out of sample (an explore/confirm split). AUC needs no cut. But a
+   within-repository AUC is invariant to any monotone per-repository transform, so it is the
+   same under the relative and the absolute view: it tests the *signal's* ranking, and says
+   nothing about scale-freeness.
+2. **Across measures.** Every signal belongs to a pre-assigned **family** (`oracles.json`,
+   `families`): at class level *size* (every per-file sum, and `nom`), *peak* (every per-file
+   max) and *density* (every per-file mean); at method level *size* (`nloc`, `tokens`, `hvol`),
+   *structure* (`cc`, `cognitive`, `nesting`, `exit_points`) and *density* (`cyc_density`,
+   `mi`, `params`). Every size signal is statistically collinear with a size clause whatever
+   the ingredient list says, so a size signal recovering a definition whose first clause is a
+   size threshold is "size recovers size". The cross-measure claim must hold in a family that
+   is not size, and the matrix records each signal's AUC **within the units that already pass
+   the definition's size clause** (`auc_given`): whether the signal carries anything beyond
+   size.
+3. **Relative versus tuned absolute.** The threshold-free form: the AUC of the units of all
+   repositories pooled, once on the raw value (one absolute ranking) and once on the
+   per-repository modified z (the relative ranking), `stats.pooled_auc`. The operating-point
+   form: a per-repository relative rule at its **literature-default** constant against the
+   single best raw-scale cutoff tuned on the explore half, both read on confirm. Every tool
+   definition is itself an absolute threshold, so this comparison is tilted toward the absolute
+   competitor: a relative win is strong evidence, a relative loss is weak evidence against
+   relative rules in general. Expert labels (`--labels`) are the only definitions that bake in
+   no scale, which makes the human-label sub-study central to this claim, not optional.
 
-That is why the harness varies the complexity measure and the outlier rule as widely as it does
-(below): if the result holds across measures, the finding is about concentration itself, and the
-reader is free to pick whichever measure they like — the paper reports which ones, and which
-outlier rules, do it best.
+### What "relative" does and does not mean
+
+The rules are **scale-free, not constant-free**. The modified z-score flags `z ≥ 3.5`
+(Iglewicz and Hoaglin), Tukey's fence uses `k = 1.5`, the top-percentile rule takes 1%, the
+classic z-score `k = 3`. Those constants live on a standardised axis, so they transfer across
+codebases and languages without re-fitting, which is the property under test. They are still
+constants: every run records them in `oracles.json`, and the head-to-head in point 3 reads the
+relative rule at those defaults first (the real-world use) and only then with its cut tuned on
+explore with the same discipline as the absolute one.
+
+Scale-free is also not **shape-free**. The modified z depends on the zero share of the signal,
+and when more than half of a population ties at the median the MAD is zero and the rule falls
+back to the mean absolute deviation. Every row therefore records, per level and signal, which
+scale the modified z used and the share of zeros (`matrix.<level>.diag`), and the flagged
+fraction is in every cell (`n_out / n_univ`). A rule whose flag rate swings widely across
+repositories is not transferring its constant, whatever its accuracy.
+
+### What this does not test
+
+The motivation for a scale-free rule is that any raw-scale constant is a proxy for a reader's
+comprehension budget, and that budget may move, for instance as AI agents read and maintain
+more code. Nothing in this design measures readers, agents or comprehension. The study only
+tests whether the scale-free rule recovers what the tuned definitions mark; agreement with a
+definition cannot show that the definition's constant is drifting. That argument belongs in a
+paper's discussion, hedged, not in its results.
 
 ## What the harness varies
 
-- **signal** — each per-unit complexity definition: `cc` (cyclomatic), `cognitive`, `nloc`,
-  `tokens`, `params`, `nesting`, `cyc_density` (cc/nloc), `exit_points`, `hvol` (Halstead
-  volume, approximate) and `mi` (maintainability *burden*, `100 − MI`, so higher is worse).
-  At **class level** each is aggregated three ways — `{base}_sum`, `_mean`, `_max` — so the
-  matrix shows which complexity measure *and* which aggregation concentrates onto god classes;
-  `cc_sum` is WMC, and `nom` (methods per class) is a class-level-only count.
-- **algorithm** — the relative outlier rule that turns a signal into a flagged set: `mad_z`,
-  `double_mad`, `iqr`, `adj_boxplot`, `evt_pot`, `pct_top1`, `zscore`.
-- **definition (oracle)** — at class level `WMC≥47`, the PMD design panel, the CK
-  cohesion/coupling definitions and an approximate DECOR Blob (Java only); at method level the
-  single-metric thresholds `CC≥14`, `cognitive≥15`, `nesting≥5`, `nloc≥50`, `params≥5` and the
-  composite, language-neutral `brain_method` (long ∧ complex ∧ deeply nested — a
-  faithful-but-partial Lanza–Marinescu Brain Method).
+- **signal**, a per-unit complexity definition, each oriented so higher means more god-like:
+  `cc` (cyclomatic), `cognitive` (Campbell, a calibrated lexical estimator), `nloc`, `tokens`,
+  `params`, `nesting` (maximum depth of nested control structures), `cyc_density` (`cc/nloc`),
+  `exit_points`, `hvol` (Halstead volume, approximate) and `mi` (maintainability *burden*,
+  `100 − MI`). `cyc_density` and `mi` are arithmetic functions of `cc`, `nloc` and `hvol`; the
+  registry treats them as derived. At **class level** each is aggregated per file three ways,
+  `{base}_sum`, `_mean`, `_max`; `cc_sum` *is* WMC (computed from the same records, so the two
+  agree exactly) and `nom` (methods per class) is a class-level count.
+- **algorithm**, the relative outlier rule: `mad_z`, `double_mad`, `iqr`, `adj_boxplot`,
+  `evt_pot`, `pct_top1` and the parametric control `zscore`. Every rule is fitted on exactly the
+  population it scores, the whole per-level universe with zeros included, never on a
+  positive-only subset. The GPD rule's default `p = 1/n` is a deliberately strict floor and
+  must be tuned on explore data before being read as representative of extreme-value methods.
+- **definition (oracle)**, declared once in `study.ORACLES` and written to every run as
+  `oracles.json`. Each entry carries its level, source, constant, scope, a **kind**, an
+  **origin**, and its **ingredients**: the signals its own definition is built from, closed
+  over derived signals and, at class level, every aggregation. A composite with a size clause
+  names that clause as a registered component (`conditional_on`) for the conditional AUC.
 
-Signal quality is scored threshold-free by **AUC**; algorithm quality by **MCC**; repositories
-are split into explore/confirm so the headline is out of sample. See
-`paper/METHODOLOGY.md` for the methodology and caveats.
+| kind | meaning | examples |
+|---|---|---|
+| composite | a multi-clause textbook definition; may carry a headline | `pmd_GodClass` (ingredient `cc_*`, conditional on `wmc47`), `decor_blob` (ingredient `nom`, conditional on `ck_LargeClass`), `brain_method` (ingredients `nloc`, `cc`, `nesting`, `mi`, `cyc_density`) |
+| tool | a tool measure none of our signals computes; may carry a headline | `pmd_method_NPath200` |
+| human | expert labels supplied with `--labels`; may carry a headline | `human_blob` |
+| self | one signal restated as a threshold; AUC ≈ 1 for that signal is a tautology | `wmc47`, `cc14`, `cognitive15`, `nesting5`, `loc50`, `params5` |
+| calibration | PMD's own implementation of one of our signals; its value on every method is recorded, so the estimator is calibrated continuously | `pmd_method_CC10`, `pmd_method_Cognitive15`, `pmd_method_Ncss60` |
+| component | one clause of a definition, not a god definition on its own; reported with its prevalence | PMD size and coupling rules, `ck_LCOM`, `ck_TCClow`, `ck_CBOhigh`, `ck_LargeClass` |
 
-## Where things are
+| origin | who computed the label | headline order |
+|---|---|---|
+| tool | an external tool's own rule (PMD, CK) | first |
+| human | expert labels; the only origin with no built-in scale | first |
+| composed | the study's composition of tool-computed values (`decor_blob`: CK counts with this study's 0.8 cut) | second |
+| internal | the study's own signals thresholded (`brain_method`, every self definition) | last, and never presented as an external oracle |
 
-- `complexity_concentration_study/` — extraction (`extract.py`), outlier algorithms and AUC/MCC math
-  (`metrics.py`), and the god-oracle wiring and per-repo matrix (`study.py`: PMD/CK/DECOR).
-- Sampling is not in this repository. The population is drawn, and each repository cloned at its
-  pinned commit, by [open-source-repository-sampler](https://github.com/officefloor/open-source-repository-sampler)
-  (pinned in `pyproject.toml`). This study only measures.
-- `paper/analyse.py` — the analysis report over the matrix (class & method level), pure
-  standard library.
-- `paper/METHODOLOGY.md` — methodology, grouping, oracles, and caveats.
+`brain_method` is the only cross-language composite, and it is **internal**: a conjunction of
+the harness's own `nloc`, `cc` and `nesting` at cuts the study chose. A result on it is a
+statement about internal consistency across measures, not recovery of an external definition.
+The external method-level headline is `pmd_method_NPath200` (Java).
+
+Signal quality is scored threshold-free by **AUC**; rule quality by **MCC** of the flagged set.
+
+### Units
+
+The method-level unit is a function, keyed by file, name and start line, so overloads and
+same-named functions in one file are distinct units. The class-level unit is a **file**. That
+holds roughly for Java (one public top-level class per file) and only loosely elsewhere; the
+Java CK pass counts the classes in every measured file and each row records
+`java_files_multi_class`, so the size of the approximation is measured, not assumed. PMD and CK
+findings are mapped to files by path, never by basename.
+
+A definition with scope `java` is scored on the **Java units only**: its relative rules are
+fitted on the Java units and its cells count over them (`n_univ_scope`, `oracle_scope`), so a
+Kotlin, Scala or Groovy file in a Java repository, which PMD and CK never evaluated, is not a
+forced negative. The per-unit sidecar lists every unit; a Java-scoped analysis filters by the
+unit's path.
+
+**What leaves the universe is counted.** Test files, vendored trees and root build directories
+are not measured (the same filters as the sampler, so the floor the sample was drawn on is the
+floor the harness re-applies). Generated files (`*.pb.go`, `*_pb2.py`, `*.min.js`, ...) and
+files over 1 MB are kept out of the universe and counted per row (`files_skipped`), as are
+files lizard failed on. The oversize and unparsed **Java** files are still handed to PMD, and CK
+sees the whole tree, so a god class in one of them is recorded as a positive **outside the
+universe** (`god_outside_univ`, `ck_def_outside`) rather than vanishing.
+
+## The sample
+
+Repositories are drawn by [open-source-repository-sampler](https://github.com/officefloor/open-source-repository-sampler),
+a separate tool pinned in `pyproject.toml`, so the population is chosen independently of this
+study's code and outcomes. `./step2_sample.sh` draws **two** samples with the same seed and
+criteria:
+
+- the **main sample**: every language in `study.SAMPLED_LANGUAGES` × three popularity tiers
+  (`high` > 5000 stars, `mid` 1000–5000, `low` 200–999), grown until each language has 30 usable
+  repositories;
+- the **Java supplement**: Java only, grown to 120 usable repositories. Every composite
+  class-level definition and every tool method-level definition is Java-only, so the class-level
+  headline's effective sample is the number of *Java* repositories, not the number of
+  repositories. With the same seed the supplement's draw order is identical to the main sample's
+  Java draw, so its first 30 usable repositories are the main sample's; step 3 measures each
+  repository once and records which sample drew it.
+
+A repository is **usable** on size alone, decided before any detection outcome: at least 50
+functions in at least 15 source files with a function (the same floor `study.is_usable` applies
+to the measured row). The author's own ecosystem is excluded. Each repository is pinned to the
+commit its default branch was on when drawn, and only that commit is measured.
+
+**Ruby is not sampled.** The pinned parser closes a Ruby function at the `end` of a `case`,
+`unless` or `until` block inside it, so every per-unit number after that point is wrong.
+`study.ruby_parser_bounds_ok()` demonstrates the defect on a fixture at every preflight and
+reports whether the installed parser still has it; the harness keeps a Ruby cognitive and
+nesting scanner and fixture so Ruby can be re-admitted once a pinned parser bounds it
+correctly.
 
 ## Running it
 
 Four numbered scripts, each printing the next. Prerequisites the scripts do **not** install:
-`python3`, `git`, **Java (JRE 17+)**, and the **`gh` CLI authenticated** (`gh auth login`) for
-the sampling in step 2.
+`python3`, `git`, **Java (JRE 17+)**, and the **`gh` CLI authenticated** for step 2.
 
-    ./step1_setup.sh                                  # venv + pinned deps (incl. the sampler) + PMD/CK into ./lib
-    ./step2_sample.sh                                 # draw the sample -> sample/
-    ./step3_run.sh --sample sample/open-source-repository-sample.csv   # measure it -> results/<date>/
-    ./step4_analyse.sh --results results/<date>       # the full report, class and method level
+    ./step1_setup.sh                       # venv + pinned deps (incl. the sampler) + PMD/CK into ./lib
+    ./step2_sample.sh --seed N             # draw the main sample and the Java supplement -> sample/
+    ./step3_run.sh                         # measure both samples -> results/<date>/
+    ./step4_analyse.sh --results results/<date>
+    ./step5_mlcq.sh                        # optional: the MLCQ human-label sub-study -> results/mlcq/
 
-Each script ends by printing the exact next command, so you can follow it top to bottom.
-`./step1_setup.sh` is a thin alias for the clean `./setup.sh` that also prints the next step.
-`pip` pins **lizard 1.23.0** (1.24.x has a Java regression that returns no functions for
-annotated classes) and the sampler's release.
+`pip` pins **lizard 1.23.0** (1.24.x returns no functions for annotated Java classes), and
+`study.py` pins **PMD 7.27.0** and the **CK 0.7.0** jar by sha256.
 
-**Step 2 — the sample.** `./step2_sample.sh` runs
-[open-source-repository-sampler](https://github.com/officefloor/open-source-repository-sampler)
-with this study's criteria, written out in the script: all 11 languages × 3 popularity tiers,
-grown until each language has 30 usable repositories, the analysis's substance floor (≥ 50
-functions in ≥ 15 files with a function), the author's own ecosystem excluded, seed 1. It writes
-two files into `sample/`:
+**Step 3** verifies each sample against its derivation, then the sampler's run loop
+shallow-clones each usable repository at its pinned commit, the study measures it, and the clone
+is deleted. Pass `--sample` more than once to measure several samples (a repository in two is
+measured once), `--out-dir` to choose the results directory, `--labels` to add human labels:
 
-- `open-source-repository-sample.csv` — every candidate drawn, usable or excluded with its
-  reason, each pinned to the commit that met the criteria;
-- `open-source-repository-sample.derivation.json` — how the sample was drawn and how to redo it.
+    ./step3_run.sh --sample sample/open-source-repository-sample.csv \
+                   --sample sample/open-source-repository-sample.java-supplement.csv \
+                   --labels labels/mlcq-blob.csv --out-dir results/my-run
 
-They are the study population, and go into the paper's ancillary data unchanged. Extra flags pass
-through to the sampler (for example, `--seed 2` draws a different, independent sample).
+**Human labels.** `--labels` takes a CSV with columns `repo` (GitHub URL or `owner/name`),
+`commit`, `path` (repo-relative file), `label` and, optionally, `line`. A row without a line
+becomes a class-level definition `human_<label>` (the file); a row with one becomes a
+method-level definition `human_method_<label>` (the function containing that line). Labels
+apply only to repositories whose sampled commit equals the label's commit; a label at another
+commit is recorded as `labels_commit_mismatch` and not applied. A label `<x>_reviewed`, listing
+every unit the experts looked at, becomes the universe of `<x>`: an unreviewed unit is unknown,
+not a negative, and the analysis scores the human definition within the reviewed units.
 
-**Skip step 2** to measure an existing sample: the one published with the paper, or another
-study's, so that both studies measure exactly the same code. Pass it to step 3 with `--sample`.
+The MLCQ data set (Madeyski and Lewowski 2020, Zenodo 3666840: Blob at class level, Long
+Method at function level, several reviews per sample) is one script, `./step5_mlcq.sh`: it
+downloads the file from Zenodo and verifies its sha256 against the datasheet's, converts it
+with a pre-registered aggregation rule (strict majority by default; `--rule any|all`) and one
+commit per repository, measures every labelled repository at its labelled commit, and prints
+the report. In MLCQ 1.1 that is 522 Java repositories, 254 Blob and 276 Long Method positives
+among 2334 and 2430 reviewed samples, so the run is a few hours of cloning; it is resumable.
+The pieces are also separate commands:
 
-**Step 3 — the measurement.** `./step3_run.sh` verifies the sample against its derivation. The
-sampler's run loop then shallow-clones each usable repository at its pinned commit, the study
-measures it, and the clone is deleted, so disk use stays at one repository at a time. Output
-defaults to `results/<date>/` (override with `--out-dir`), and PMD/CK default to `./lib`
-(override with `--lib`/`$CCS_LIB`, or exact `--pmd`/`--ck`):
+    .venv/bin/python -m complexity_concentration_study.cli mlcq --download --out-dir labels
+    .venv/bin/python -m complexity_concentration_study.cli study --sample labels/mlcq-repos.csv \
+        --labels labels/mlcq-labels.csv --out-dir results/mlcq
 
-    ./step3_run.sh --sample sample/open-source-repository-sample.csv --out-dir results/my-run
+The converter writes the labels file, the sample CSV (the sampler's columns, so the run loop
+accepts it; the published SSH URLs are normalised to HTTPS so clones need no keys) and a
+summary with the input's sha256. A labelled commit that no longer exists on GitHub is a clone
+error in the run log and the summary, not a silent gap. The MLCQ population is MLCQ's choice
+(Java, 2019 commits), so this run is reported beside the main run, never pooled with it.
+Other sources (Landfill, Palomba et al.; the Fontana et al. Qualitas labels read with the Di
+Nucci et al. 2018 critique in hand) need their own converter to the same columns.
 
-It measures hundreds of repositories (PMD + CK on every Java one) and is resumable: re-running
-with the same `--out-dir` skips the repositories its `run-log.jsonl` records as done. Alongside the
-lean `study.json` it writes an append-only `study.units.jsonl` sidecar with each repo's per-unit
-values and god membership, which the conservation and no-calibration analyses use. It also writes
-the ancillary package to `<out-dir>/anc/`: `results.csv`, `README.txt` and the sample's two files.
+**Outputs** in `results/<date>/`: `study.json` (one row per repository, the lean matrix),
+`study.units.jsonl` (per-unit values, god membership and PMD's values), `oracles.json` (the
+definition registry, families, signal pools, rule constants and PMD thresholds), `study.csv`,
+`run-log.jsonl`, and the ancillary package `anc/` (results table, registry, README and every
+sample file). **Step 4** (`complexity-concentration-study analyse`) prints the report to the
+rules below and to `PLAN.md`, and writes `analysis.json` beside the run.
 
-**No silent missing data, no version drift.** A single preflight runs before any clone and fails
-loud on any of these: a blind lizard parser, missing `git`, or a configured PMD/CK that does not
-actually run and return a non-empty panel on a synthetic god class. It also enforces the
-**exact tool pins** — lizard `1.23.0`, PMD `7.27.0`, the CK `0.7.0` jar by sha256 — as a
-**hard failure**, not a warning, so every run and every independent review uses identical tools and
-the numbers are comparable. To use a different version deliberately, change the pin in
-`complexity_concentration_study/study.py`: that makes the choice a git-auditable code change, and any difference in
-the results is then traceable to it. An omitted panel is announced explicitly, never silent.
+**The classpath validation** (README, *The classpath validation sub-study*) is one command per
+built Java checkout:
 
-Analyse a run (any `python3`, no dependencies) — point it at a results directory, or let it pick
-the latest:
+    .venv/bin/python -m complexity_concentration_study.cli classpath-check --repo path/to/checkout \
+        --classpath-file cp.txt --out results/classpath/<name>.json
 
-    python3 paper/analyse.py --results results/<date> --level class
-    python3 paper/analyse.py --level class          # uses the latest results/<date>
+where `cp.txt` is Maven's `dependency:build-classpath` output (the checkout's own compiled
+classes are added automatically). It reports every class finding that flips with the
+classpath and the GodClass flip rate.
 
-The report covers: the out-of-sample AUC headline (with a bootstrap CI), the signal and
-outlier-rule rankings, the **conservation** check (do different complexity measures rank the same
-units?) and the **no-calibration head-to-head** (the self-calibrating per-repo relative rule vs
-the best single tuned global threshold). The last two appear when the `study.units.jsonl` sidecar
-is in the results directory. Further scripts that build the paper's tables from a results
-directory also live in `paper/` (added as the write-up is done).
+### Guarantees the harness enforces
+
+- **Preflight fails loud before any clone** on: a parser blind to annotated Java; a dead
+  complexity signal in any sampled language (every signal must separate a deeply nested fixture
+  function from a one-liner in all ten languages, and `cc_sum` must equal WMC); missing `git`;
+  a configured PMD or CK that does not run, returns no class panel, or returns no method-level
+  finding on a synthetic god class; and any tool version off its pin.
+- **Every row records its instruments**: the lizard, PMD and CK versions and the **harness
+  commit** (with `-dirty` if uncommitted changes were present, and a loud warning at the start
+  of the run), so the analysis plan frozen in git before the run is auditable against the data.
+- **PMD's values, not only its verdicts.** The four metric rules run at report level 1, so
+  every Java method's cyclomatic, cognitive, NPath and NCSS value is recorded in the sidecar
+  (`pmd_values`) and the registered thresholds are applied by the harness (`pmd_thresholds` in
+  `oracles.json`). The lexical estimators are calibrated against PMD continuously, per
+  repository, not at one cut.
+- **No forced negatives**: a Java-only definition is scored on Java units only.
+- **No silent holes**: a Java row missing a configured panel is announced per repository and
+  in the summary; PMD method findings that fall outside every measured function are counted;
+  files that left the universe, and definition positives outside it, are counted per row and
+  totalled in the summary; a repository drawn as usable that fails the harness floor is named.
+- **No lost rows**: `study.json` is written atomically after every repository; a results
+  directory whose log or sidecar records work but whose `study.json` is missing or unreadable is
+  refused, not resumed.
+- **Every repository is in the matrix**, including those where a definition marks nothing:
+  those cells carry `n_god_univ == 0` and the per-unit sidecar carries an empty `god_idx`.
+- **Diagnostics travel with every row**: per-signal scale kind and zero share, the share of
+  trivial units (cyclomatic 1) and of lizard's anonymous units, and the file counts above, so
+  the analysis can report them before any accuracy number.
+
+## Analysing a run
+
+These are the rules the paper's analysis must follow; `complexity_concentration_study/stats.py`
+provides the tested statistics. They exist because an earlier draft of the analysis broke each
+of them.
+
+1. **Headline by origin.** A headline AUC or MCC is read against definitions whose registry
+   `kind` is composite, tool or human, in the registry's `headline_order`: tool and human
+   first, composed second, internal last and labelled as internal. Self definitions are
+   tautological for their signal; calibration definitions measure the estimator; components are
+   reported with their prevalence (TCC < 1/3 alone marks most classes).
+2. **Exclude ingredients.** A signal in a definition's `ingredients` list may not be the
+   headline signal for that definition. `nom` may not headline `decor_blob`; `cc_sum` may not
+   headline `pmd_GodClass`; `nloc`, `cc`, `nesting`, `mi` and `cyc_density` may not headline
+   `brain_method`.
+3. **Report by family, and conditionally.** Every signal has a family (`families` in
+   `oracles.json`). Report the best signal of each family, never one "best signal" over the
+   pool, and state the cross-measure claim only for families that are not size. For a
+   composite with a size clause, report `auc_given` next to `auc`: the AUC within the units
+   that already pass the clause. If the density and peak families carry nothing beyond size,
+   say so.
+4. **Keep god-free repositories.** A relative rule flags something in every repository by
+   construction, so the repositories where a definition finds nothing are where its false
+   positives live. Pool with `stats.pooled_confusion`, which keeps `n_god_univ == 0` blocks and
+   reports `fp_in_no_god` and the false-positive rate; never filter on "has gods". The pooled
+   AUC (`stats.pooled_auc`) keeps them too; a within-repository AUC cannot, so say that the
+   per-repository AUC conditions on at least one positive.
+5. **Split once, stratified; tune on explore, read on confirm.** Assign repositories with
+   `stats.assign_halves`, stratified by language and tier. Choose the signal, the rule's cut
+   and the absolute cutoff on explore; read all of them on confirm. Pre-specify **one** primary
+   estimand (one definition, one level, one family) before the run; every other confirm number
+   is secondary.
+6. **Relative at defaults first.** The primary head-to-head is the relative rule at its
+   literature constant against the absolute cutoff tuned on explore, since "no re-tuning" is the
+   claim. The tuned-relative comparison is secondary. Report the threshold-free form as well:
+   `stats.pooled_auc` on the sidecar, standardised against raw.
+7. **Macro before micro; say the effective sample.** One repository, one vote:
+   `stats.bootstrap_mean` over per-repository statistics is primary; the size-weighted micro
+   average is secondary. For Java-only definitions the sample is the number of Java
+   repositories in the half being read, and the number of positive units; say both. Set the
+   minimum number of positives for a per-repository AUC to count before the run.
+8. **Compare methods properly.** Rank per repository, then use `stats.friedman` (Friedman
+   with the Iman–Davenport correction) and `stats.nemenyi_cd`. Pre-specify at most eight signals
+   (one or two per family) and at most five rules for this test; 31 class signals on 32 blocks
+   is underpowered.
+9. **Break results down** by language, tier and `kind`; a cross-language claim needs the
+   per-language numbers.
+10. **Read the diagnostics first.** Before any accuracy number: the continuous calibration of
+    `cc`, `cognitive` and `nloc` against `pmd_values` (Spearman per repository, then the
+    threshold AUC on the calibration definitions); the scale kind and zero share per signal and
+    language; the flag rate of every rule per language; `trivial_frac` and `anon_frac`;
+    `files_skipped` and `god_outside_univ`; the usable flips the summary names. A weak signal
+    cannot be interpreted until its estimator and its population have been.
+11. **Say what the constants are.** Quote `oracles.json`: every rule's standardised-axis
+    constant, every definition's raw-scale constant, and `pmd_thresholds`.
+
+### Pre-registration
+
+A confirmatory run is one where the analysis could not have been shaped by its data. The
+analysis script is `complexity_concentration_study/analyse.py`; its `PLAN` constant is the
+machine-readable plan and `PLAN.md` its prose, and the two are tested against each other:
+
+1. Fix `PLAN` (the primary estimand, the families, the minimum positives, the Friedman subsets)
+   and commit it with the harness.
+2. Tag that commit. `./step3_run.sh` records the harness commit in every row and warns loudly
+   if the tree is dirty; a confirmatory run's rows must not say `-dirty`.
+3. Draw the confirmatory sample with a seed that no analysis has ever seen. Any sample already
+   examined (a pilot, an earlier run) is explore data and is declared as such.
+4. Run, then analyse once. Everything after that is exploratory and is labelled exploratory.
+
+### The classpath validation sub-study
+
+PMD and CK run without an auxiliary classpath, so ATFD and CBO see only what the sources
+declare and `pmd_GodClass` is under-counted by an unknown amount. Before the confirmatory
+analysis, on ten Java repositories of the sample that build with Maven or Gradle: build, run
+PMD with `--aux-classpath` on the built classpath over the same file list, and report the
+number of GodClass verdicts that flip. If the flip rate is material, the Java class-level
+headline is bounded by it and the paper says so.
+
+## Threats to validity
+
+**Construct.** Every tool definition is itself imperfect and itself an absolute threshold;
+without `--labels` this measures agreement between detectors, not correctness, on terms that
+favour the absolute competitor. `decor_blob` omits DECOR's association clause and uses this
+study's 0.8 LCOM* cut; `brain_method` omits NOAV and is internal; `cognitive`, `hvol`, `mi` and
+`nesting` are lexical estimators (calibrated against PMD on Java fixtures in
+`tests/test_cognitive.py`, and continuously in the field through `pmd_values`). The class-level
+unit is a file. The constants in `ck_LCOM` (0.8) and `ck_CBOhigh` (14) are the study's own
+choices and are marked as components for that reason. Size collinearity is addressed by
+families and the conditional AUC, not removed.
+
+**Internal.** PMD and CK run without an auxiliary classpath (see the validation sub-study).
+Test code is excluded by directory and naming conventions that can miss or over-match.
+Generated files, files over 1 MB and files lizard fails on leave the universe; their counts,
+and the definition positives among them, are recorded. The relative rules are fitted on the
+whole universe, zeros included, which makes zero-heavy signals (`params`, `cognitive` on trivial
+functions) fall back to a mean-absolute-deviation scale; the scale kind is recorded. lizard
+reports every anonymous JavaScript and TypeScript callback as a unit, which inflates those
+method universes with trivial functions; `trivial_frac` and `anon_frac` size the effect.
+
+**External.** GitHub repositories with 200 or more stars, ten languages, one commit each, drawn
+with equal allocation across three popularity tiers, so pooled numbers are unweighted over
+strata, not population estimates. Popularity tier is a proxy for maintenance intensity, not
+quality; application versus library is a post-hoc heuristic. Non-size definitions are
+Java-only, so the class-level composite result is a Java result until human labels or a second
+language's composite oracle are added. Re-running the sampler reproduces the method, not
+necessarily the list; the published samples, pinned to commits, are the record of the
+population.
+
+**Conclusion.** The matrix is a large search (signals × rules × definitions × levels); the
+single best cell is upward-biased, which is why one primary estimand is pre-specified, chosen
+on explore and read on confirm, and why sections that rank everything are exploratory. With a
+median of about two PMD god classes per Java repository, per-repository AUCs are coarse; hence
+rules 7 and 10 above.
+
+## Where things are
+
+- `complexity_concentration_study/extract.py`: per-function complexity records and per-file WMC
+  (lizard for functions, CC, lines and tokens; the harness's own scanners for cognitive,
+  nesting, Halstead, MI, exit points; a lexical PHP parameter count because lizard's is wrong).
+- `complexity_concentration_study/cognitive.py`: the cognitive-complexity and nesting scanner
+  (braces, indentation, Ruby `end` blocks).
+- `complexity_concentration_study/metrics.py`: the relative outlier rules, their constants, the
+  signal pools, AUC/AP, and the per-repo matrix.
+- `complexity_concentration_study/study.py`: the oracle registry, PMD/CK/human oracle wiring,
+  preflight, pins, the resumable run.
+- `complexity_concentration_study/stats.py`: pooled confusion including god-free blocks, the
+  pooled standardised-versus-raw AUC, the bootstrap over repositories, the stratified
+  explore/confirm split, Spearman, the tuned absolute cutoff, Friedman and Iman–Davenport with
+  exact p-values, the computed Nemenyi critical difference.
+- `complexity_concentration_study/analyse.py`: the report, to the rules above and `PLAN.md`;
+  one code path from the sidecar for every accuracy number.
+- `complexity_concentration_study/classpath_check.py`: the classpath validation on one checkout.
+- `complexity_concentration_study/mlcq.py`: the MLCQ converter.
+- `PLAN.md`: the pre-registered plan, in prose.
+- `tests/`: hand-worked and PMD-calibrated tests for all of the above. Run them with
+  `.venv/bin/python tests/test_<name>.py` (each file is its own runner) or with pytest.
+- `paper/`: the write-up (its old analysis script is superseded by the package's `analyse`).
 
 ## What is and isn't committed
 
-Code, plus the sample once drawn (`sample/`, two small files, worth committing so the study
-population is pinned in the repository). Both **dependencies** (`./lib`) and **results**
-(`results/<date>/` — `study.json`, the `study.units.jsonl` sidecar, the CSV, the run log, the
-ancillary package) are **git-ignored**:
-every machine downloads the exact pinned tools itself, and results are regenerated by running the
-study (a curated subset is published as the paper's ancillary data). This keeps the repository to
-the harness and makes the method fully inspectable in code.
+Code, plus the samples once drawn (`sample/`, four small files, worth committing so the study
+population is pinned in the repository). Dependencies (`./lib`) and results (`results/<date>/`)
+are git-ignored: every machine downloads the exact pinned tools itself, and results are
+regenerated by running the study. The ancillary package under `results/<date>/anc/` is what a
+paper attaches.
