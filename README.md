@@ -79,23 +79,30 @@ is blind):
 
     python3 -m venv .venv && .venv/bin/pip install -e .     # installs lizard==1.23.0
 
-Draw a sample and measure it. Needs the `gh` CLI; PMD 7.x and the CK jar add the Java
-PMD/CK/DECOR oracle panels (omit them to run with the WMC/threshold oracles only). The seed
-fixes the draw — a different seed draws a different, independent sample:
+Draw a sample and measure it. Needs the `gh` CLI (authenticated); **PMD 7.27.0** and the CK jar
+add the Java PMD/CK/DECOR oracle panels (omit them to run with the WMC/threshold/`brain_method`
+oracles only). The seed fixes the draw — a different seed draws a different, independent sample:
 
     .venv/bin/python -m god_complexity.cli grow --seed 1 \
       -O  paper/data/run/study.json \
       -m  paper/data/run/sampling-manifest.json \
       -o  paper/data/run/repos.txt \
       --anc paper/data/run/anc/ \
-      --pmd /path/to/pmd --ck /path/to/ck.jar
+      --pmd /path/to/pmd-bin-7.27.0/bin/pmd --ck /path/to/ck.jar
 
 It clones hundreds of repositories (PMD + CK on every Java one) and is resumable — re-running
-the same command skips repositories already recorded. A configured PMD or CK that cannot run
-aborts at preflight before any clone, and any repository a configured tool fails on is flagged
-per-repo and in the summary, so a run never carries silent oracle holes. Alongside the lean
-`study.json` it writes an append-only `study.units.jsonl` sidecar holding each repo's per-unit
-raw values and god membership — the substrate for the conservation and no-calibration analyses.
+the same command skips repositories already recorded. Alongside the lean `study.json` it writes
+an append-only `study.units.jsonl` sidecar with each repo's per-unit values and god membership —
+the substrate for the conservation and no-calibration analyses.
+
+**No silent missing data, no version drift.** A single preflight runs before any clone and
+fails loud on: a blind lizard parser, missing `git`, an unauthenticated `gh`, or a configured
+PMD/CK that does not actually run and return a non-empty panel on a synthetic god class. It also
+enforces the **exact tool pins** — lizard `1.23.0`, PMD `7.27.0`, the CK `0.7.0` jar by sha256 —
+as a **hard failure**, not a warning, so every run and every independent review uses identical
+tools and the numbers are comparable. To use a different version deliberately, change the pin in
+`god_complexity/study.py`: that makes the choice a git-auditable code change, and any difference
+in the results is then traceable to it. An omitted panel is announced explicitly, never silent.
 
 Analyse the matrix (any `python3`, no dependencies):
 

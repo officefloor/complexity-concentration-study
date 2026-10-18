@@ -633,20 +633,31 @@ def _tool_problems(pmd: str | None, ck: str | None) -> list[str]:
 
 def preflight(pmd: str | None, ck: str | None, need_gh: bool = False) -> None:
     """Fail LOUD and EARLY, before any repository is cloned, if ANYTHING needed to capture the
-    full set of numbers is missing or broken: the pinned lizard parser (not blind), git, the gh
-    CLI authenticated (when sampling), and -- when configured -- PMD and CK actually RUNNING on a
-    synthetic Java class and returning a non-empty panel. A tool left unset is a deliberate
-    choice to skip its panel; that is reported explicitly so an omission is never mistaken for a
-    silent hole. (A tool that runs but is the wrong VERSION stays a soft tool_drift warning.)"""
+    full set of numbers is missing, broken, or off the pins: the lizard parser (not blind), git,
+    the gh CLI authenticated (when sampling), and -- when configured -- PMD and CK actually
+    RUNNING on a synthetic Java class and returning a non-empty panel. A tool left unset is a
+    deliberate choice to skip its panel; that is reported explicitly so an omission is never
+    mistaken for a silent hole.
+
+    Tool VERSIONS are enforced EXACTLY against the pins (lizard, PMD, CK sha256): a mismatch is a
+    HARD failure, not a warning, so every run and every independent review uses identical tools
+    and the numbers are comparable. To use a different version deliberately, change the pin in
+    this file -- a git-auditable code change -- so any resulting difference is traceable."""
     check_parser()                                   # lizard not blind (raises ParserBlind)
-    problems = _env_problems(need_gh) + _tool_problems(pmd, ck)
+    drift = tool_drift(tool_versions(pmd, ck))       # exact-pin mismatches are fatal here
+    problems = _env_problems(need_gh) + _tool_problems(pmd, ck) + list(drift)
+    if drift:
+        problems.append("the tool versions above are pinned for run-to-run reproducibility and "
+                        "independent review; to use another version, change the pin in "
+                        "god_complexity/study.py (a git-auditable code change), not at runtime.")
     if problems:
         raise RuntimeError(
             "PREFLIGHT FAILED -- fix these before running so the study captures every number "
-            "(no silent missing data):\n  - " + "\n  - ".join(problems))
+            "with the pinned tools (no silent missing data, no version drift):\n  - "
+            + "\n  - ".join(problems))
     have = ([f"PMD design panel (PMD {pmd_version(pmd)})"] if pmd else []) \
         + (["CK LCOM/TCC/CBO + DECOR Blob"] if ck else [])
-    print("preflight OK: lizard parser not blind, git present"
+    print("preflight OK: lizard parser not blind, versions match pins, git present"
           + (", gh authenticated" if need_gh else "")
           + (f", Java panels verified [{'; '.join(have)}]" if have else "") + ".", flush=True)
     if not (pmd and ck):
@@ -701,12 +712,9 @@ def run(repos: list, out_path: str, pmd: str | None, keep: bool,
             results = {r["repo"]: r for r in json.load(open(out_path))}
         except Exception:
             results = {}
-    preflight(pmd, ck, need_gh=False)   # fail loud/early: parser, git, and configured PMD/CK
+    preflight(pmd, ck, need_gh=False)   # fail loud/early: parser, git, exact tool pins, PMD/CK
     selection = _load_selection(manifest_path)
-    tools = tool_versions(pmd, ck)
-    for d in tool_drift(tools):
-        print(f"WARNING: tool drift -- {d}; results are not comparable with the pinned study",
-              flush=True)
+    tools = tool_versions(pmd, ck)      # recorded with every row (preflight guarantees pins)
     work = tempfile.mkdtemp(prefix="godc-study-")
     pins = [(r, None) if isinstance(r, str) else tuple(r) for r in repos]
     total = len(pins)

@@ -106,6 +106,7 @@ def test_grow_draws_every_tier_equally_and_stops_at_target():
         (study, "analyse"): lambda root, pmd, ck=None:
             {"n_funcs": 100, "matrix": {"class": {"n_univ": 40, "wmc47_gods": 3}}},
         (study, "tool_versions"): lambda pmd, ck: {},
+        (study, "preflight"): lambda *a, **k: None,      # gh/tool checks tested separately
         (study, "_summary"): lambda rows, *a, **k: None,
     }
     saved = {k: getattr(*k) for k in patches}
@@ -234,6 +235,21 @@ def test_preflight_passes_with_no_java_tools_and_smoke_class_is_god_like():
     assert study._tool_problems(None, None) == []
     src = study._java_smoke_source()
     assert src.count("public int m") == 30 and src.count("public int f") == 16
+
+
+def test_preflight_hard_fails_on_version_drift():
+    # an exact-pin mismatch is fatal (no runtime override): forcing the lizard pin off its
+    # installed value must abort preflight, so every run/review uses identical tools.
+    orig = study.LIZARD_VERSION
+    study.LIZARD_VERSION = "9.9.9"
+    try:
+        try:
+            study.preflight(None, None, need_gh=False)
+            assert False, "preflight should hard-fail on version drift"
+        except RuntimeError as e:
+            assert "9.9.9" in str(e) and "pin" in str(e).lower()
+    finally:
+        study.LIZARD_VERSION = orig
 
 
 # --- pinned tools ---------------------------------------------------------------------------
