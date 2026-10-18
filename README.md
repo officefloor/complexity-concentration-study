@@ -173,7 +173,7 @@ criteria:
 - the **main sample**: every language in `study.SAMPLED_LANGUAGES` × three popularity tiers
   (`high` > 5000 stars, `mid` 1000–5000, `low` 200–999), grown until each language has 30 usable
   repositories;
-- the **Java supplement**: Java only, grown to 120 usable repositories. Every composite
+- the **Java supplement**: Java only, grown to 150 usable repositories. Every composite
   class-level definition and every tool method-level definition is Java-only, so the class-level
   headline's effective sample is the number of *Java* repositories, not the number of
   repositories. With the same seed the supplement's draw order is identical to the main sample's

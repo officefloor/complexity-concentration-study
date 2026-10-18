@@ -31,9 +31,11 @@ The claim is read off **one paired comparison**: relative rule at its default mi
 absolute cutoff, on the **same** confirm repositories, with a 95% percentile bootstrap that
 resamples repositories (`stats.bootstrap_paired`, 2000 resamples, seed 12345).
 
-- **Non-inferiority margin: 0.05 MCC.** The relative rule is *non-inferior* if the lower bound
-  of the interval on the difference is above −0.05, *superior* if it is above 0, *inferior* if
-  the upper bound is below −0.05, and *inconclusive* otherwise.
+- **Non-inferiority margin: 0.10 MCC.** The relative rule is *non-inferior* if the lower bound
+  of the interval on the difference is above −0.10, *superior* if it is above 0, *inferior* if
+  the upper bound is below −0.10, and *inconclusive* otherwise. The margin is about 30% of the
+  MCC level the pilot saw (mean 0.33 for `mad_z` against PMD GodClass); it is set where the
+  pilot's spread makes a verdict reachable (below), not where a tighter claim would be nicer.
 - **Both averages must agree.** The verdict is the weaker of the macro-MCC verdict and the
   micro-MCC verdict. The macro MCC is 0 in a god-free repository whatever was flagged, so it is
   blind to the false positives a relative rule must produce there; the micro MCC sees them.
@@ -46,15 +48,22 @@ resamples repositories (`stats.bootstrap_paired`, 2000 resamples, seed 12345).
   repositories carrying the definition (for the paired MCC). Below either, the numbers are
   reported with the verdict marked *underpowered*, and the paper says so.
 
-**Power, stated in advance.** The half-width of the paired interval is about 1.96·s/√n, where
-s is the per-repository standard deviation of the MCC difference. At n = 40 the margin of 0.05
-is resolvable (a true difference of 0 is declared non-inferior) when s ≤ 0.16; at n = 60 when
-s ≤ 0.19. For the AUC, 20 repositories with a per-repository standard deviation of 0.15 give a
-half-width of about 0.07, so a true mean of 0.80 clears the floor. The Java supplement target
-of 120 usable repositories is set from the pilot's median of about two PMD god classes per Java
-repository: about 60 confirm Java repositories, of which roughly 20 to 25 are expected to clear
-the 3-positive floor. If the realised s is larger than assumed, the verdict will be
-*inconclusive*, which is the honest outcome, not a failure of the rule.
+**Power, stated in advance, from the pilot.** The pilot (`pilot/run-v1-repos.txt`, 36 Java
+repositories with a PMD panel) gives: median 2 PMD god classes per Java repository, 25%
+god-free, 42% with 3 or more; a per-repository MCC of `mad_z` with mean 0.33 and standard
+deviation about 0.29; and a standard deviation of the **paired** per-repository MCC difference
+between two rules of about 0.25. The half-width of the paired interval is about 1.96·s/√n.
+With s = 0.25 it is 0.077 at n = 40, 0.063 at n = 60 and 0.057 at n = 75; with s = 0.30 it is
+0.093, 0.076 and 0.068. A margin of 0.05 is therefore **not** resolvable at any sample this
+study can afford (a true difference of 0 would read *inconclusive*), and 0.10 is resolvable from
+about 60 confirm repositories even at s = 0.30. The Java supplement target of **150** usable
+repositories gives about 75 confirm Java repositories, of which about 31 are expected to clear
+the 3-positive floor (gate: 20). For the AUC, 20 repositories with a per-repository standard
+deviation of 0.11 (the pilot's largest) give a half-width of about 0.05. The pilot's size
+signals reach a per-repository AUC of about 0.95 against PMD GodClass, so the 0.70 floor is a
+precondition that the chosen peak or density signal carries the definition at all, not the
+claim; the paper states the size level beside it. If the realised s is larger than the pilot's,
+the verdict will be *inconclusive*, which is the honest outcome, not a failure of the rule.
 
 ## Secondary definitions, in headline order
 

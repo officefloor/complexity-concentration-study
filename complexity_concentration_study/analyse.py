@@ -49,7 +49,9 @@ PLAN = {
     "decision": {
         "statistic": "MCC(relative rule at default) - MCC(absolute cutoff tuned on explore), "
                      "on the same confirm repositories, 95% paired percentile bootstrap",
-        "noninferiority_margin": 0.05,     # relative is non-inferior if CI lower bound > -0.05
+        "noninferiority_margin": 0.10,     # relative is non-inferior if CI lower bound > -0.10;
+                                           # the pilot's paired per-repository SD of ~0.25 makes
+                                           # 0.05 unresolvable at ~75 confirm repositories
         "auc_floor": 0.70,                 # the signal carries the definition at all: macro
                                            # per-repository AUC lower bound >= this
         "min_confirm_repos_auc": 20,       # repositories with >= min_positives on confirm

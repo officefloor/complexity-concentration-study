@@ -13,7 +13,7 @@
 #                                                       repositories per language (Ruby is not
 #                                                       sampled: see study.EXCLUDED_LANGUAGES)
 #   open-source-repository-sample.java-supplement.csv   the JAVA SUPPLEMENT: Java only, grown to
-#                                                       --java-target (default 120) usable repos
+#                                                       --java-target (default 150) usable repos
 #
 # Why a Java supplement: every composite class-level god definition (PMD GodClass, DECOR Blob)
 # and every tool method-level definition is Java-only, so the class-level headline's effective
@@ -39,7 +39,7 @@ SAMPLER="$VENV/bin/open-source-repository-sampler"
 [ -x "$SAMPLER" ] || { echo "ERROR: $SAMPLER not found — run ./step1_setup.sh first"; exit 1; }
 
 OUTDIR="sample"
-JAVA_TARGET=120
+JAVA_TARGET=150
 ARGS=()
 while [ $# -gt 0 ]; do
   case "$1" in
