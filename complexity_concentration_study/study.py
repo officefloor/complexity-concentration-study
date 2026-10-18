@@ -32,6 +32,7 @@ from collections import defaultdict
 
 from . import extract
 from . import metrics
+from . import stats
 
 CC_GOD = 14
 # The languages the study samples (step2_sample.sh reads this list). Ruby is NOT among them:
@@ -1437,6 +1438,41 @@ def measure(repo, pmd: str | None, ck: str | None, tools: dict, labels: dict | N
             "sample": getattr(repo, "sample", None), "tools": tools, **a}
 
 
+def freeze_halves(sample_paths, path: str) -> dict:
+    """The explore/confirm half of every usable repository of the sample(s), assigned from the
+    sample CSVs ALONE (stats.assign_halves, stratified by detected language and tier) before
+    any repository is measured, and written to `path` (halves.json) with the samples' sha256,
+    so the split exists, and is auditable, before any outcome does. A resumed run reuses the
+    file and refuses a different one: the split of a run never moves."""
+    from open_source_repository_sampler import read_sample, files as sfiles
+    if isinstance(sample_paths, str):
+        sample_paths = [sample_paths]
+    items = {}
+    for sp in sample_paths:
+        for r in read_sample(sp):
+            items.setdefault(r["url"], (r.get("language"), r.get("tier")))
+    halves = stats.assign_halves(list(items.items()), stratum_of=lambda it: it[1],
+                                 key_of=lambda it: it[0])
+    rec = {"halves": halves,
+           "samples": {os.path.basename(sp): sfiles.sha256(sp) for sp in sample_paths},
+           "method": "stats.assign_halves over the usable rows of the sample CSV(s), "
+                     "stratified by (language, tier), ordered by sha256 of the URL and "
+                     "alternated; assigned before any repository was measured"}
+    if os.path.exists(path):
+        old = json.load(open(path))
+        if old.get("halves") != halves:
+            raise RuntimeError(f"{path} holds a different explore/confirm split from the one "
+                               f"these samples give; the split of a run never moves. Use a "
+                               f"fresh --out-dir.")
+        return old["halves"]
+    with open(path, "w") as fh:
+        json.dump(rec, fh, indent=2)
+    n = sum(1 for h in halves.values() if h == "explore")
+    print(f"explore/confirm split frozen -> {path}: {n} explore / {len(halves) - n} confirm "
+          f"(stratified by language x tier, before any measurement)", flush=True)
+    return halves
+
+
 def _atomic_json(path: str, data) -> None:
     tmp = path + ".tmp"
     with open(tmp, "w") as fh:
@@ -1476,6 +1512,7 @@ def run(sample_paths, out_dir: str, pmd: str | None, ck: str | None = None,
                            f"fresh --out-dir or clear this one.")
     preflight(pmd, ck)                  # fail loud/early: parser, signals, git, pins, PMD/CK
     tools = tool_versions(pmd, ck)      # recorded with every row (preflight guarantees pins)
+    halves = freeze_halves(sample_paths, os.path.join(out_dir, "halves.json"))
     if (tools.get("harness_commit") or "").endswith("-dirty"):
         print("WARNING: the harness has UNCOMMITTED changes (harness_commit ends in -dirty). A "
               "confirmatory run must be made from a committed, tagged harness and analysis plan "
@@ -1494,6 +1531,7 @@ def run(sample_paths, out_dir: str, pmd: str | None, ck: str | None = None,
         def experiment(repo):
             repo.sample = os.path.basename(sample_path)
             row = measure(repo, pmd, ck, tools, labels)
+            row["half"] = halves.get(repo.url)       # frozen before any measurement
             units = row.pop("_units", None)          # keep the per-unit payload out of study.json
             results[row["repo"]] = row
             _atomic_json(out_path, list(results.values()))
@@ -1522,7 +1560,7 @@ def run(sample_paths, out_dir: str, pmd: str | None, ck: str | None = None,
 
 CSV_COLUMNS = [
     "name", "full_name", "repo", "lang", "kind", "stratum_lang", "tier", "stars", "rank",
-    "sample", "commit", "date", "n_files", "n_funcs", "usable", "wmc_gods", "pmd_gods",
+    "sample", "half", "commit", "date", "n_files", "n_funcs", "usable", "wmc_gods", "pmd_gods",
     "brain_methods", "class_universe", "method_universe", "java_files_multi_class",
     "files_oversize", "files_generated", "files_unparsed", "trivial_frac", "lizard",
     "harness_commit",
@@ -1537,7 +1575,7 @@ def _row_to_csv(r: dict) -> dict:
         "lang": r.get("lang"),
         "kind": r.get("kind"), "stratum_lang": r.get("stratum_lang"), "tier": r.get("tier"),
         "stars": r.get("stars"), "rank": r.get("rank"), "sample": r.get("sample"),
-        "commit": r.get("commit"), "date": r.get("date"),
+        "half": r.get("half"), "commit": r.get("commit"), "date": r.get("date"),
         "n_files": r.get("n_files"), "n_funcs": r.get("n_funcs"),
         "usable": is_usable(r), "wmc_gods": r.get("wmc_gods"), "pmd_gods": r.get("pmd_gods"),
         "brain_methods": (mm.get("oracle_gods") or {}).get("brain_method"),
@@ -1687,6 +1725,8 @@ COLUMNS
   kind                             application or library (post-hoc heuristic)
   stratum_lang, tier, stars, rank  selection metadata from the sample CSV; sample = which
                                    sample file drew it
+  half                             explore or confirm, assigned from the sample CSV before
+                                   any repository was measured (halves.json)
   n_files, n_funcs                 source files and functions parsed (tests excluded)
   usable                           cleared the substance floor (>= {min_funcs} funcs, class
                                    universe >= {min_univ})

@@ -36,7 +36,7 @@ json.dump(out, sys.stdout)
 '''
 
 
-def _synthetic_run(n_java=10, n_py=4, seed=7):
+def _synthetic_run(n_java=16, n_py=4, seed=7):
     root = tempfile.mkdtemp()
     pmd = os.path.join(root, "pmd")
     open(pmd, "w").write(FAKE_PMD.format(py=sys.executable))
@@ -55,6 +55,12 @@ def _synthetic_run(n_java=10, n_py=4, seed=7):
                 body = "\n".join(f"  void m{j}(int x) {{ if (x > {j}) {{ x++; }} }}"
                                  for j in range(rnd.randint(2, 6)))
                 open(os.path.join(d, f"C{k}.java"), "w").write(f"package a;\nclass C{k} {{\n{body}\n}}\n")
+            # two mid-sized classes with nested branching (near-gods), so that the relative
+            # rules disagree with each other and the Friedman blocks carry information
+            for k in range(2):
+                body = "\n".join(f"  void n{j}(int x) {{ if (x > {j}) {{ if (x > {j + 1}) {{ "
+                                 f"if (x > {j + 2}) {{ x++; }} }} }} }}" for j in range(rnd.randint(8, 12)))
+                open(os.path.join(d, f"Big{k}.java"), "w").write(f"package a;\nclass Big{k} {{\n{body}\n}}\n")
             for g in range(gods):
                 open(os.path.join(d, f"God{g}.java"), "w").write(
                     "package a;\n/* GODMARK */\n"
@@ -68,9 +74,17 @@ def _synthetic_run(n_java=10, n_py=4, seed=7):
         a = study.analyse(repo, pmd if lang == "java" else None, None)
         u = a.pop("_units")
         url = f"https://github.com/o/{lang}{i}"
+        # the last two Java repositories come from the supplement; every row carries its half
+        sample = ("open-source-repository-sample.java-supplement.csv" if lang == "java" and i >= n_java - 2
+                  else "open-source-repository-sample.csv")
         rows.append({"repo": url, "name": f"{lang}{i}", "full_name": f"o/{lang}{i}", "lang": lang,
-                     "tier": ["low", "mid", "high"][i % 3], "kind": "library", "tools": tools, **a})
+                     "tier": ["low", "mid", "high"][i % 3], "kind": "library", "tools": tools,
+                     "sample": sample, **a})
         units.append({"repo": url, **u})
+    halves = stats.assign_halves(rows, stratum_of=lambda r: (r["lang"], r["tier"]),
+                                 key_of=lambda r: r["repo"])
+    for r in rows:
+        r["half"] = halves[r["repo"]]
     out = os.path.join(root, "results")
     os.makedirs(out)
     json.dump(rows, open(os.path.join(out, "study.json"), "w"))
@@ -140,16 +154,62 @@ def test_halves_are_stratified_and_god_free_repositories_are_pooled():
     assert run.block(py["repo"], "class", "wmc47") is not None
 
 
+def test_split_is_read_from_the_rows_and_all_language_definitions_use_the_main_sample():
+    run = _run()
+    assert run.split_frozen is True
+    assert run.halves == {r["repo"]: r["half"] for r in run.rows}
+    assert len(run.main_rows) == len(run.rows) - 2
+    assert run.rows_for("pmd_GodClass") == run.rows                  # Java-scoped: every row
+    assert run.rows_for("brain_method") == run.main_rows             # all-language: main only
+    h = run.halves_for("brain_method")
+    assert len(h["explore"]) + len(h["confirm"]) == len(run.main_rows)
+    # a run whose rows carry no half gets the computed split, flagged as not frozen
+    d = tempfile.mkdtemp()
+    rows = json.load(open(os.path.join(run.dir, "study.json")))
+    for r in rows:
+        del r["half"]
+    json.dump(rows, open(os.path.join(d, "study.json"), "w"))
+    for f in ("study.units.jsonl", "oracles.json"):
+        open(os.path.join(d, f), "w").write(open(os.path.join(run.dir, f)).read())
+    r2 = analyse.Run(d)
+    assert r2.split_frozen is False and set(r2.halves.values()) == {"explore", "confirm"}
+
+
+def test_human_definitions_are_fitted_on_the_repository_language():
+    run = _run()
+    run.registry["human_x"] = {"origin": "human", "scope": "labelled", "kind": "human"}
+    repo = [r for r in run.rows if r["lang"] == "java"][0]["repo"]
+    pl = run.units[repo]["class"]
+    pl["god_idx"]["human_x"] = pl["god_idx"]["pmd_GodClass"]
+    pl, fit, score, _ = run.block(repo, "class", "human_x")
+    assert fit and all(pl["units"][i].endswith(".java") for i in fit) and score == fit
+    del run.registry["human_x"]
+    del run.units[repo]["class"]["god_idx"]["human_x"]
+
+
 def test_report_runs_to_the_plan_and_writes_every_section():
     run = _run()
     buf = io.StringIO()
     out = analyse.report(run, print_fn=lambda *a: print(*a, file=buf))
     text = buf.getvalue()
     for marker in ("1. DIAGNOSTICS", "2. PRIMARY", "3. SECONDARY", "4. RULES", "5. SIGNALS",
-                   "6. EXPLORATORY", "calibration", "flag rate", "FP in god-free repos"):
+                   "6. EXPLORATORY", "calibration", "flag rate", "FP in god-free repos",
+                   "macro FPR", "DECISION (pre-registered", "verdict:", "FROZEN before measurement",
+                   "overlap with the pilot", "all-tied blocks dropped"):
         assert marker in text, marker
-    assert out["plan"] == analyse.PLAN
+    assert out["plan"] == analyse.PLAN and out["is_exploratory"] is False
+    assert out["study_sha256"] and out["diagnostics"]["split_frozen"] is True
+    assert out["diagnostics"]["n_pilot"] > 500 and out["diagnostics"]["pilot_overlap"] == []
     prim = out["primary"]["pmd_GodClass"]
+    dec = prim["decision"]
+    assert dec["overall"] in ("superior", "non-inferior", "inconclusive", "inferior", "not estimable")
+    assert dec["powered"] is False                                   # 10 synthetic repos
+    assert set(dec["paired"]) == {"macro_mcc", "micro_mcc", "macro_fpr"}
+    assert dec["paired"]["macro_mcc"] is not None and dec["overall"] != "not estimable"
+    pm = dec["paired"]["macro_mcc"]
+    assert pm["lo"] <= pm["value"] <= pm["hi"] and pm["n"] == dec["n_paired_repos"] >= 5
+    assert "macro_fpr" in prim["confirm"]["relative_default"]
+    assert "_cells" not in prim["confirm"]["relative_default"]
     assert prim["chosen_signal"] and metrics.family_of("class", prim["chosen_signal"]) in ("peak", "density")
     c = prim["confirm"]
     assert c["pooled_auc_standardised"]["standardised"] is True
@@ -162,9 +222,14 @@ def test_report_runs_to_the_plan_and_writes_every_section():
     assert "class:pmd_GodClass" in out["exploratory"]
     assert out["diagnostics"]["dirty_rows"] == 0 and out["diagnostics"]["usable_flips"] == []
     json.dumps(out, default=str)
-    # main writes analysis.json beside the run
-    assert analyse.main(["--results", run.dir, "--json", os.path.join(run.dir, "a.json")]) == 0
-    assert "primary" in json.load(open(os.path.join(run.dir, "a.json")))
+    # main writes analysis.json beside the run ONCE; a re-run needs --exploratory
+    assert analyse.main(["--results", run.dir]) == 0
+    assert "primary" in json.load(open(os.path.join(run.dir, "analysis.json")))
+    assert analyse.main(["--results", run.dir]) == 3
+    assert analyse.main(["--results", run.dir, "--exploratory"]) == 0
+    extra = [f for f in os.listdir(run.dir) if f.startswith("analysis.exploratory.")]
+    assert len(extra) == 1 and json.load(open(os.path.join(run.dir, extra[0])))["is_exploratory"] is True
+    assert json.load(open(os.path.join(run.dir, "analysis.json")))["is_exploratory"] is False
 
 
 def test_latest_results_dir_is_the_latest_dated_run_never_a_named_one():
@@ -186,6 +251,10 @@ def test_plan_matches_plan_md():
         assert s in text, s
     for fam in p["families"]:
         assert fam in text
+    d = analyse.PLAN["decision"]
+    assert f"{d['noninferiority_margin']}" in text and f"{d['auc_floor']}" in text
+    assert f"**{d['min_confirm_repos_auc']}**" in text and f"**{d['min_confirm_repos_mcc']}**" in text
+    assert "main sample" in text and "halves.json" in text and "seed 1" in text
 
 
 if __name__ == "__main__":

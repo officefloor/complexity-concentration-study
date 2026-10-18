@@ -2,7 +2,7 @@
 #
 # Step 2 of 4 — draw the samples of repositories, with open-source-repository-sampler.
 #
-#   ./step2_sample.sh [--out-dir DIR] [--java-target N] [any other `open-source-repository-sampler sample` flag]
+#   ./step2_sample.sh --seed N [--out-dir DIR] [--java-target N] [any other `open-source-repository-sampler sample` flag]
 #
 # Draws TWO samples into sample/ (or --out-dir), each a pair of files -- the CSV of every candidate
 # drawn (usable or excluded with its reason, each pinned to the commit that met the criteria) and
@@ -28,8 +28,9 @@
 #     >= 15 source files with a function;
 #   - the author's own ecosystem excluded (the conflict-of-interest guard);
 #   - no history criterion, so every candidate is shallow-cloned for inspection.
-# Extra flags are passed straight through to BOTH draws (a later flag overrides an earlier one),
-# e.g. a different --seed for an independent pair of samples. Interrupted? Re-run to resume.
+# --seed N is required: a fresh seed for the confirmatory draw (seed 1 drew the pilot and is
+# refused). Extra flags are passed straight through to BOTH draws (a later flag overrides an
+# earlier one). Interrupted? Re-run the same command to resume.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -50,9 +51,27 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+# The seed is REQUIRED and must be one no analysis has seen. The pilot (pilot/run-v1-repos.txt)
+# was drawn with seed 1, so 1 is refused: a confirmatory sample drawn with it would be a re-draw
+# of data the plan was shaped on (README, 'Pre-registration').
+SEED=""
+for ((i = 0; i < ${#ARGS[@]}; i++)); do
+  case "${ARGS[$i]}" in
+    --seed) SEED="${ARGS[$((i + 1))]:-}" ;;
+    --seed=*) SEED="${ARGS[$i]#*=}" ;;
+  esac
+done
+if [ -z "$SEED" ]; then
+  echo "ERROR: pass --seed N with a seed no analysis has seen (the pilot used seed 1)." >&2
+  exit 1
+fi
+if [ "$SEED" = "1" ]; then
+  echo "ERROR: seed 1 drew the pilot (pilot/run-v1-repos.txt); a confirmatory sample needs a fresh seed." >&2
+  exit 1
+fi
+
 COMMON=(
   --tiers high,mid,low
-  --seed 1
   --min-functions 50
   --min-files-with-functions 15
   --exclude-owners officefloor,sagenschneider

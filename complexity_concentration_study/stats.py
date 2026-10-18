@@ -23,6 +23,17 @@ library) so the paper's report cannot re-introduce the shortcuts an earlier draf
   * bootstrap_mean     -- percentile bootstrap CI of a mean over repositories (macro
                           averaging: one repository, one vote, unlike the size-weighted micro
                           average pooled_confusion gives).
+  * bootstrap_paired   -- percentile bootstrap CI of ANY statistic of a list of per-repository
+                          items, resampling repositories: the PAIRED comparison of two rules
+                          read on the same repositories (the difference of their macro MCCs,
+                          of their micro MCCs, of their false-positive rates), which is far
+                          more powerful than two separate intervals and is what the
+                          pre-registered decision rule reads.
+  * fpr                -- the false-positive rate from the four counts. Unlike the MCC it is
+                          DEFINED in a repository where the definition marks nothing (the MCC
+                          is 0 there whether a rule flagged nothing or everything), so the
+                          macro average of the FPR sees the false positives in god-free
+                          repositories that the macro MCC cannot.
   * assign_halves      -- the explore/confirm split, STRATIFIED: within each (language, tier)
                           stratum repositories are ordered by a hash of their URL and
                           alternated, so each half holds half of every stratum.
@@ -39,6 +50,12 @@ def mcc(tp: int, fp: int, fn: int, tn: int) -> float:
     """Matthews correlation coefficient; 0.0 when any marginal is empty (undefined)."""
     den = (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)
     return 0.0 if den <= 0 else (tp * tn - fp * fn) / math.sqrt(den)
+
+
+def fpr(fp: int, tn: int) -> float | None:
+    """False-positive rate fp / (fp + tn); None when there are no negatives. Defined in a
+    god-free repository (where the MCC is 0 by convention whatever was flagged)."""
+    return fp / (fp + tn) if (fp + tn) > 0 else None
 
 
 def pooled_confusion(cells) -> dict:
@@ -243,7 +260,12 @@ def friedman(score_rows: list[dict]) -> dict | None:
     """Friedman/Iman-Davenport over blocks: `score_rows` is one {method: score} per block
     (repository), every row holding the same methods. Higher score = better. None if fewer than
     two complete blocks."""
-    rows = [r for r in score_rows if r and all(v is not None for v in r.values())]
+    complete = [r for r in score_rows if r and all(v is not None for v in r.values())]
+    # A block in which every method ties (every rule scores MCC 0 in a god-free repository)
+    # carries no ranking information: keeping it pulls every mean rank toward the centre
+    # while inflating N, which makes the critical difference too small. Such blocks are
+    # dropped and counted.
+    rows = [r for r in complete if len(set(r.values())) > 1]
     if len(rows) < 2:
         return None
     methods = sorted(rows[0])
@@ -251,7 +273,9 @@ def friedman(score_rows: list[dict]) -> dict | None:
         raise ValueError("every block must score the same methods")
     rk = [ranks(r) for r in rows]
     mr = {m: sum(r[m] for r in rk) / len(rk) for m in methods}
-    return friedman_from_mean_ranks(mr, len(rk))
+    out = friedman_from_mean_ranks(mr, len(rk))
+    out["n_tied_dropped"] = len(complete) - len(rows)
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -327,6 +351,36 @@ def bootstrap_mean(values, b: int = 2000, seed: int = 12345, min_n: int = 5):
     means = sorted(sum(vals[rnd.randrange(n)] for _ in range(n)) / n for _ in range(b))
     return {"mean": sum(vals) / n, "lo": means[int(0.025 * b)], "hi": means[int(0.975 * b)],
             "n": n}
+
+
+def bootstrap_paired(items, stat_fn, b: int = 2000, seed: int = 12345, min_n: int = 5):
+    """{"value", "lo", "hi", "n"}: `stat_fn(items)` on the items given (one per repository,
+    each item holding BOTH competitors' results on that repository) and its 95% percentile
+    bootstrap interval, resampling the items. Because each item carries both sides, any
+    statistic of the list is paired: the difference of macro means, the difference of pooled
+    (micro) values, a difference of rates. `stat_fn` may return None for a degenerate
+    resample; such resamples are dropped and `n_dropped` says how many. None when fewer than
+    `min_n` items."""
+    import random
+    items = list(items)
+    n = len(items)
+    if n < min_n:
+        return None
+    value = stat_fn(items)
+    if value is None:
+        return None
+    rnd = random.Random(seed)
+    vals = []
+    for _ in range(b):
+        v = stat_fn([items[rnd.randrange(n)] for _ in range(n)])
+        if v is not None:
+            vals.append(v)
+    if len(vals) < max(2, b // 2):
+        return None
+    vals.sort()
+    k = len(vals)
+    return {"value": value, "lo": vals[int(0.025 * k)], "hi": vals[min(k - 1, int(0.975 * k))],
+            "n": n, "n_dropped": b - k}
 
 
 # ---------------------------------------------------------------------------

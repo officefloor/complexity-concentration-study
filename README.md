@@ -56,8 +56,19 @@ each:
    single best raw-scale cutoff tuned on the explore half, both read on confirm. Every tool
    definition is itself an absolute threshold, so this comparison is tilted toward the absolute
    competitor: a relative win is strong evidence, a relative loss is weak evidence against
-   relative rules in general. Expert labels (`--labels`) are the only definitions that bake in
-   no scale, which makes the human-label sub-study central to this claim, not optional.
+   relative rules in general. Expert labels (`--labels`) are the only definitions with no
+   tool constant, which makes the human-label sub-study central to this claim, not optional.
+   They are not scale-free either: MLCQ's reviewers graded code samples without the rest of
+   the repository in view, so a human label is an absolute judgement by a reader's own budget
+   rather than by a tool's constant.
+
+   Per-repository standardisation discards exactly the information an absolute definition
+   uses. In a repository of uniformly small classes the relative rule must still flag
+   something and PMD marks nothing; in one of uniformly huge classes PMD marks many and the
+   relative rule flags few. Agreement is therefore bounded by how homogeneous repositories
+   are, and a relative loss cannot by itself separate "the rule is wrong" from "the constant
+   does not fit this repository". The results report this bound (the false positives in
+   god-free repositories) rather than arguing it away.
 
 ### What "relative" does and does not mean
 
@@ -188,6 +199,7 @@ Four numbered scripts, each printing the next. Prerequisites the scripts do **no
 
     ./step1_setup.sh                       # venv + pinned deps (incl. the sampler) + PMD/CK into ./lib
     ./step2_sample.sh --seed N             # draw the main sample and the Java supplement -> sample/
+                                           # (--seed is required; 1 drew the pilot and is refused)
     ./step3_run.sh                         # measure both samples -> results/<date>/
     ./step4_analyse.sh --results results/<date>
     ./step5_mlcq.sh                        # optional: the MLCQ human-label sub-study -> results/mlcq/
@@ -195,9 +207,11 @@ Four numbered scripts, each printing the next. Prerequisites the scripts do **no
 `pip` pins **lizard 1.23.0** (1.24.x returns no functions for annotated Java classes), and
 `study.py` pins **PMD 7.27.0** and the **CK 0.7.0** jar by sha256.
 
-**Step 3** verifies each sample against its derivation, then the sampler's run loop
-shallow-clones each usable repository at its pinned commit, the study measures it, and the clone
-is deleted. Pass `--sample` more than once to measure several samples (a repository in two is
+**Step 3** verifies each sample against its derivation, assigns every usable repository its
+explore/confirm half from the sample CSVs alone (stratified by language and tier, written to
+`halves.json` and recorded in each row **before any repository is measured**), then the
+sampler's run loop shallow-clones each usable repository at its pinned commit, the study
+measures it, and the clone is deleted. Pass `--sample` more than once to measure several samples (a repository in two is
 measured once), `--out-dir` to choose the results directory, `--labels` to add human labels:
 
     ./step3_run.sh --sample sample/open-source-repository-sample.csv \
@@ -236,10 +250,12 @@ Nucci et al. 2018 critique in hand) need their own converter to the same columns
 
 **Outputs** in `results/<date>/`: `study.json` (one row per repository, the lean matrix),
 `study.units.jsonl` (per-unit values, god membership and PMD's values), `oracles.json` (the
-definition registry, families, signal pools, rule constants and PMD thresholds), `study.csv`,
-`run-log.jsonl`, and the ancillary package `anc/` (results table, registry, README and every
-sample file). **Step 4** (`complexity-concentration-study analyse`) prints the report to the
-rules below and to `PLAN.md`, and writes `analysis.json` beside the run.
+definition registry, families, signal pools, rule constants and PMD thresholds), `halves.json`
+(the frozen split), `study.csv`, `run-log.jsonl`, and the ancillary package `anc/` (results
+table, registry, README and every sample file). **Step 4** (`complexity-concentration-study
+analyse`) prints the report to the rules below and to `PLAN.md`, and writes `analysis.json`
+beside the run **once**: a second run refuses unless `--exploratory`, which writes a dated
+`analysis.exploratory.<utc>.json` and labels its report exploratory.
 
 **The classpath validation** (README, *The classpath validation sub-study*) is one command per
 built Java checkout:
@@ -261,6 +277,9 @@ classpath and the GodClass flip rate.
 - **Every row records its instruments**: the lizard, PMD and CK versions and the **harness
   commit** (with `-dirty` if uncommitted changes were present, and a loud warning at the start
   of the run), so the analysis plan frozen in git before the run is auditable against the data.
+- **The split is frozen before the data exist**: `halves.json` is written from the sample CSVs
+  before the first clone, every row records its half, and a resumed run refuses a different
+  split. The analysis reads the recorded half and flags a run without one as not confirmatory.
 - **PMD's values, not only its verdicts.** The four metric rules run at report level 1, so
   every Java method's cyclomatic, cognitive, NPath and NCSS value is recorded in the sidecar
   (`pmd_values`) and the registered thresholds are applied by the harness (`pmd_thresholds` in
@@ -301,30 +320,43 @@ of them.
    composite with a size clause, report `auc_given` next to `auc`: the AUC within the units
    that already pass the clause. If the density and peak families carry nothing beyond size,
    say so.
-4. **Keep god-free repositories.** A relative rule flags something in every repository by
-   construction, so the repositories where a definition finds nothing are where its false
-   positives live. Pool with `stats.pooled_confusion`, which keeps `n_god_univ == 0` blocks and
-   reports `fp_in_no_god` and the false-positive rate; never filter on "has gods". The pooled
-   AUC (`stats.pooled_auc`) keeps them too; a within-repository AUC cannot, so say that the
-   per-repository AUC conditions on at least one positive.
-5. **Split once, stratified; tune on explore, read on confirm.** Assign repositories with
-   `stats.assign_halves`, stratified by language and tier. Choose the signal, the rule's cut
-   and the absolute cutoff on explore; read all of them on confirm. Pre-specify **one** primary
-   estimand (one definition, one level, one family) before the run; every other confirm number
-   is secondary.
+4. **Keep god-free repositories, and use a statistic that can see them.** A relative rule
+   flags something in every repository by construction, so the repositories where a definition
+   finds nothing are where its false positives live. Pool with `stats.pooled_confusion`, which
+   keeps `n_god_univ == 0` blocks and reports `fp_in_no_god` and the false-positive rate; never
+   filter on "has gods". The **macro MCC cannot see them**: `stats.mcc` is 0 whenever a
+   marginal is empty, so a god-free repository scores 0 whether the rule flagged nothing or
+   twenty files. Report the macro false-positive rate (`stats.fpr`, defined there) beside it,
+   and let no verdict rest on the macro MCC alone (PLAN.md, *Decision rule*). The pooled AUC
+   (`stats.pooled_auc`) keeps god-free blocks too; a within-repository AUC cannot, so say that
+   the per-repository AUC conditions on at least one positive.
+5. **Split once, before measuring; tune on explore, read on confirm.** The half of every
+   repository is assigned by `study.run` from the sample CSV with `stats.assign_halves`,
+   stratified by language and tier, before any repository is measured, and recorded in the
+   row. Choose the signal, the rule's cut and the absolute cutoff on explore; read all of them
+   on confirm. Pre-specify **one** primary estimand (one definition, one level, one family)
+   **and the decision rule that reads it** (a paired comparison, its margin, an AUC floor and
+   the minimum effective sample) before the run; every other confirm number is secondary.
 6. **Relative at defaults first.** The primary head-to-head is the relative rule at its
    literature constant against the absolute cutoff tuned on explore, since "no re-tuning" is the
    claim. The tuned-relative comparison is secondary. Report the threshold-free form as well:
    `stats.pooled_auc` on the sidecar, standardised against raw.
-7. **Macro before micro; say the effective sample.** One repository, one vote:
-   `stats.bootstrap_mean` over per-repository statistics is primary; the size-weighted micro
-   average is secondary. For Java-only definitions the sample is the number of Java
-   repositories in the half being read, and the number of positive units; say both. Set the
-   minimum number of positives for a per-repository AUC to count before the run.
+7. **Macro before micro, paired for comparisons; say the effective sample.** One repository,
+   one vote: `stats.bootstrap_mean` over per-repository statistics is the descriptive form;
+   a comparison of two rules read on the same repositories is a **paired** bootstrap of their
+   difference (`stats.bootstrap_paired`), never two separate intervals. For Java-only
+   definitions the sample is the number of Java repositories in the half being read, and the
+   number of positive units; say both. Set the minimum number of positives for a
+   per-repository AUC to count, and the minimum number of repositories below which the primary
+   is underpowered, before the run. All-language statistics are read on the **main sample**:
+   the Java supplement would otherwise make Java a third of every pooled cross-language
+   number.
 8. **Compare methods properly.** Rank per repository, then use `stats.friedman` (Friedman
    with the Iman–Davenport correction) and `stats.nemenyi_cd`. Pre-specify at most eight signals
    (one or two per family) and at most five rules for this test; 31 class signals on 32 blocks
-   is underpowered.
+   is underpowered. A block in which every method ties (every rule scoring 0 in a god-free
+   repository) carries no ranking information and is dropped and counted, not left to shrink
+   the critical difference.
 9. **Break results down** by language, tier and `kind`; a cross-language claim needs the
    per-language numbers.
 10. **Read the diagnostics first.** Before any accuracy number: the continuous calibration of
@@ -342,22 +374,27 @@ A confirmatory run is one where the analysis could not have been shaped by its d
 analysis script is `complexity_concentration_study/analyse.py`; its `PLAN` constant is the
 machine-readable plan and `PLAN.md` its prose, and the two are tested against each other:
 
-1. Fix `PLAN` (the primary estimand, the families, the minimum positives, the Friedman subsets)
-   and commit it with the harness.
+1. Fix `PLAN` (the primary estimand, the decision rule, the families, the minimum positives,
+   the Friedman subsets) and commit it with the harness.
 2. Tag that commit. `./step3_run.sh` records the harness commit in every row and warns loudly
    if the tree is dirty; a confirmatory run's rows must not say `-dirty`.
-3. Draw the confirmatory sample with a seed that no analysis has ever seen. Any sample already
-   examined (a pilot, an earlier run) is explore data and is declared as such.
-4. Run, then analyse once. Everything after that is exploratory and is labelled exploratory.
+3. Draw the confirmatory sample with a seed that no analysis has ever seen: `step2_sample.sh`
+   requires `--seed` and refuses seed 1, which drew the pilot. The pilot's repositories are
+   listed in `pilot/run-v1-repos.txt` and the diagnostics report any run's overlap with them.
+4. Run the classpath validation on explore-half Java repositories only (PLAN.md, step 4).
+5. Run, then analyse once: `analysis.json` is written once and never overwritten. Everything
+   after that is exploratory, needs `--exploratory`, and is labelled exploratory.
 
 ### The classpath validation sub-study
 
 PMD and CK run without an auxiliary classpath, so ATFD and CBO see only what the sources
 declare and `pmd_GodClass` is under-counted by an unknown amount. Before the confirmatory
-analysis, on ten Java repositories of the sample that build with Maven or Gradle: build, run
-PMD with `--aux-classpath` on the built classpath over the same file list, and report the
-number of GodClass verdicts that flip. If the flip rate is material, the Java class-level
-headline is bounded by it and the paper says so.
+analysis, on at least ten Java repositories of the **explore half** (`halves.json`) that build
+with Maven or Gradle: build, run PMD with `--aux-classpath` on the built classpath over the
+same file list, and report the number of GodClass verdicts that flip. The pre-registered
+bound is 10%: above it, the paper reports the flip rate as an explicit bound on the headline
+and makes no recovery claim beyond it (PLAN.md, step 4). Confirm repositories are never built
+or inspected for this.
 
 ## Threats to validity
 
@@ -390,10 +427,13 @@ necessarily the list; the published samples, pinned to commits, are the record o
 population.
 
 **Conclusion.** The matrix is a large search (signals × rules × definitions × levels); the
-single best cell is upward-biased, which is why one primary estimand is pre-specified, chosen
-on explore and read on confirm, and why sections that rank everything are exploratory. With a
-median of about two PMD god classes per Java repository, per-repository AUCs are coarse; hence
-rules 7 and 10 above.
+single best cell is upward-biased, which is why one primary estimand and one decision rule are
+pre-specified, chosen on explore and read on confirm, and why sections that rank everything
+are exploratory. The within-repository AUC is identical under the relative and the absolute
+view, so it is evidence about the signal, never about scale-freeness; only the pooled
+standardised-versus-raw AUC and the operating-point comparison speak to the relative claim.
+With a median of about two PMD god classes per Java repository, per-repository AUCs are
+coarse; hence rules 7 and 10 above and the effective-sample gate in PLAN.md.
 
 ## Where things are
 
@@ -415,6 +455,7 @@ rules 7 and 10 above.
 - `complexity_concentration_study/classpath_check.py`: the classpath validation on one checkout.
 - `complexity_concentration_study/mlcq.py`: the MLCQ converter.
 - `PLAN.md`: the pre-registered plan, in prose.
+- `pilot/run-v1-repos.txt`: every repository the pilot measured, so overlap is reported.
 - `tests/`: hand-worked and PMD-calibrated tests for all of the above. Run them with
   `.venv/bin/python tests/test_<name>.py` (each file is its own runner) or with pytest.
 - `paper/`: the write-up (its old analysis script is superseded by the package's `analyse`).

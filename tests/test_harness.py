@@ -372,9 +372,16 @@ def test_run_measures_each_usable_sampled_repository_at_its_commit_once_across_s
         sampled, "python", "low", 300, "2026-01-02", "open-source-repository-sample.csv")
     assert r["n_funcs"] == 20 * 60 and study.is_usable(r)        # later.py's function absent
     assert r["matrix"]["method"]["oracle_gods"]["brain_method"] == 0   # recorded, not dropped
-    assert sorted(os.listdir(out)) == ["oracles.json", "run-log.jsonl", "study.csv",
-                                       "study.json", "study.units.jsonl"]
+    assert sorted(os.listdir(out)) == ["halves.json", "oracles.json", "run-log.jsonl",
+                                       "study.csv", "study.json", "study.units.jsonl"]
+    # the split was frozen from the sample CSV before measurement and recorded in the row
+    h = json.load(open(os.path.join(out, "halves.json")))
+    assert set(h["halves"]) == {"file://" + src} and r["half"] == h["halves"]["file://" + src]
+    assert r["half"] in ("explore", "confirm") and set(h["samples"]) == {
+        "open-source-repository-sample.csv", "open-source-repository-sample.java-supplement.csv"}
     assert study.run(main, out, None, None) == rows              # resumed: nothing re-measured
+    csv_text = open(os.path.join(out, "study.csv")).read()
+    assert ",half," in csv_text.splitlines()[0]
     units = [json.loads(l) for l in open(os.path.join(out, "study.units.jsonl"))]
     assert len(units) == 1 and units[0]["method"]["god_idx"]["brain_method"] == []
     anc = os.path.join(tmp, "anc")
@@ -384,6 +391,33 @@ def test_run_measures_each_usable_sampled_repository_at_its_commit_once_across_s
                                        "oracles.json", "results.csv"]
     readme = open(os.path.join(anc, "README.txt")).read()
     assert "{base}_sum" in readme and "1 usable repositories" in readme and "SCALE-FREE" in readme
+
+
+def test_freeze_halves_is_stratified_from_the_csv_and_never_moves():
+    from open_source_repository_sampler import files
+    tmp = tempfile.mkdtemp()
+    rows = [{"draw": i, "status": "usable", "url": f"https://github.com/o/r{i}",
+             "full_name": f"o/r{i}", "commit": "0" * 40, "language": "java" if i < 12 else "go",
+             "stratum_language": "java", "tier": ["low", "mid", "high"][i % 3]}
+            for i in range(24)] + [{"draw": 99, "status": "excluded", "url": "https://x/no",
+                                    "full_name": "x/no", "commit": "1" * 40, "language": "go"}]
+    csv_path = os.path.join(tmp, "open-source-repository-sample.csv")
+    files.write_csv(csv_path, rows)
+    path = os.path.join(tmp, "halves.json")
+    h = study.freeze_halves(csv_path, path)
+    assert len(h) == 24 and "https://x/no" not in h              # usable rows only
+    for lang in ("java", "go"):
+        for tier in ("low", "mid", "high"):
+            ks = [r["url"] for r in rows if r.get("language") == lang and r.get("tier") == tier]
+            ex = sum(1 for k in ks if h[k] == "explore")
+            assert abs(ex - (len(ks) - ex)) <= 1
+    assert study.freeze_halves(csv_path, path) == h              # reused on resume
+    files.write_csv(csv_path, rows[:20])                          # a different sample now
+    try:
+        study.freeze_halves(csv_path, path)
+        assert False, "a moved split must be refused"
+    except RuntimeError as e:
+        assert "never moves" in str(e)
 
 
 def test_run_refuses_to_resume_a_directory_that_would_lose_rows():

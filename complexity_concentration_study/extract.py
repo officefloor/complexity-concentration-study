@@ -122,7 +122,9 @@ def _strip(text: str, ext: str) -> str:
     ext = ext.lower()
     rx = _STRIP_BY.get(_STRIP_EXT.get(ext, ext), _STRIP_BY[""])
     return rx.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
-_TEST_DIR = re.compile(r"(?:^|/)(?:test|tests|testing|spec|specs|__tests__|testdata"
+# The same directory names as open-source-repository-sampler (`javatests` included), so the
+# floor the sample was drawn on and the one the harness re-applies see the same files.
+_TEST_DIR = re.compile(r"(?:^|/)(?:test|tests|testing|spec|specs|__tests__|testdata|javatests"
                        r"|[^/]+\.(?:tests?|unittests|integrationtests|specs))(?:/|$)", re.I)
 # Test files that live BESIDE the code they test, by each language's naming convention
 # (Go *_test.go, JS/TS *.test.* / *.spec.*, pytest test_*.py / *_test.py, RSpec *_spec.rb,

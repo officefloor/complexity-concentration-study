@@ -96,6 +96,15 @@ def test_test_files_are_excluded():
     assert not any("CtlTest" in r["file"] for r in res["funcs"].values())
 
 
+def test_javatests_directories_are_excluded_like_the_sampler():
+    import tempfile
+    root = tempfile.mkdtemp()
+    for rel in ("javatests/a/ATest.java", "src/main/java/a/A.java"):
+        os.makedirs(os.path.dirname(os.path.join(root, rel)), exist_ok=True)
+        open(os.path.join(root, rel), "w").write("class X { void m() { } }\n")
+    assert extract.source_files(root) == ["src/main/java/a/A.java"]
+
+
 def test_generated_and_oversize_files_leave_the_universe_but_are_counted():
     root = _tree()
     os.makedirs(os.path.join(root, "gen"))

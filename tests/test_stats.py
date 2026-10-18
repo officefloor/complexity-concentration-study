@@ -99,6 +99,35 @@ def test_assign_halves_is_stratified_and_deterministic():
                                     key_of=lambda it: it[0])
 
 
+def test_fpr_is_defined_where_mcc_is_not():
+    # a god-free repository: MCC is 0 whether the rule flagged nothing or three files
+    assert stats.mcc(0, 0, 0, 100) == 0.0 and stats.mcc(0, 3, 0, 97) == 0.0
+    assert stats.fpr(0, 100) == 0.0 and abs(stats.fpr(3, 97) - 0.03) < 1e-12
+    assert stats.fpr(0, 0) is None
+
+
+def test_bootstrap_paired_is_on_the_difference_and_seeded():
+    items = [(0.6 + 0.01 * i, 0.5 + 0.01 * i) for i in range(30)]   # a is always 0.1 above b
+    diff = lambda its: sum(a - b for a, b in its) / len(its)
+    r = stats.bootstrap_paired(items, diff, b=500, seed=1)
+    assert abs(r["value"] - 0.1) < 1e-12 and abs(r["lo"] - 0.1) < 1e-9 and abs(r["hi"] - 0.1) < 1e-9
+    assert r["n"] == 30 and r["n_dropped"] == 0
+    # two SEPARATE intervals would overlap widely here; the paired one is tight
+    assert stats.bootstrap_mean([a for a, _ in items], b=500)["hi"] > stats.bootstrap_mean([b for _, b in items], b=500)["lo"]
+    assert r == stats.bootstrap_paired(items, diff, b=500, seed=1)
+    assert stats.bootstrap_paired(items[:3], diff) is None
+    assert stats.bootstrap_paired(items, lambda its: None) is None
+
+
+def test_friedman_drops_all_tied_blocks_and_counts_them():
+    informative = [{"a": 0.9, "b": 0.8, "c": 0.7}] * 10
+    tied = [{"a": 0.0, "b": 0.0, "c": 0.0}] * 20                   # god-free repositories
+    r = stats.friedman(informative + tied)
+    assert r["n"] == 10 and r["n_tied_dropped"] == 20
+    assert r == {**stats.friedman(informative), "n_tied_dropped": 20}
+    assert stats.friedman(tied) is None
+
+
 def test_mcc_hand_values():
     assert stats.mcc(5, 0, 0, 5) == 1.0
     assert stats.mcc(0, 5, 5, 0) == -1.0
