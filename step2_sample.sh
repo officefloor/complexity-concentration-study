@@ -2,7 +2,7 @@
 #
 # Step 2 of 4 — draw the samples of repositories, with open-source-repository-sampler.
 #
-#   ./step2_sample.sh --seed N [--out-dir DIR] [--java-target N] [any other `open-source-repository-sampler sample` flag]
+#   ./step2_sample.sh [--seed N] [--out-dir DIR] [--java-target N] [any other `open-source-repository-sampler sample` flag]
 #
 # Draws TWO samples into sample/ (or --out-dir), each a pair of files -- the CSV of every candidate
 # drawn (usable or excluded with its reason, each pinned to the commit that met the criteria) and
@@ -32,9 +32,13 @@
 #     >= 15 source files with a function;
 #   - the author's own ecosystem excluded (the conflict-of-interest guard);
 #   - no history criterion, so every candidate is shallow-cloned for inspection.
-# --seed N is required: a fresh seed for the confirmatory draw (seed 1 drew the pilot and is
-# refused). Extra flags are passed straight through to BOTH draws (a later flag overrides an
-# earlier one). Interrupted? Re-run the same command to resume.
+# The seed defaults to 2, the pre-registered confirmatory seed (PLAN.md, 'Sample seed'): it is
+# the seed the companion coupling study (sinew-identification-study) draws its Java sample
+# with, and the sampler's draw order is keyed by seed, language and tier alone, so the two
+# studies share one Java population by design. Seed 1 drew the pilot and is refused. Pass
+# --seed N only for a deliberately independent sample, and record why. Extra flags are passed
+# straight through to BOTH draws (a later flag overrides an earlier one). Interrupted? Re-run
+# the same command to resume.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -55,9 +59,11 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# The seed is REQUIRED and must be one no analysis has seen. The pilot (pilot/run-v1-repos.txt)
-# was drawn with seed 1, so 1 is refused: a confirmatory sample drawn with it would be a re-draw
-# of data the plan was shaped on (README, 'Pre-registration').
+# The seed: 2 unless overridden, and never 1. The pilot (pilot/run-v1-repos.txt) was drawn
+# with seed 1, so 1 is refused: a confirmatory sample drawn with it would be a re-draw of data
+# the plan was shaped on (README, 'Pre-registration'). Seed 2 is shared with the coupling
+# study on purpose (see above); an explicit --seed is passed through unchanged.
+DEFAULT_SEED=2
 SEED=""
 for ((i = 0; i < ${#ARGS[@]}; i++)); do
   case "${ARGS[$i]}" in
@@ -66,8 +72,11 @@ for ((i = 0; i < ${#ARGS[@]}; i++)); do
   esac
 done
 if [ -z "$SEED" ]; then
-  echo "ERROR: pass --seed N with a seed no analysis has seen (the pilot used seed 1)." >&2
-  exit 1
+  SEED="$DEFAULT_SEED"
+  ARGS+=(--seed "$SEED")
+  echo "seed $SEED (the pre-registered seed, shared with sinew-identification-study's Java draw)"
+elif [ "$SEED" != "$DEFAULT_SEED" ]; then
+  echo "NOTE: seed $SEED is not the pre-registered seed $DEFAULT_SEED; this sample is INDEPENDENT of the coupling study's. Record why." >&2
 fi
 if [ "$SEED" = "1" ]; then
   echo "ERROR: seed 1 drew the pilot (pilot/run-v1-repos.txt); a confirmatory sample needs a fresh seed." >&2

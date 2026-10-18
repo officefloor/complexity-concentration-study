@@ -150,8 +150,17 @@ their 2019 commits) and is reported beside the primary, never pooled with it. It
   `study.run` from the sample CSVs **before any repository is measured**, written to
   `halves.json` in the results directory and recorded in every row (`half`). The analysis
   reads the recorded half and flags a run whose rows carry none as not confirmatory.
-- **Sample seed:** `step2_sample.sh` requires `--seed N` and refuses seed 1, which drew the
-  pilot (`pilot/run-v1-repos.txt`, 522 repositories).
+- **Sample seed: 2**, the default of `step2_sample.sh`, which refuses seed 1 (the pilot,
+  `pilot/run-v1-repos.txt`, 522 repositories). Seed 2 is the seed the companion coupling
+  study (`sinew-identification-study`, Java only) draws with, using the same sampler release
+  and criteria, and the sampler's draw order within a stratum is keyed by seed, language and
+  tier alone. The two studies therefore **share one Java population by design**, so a later
+  report can read a complexity result and a coupling result on the same repositories. The
+  shared population is exact only if both studies' enumerations of GitHub returned the same
+  candidate set (the seeded shuffle runs over the sorted set); the realised overlap is read off
+  the two sample CSVs and reported. The coupling study never sees this study's outcomes, and
+  this plan was fixed without seeing its sample, so sharing the population shapes neither
+  study's result.
 - **Pilot overlap:** the confirmatory sample is drawn from the same population as the pilot,
   so some overlap is expected. Overlapping repositories are **retained**: the plan was shaped
   on the pilot's aggregates (levels, spreads, prevalences), not on any repository. The
@@ -181,7 +190,8 @@ their 2019 commits) and is reported beside the primary, never pooled with it. It
 ## Procedure
 
 1. Commit this plan and the analysis script; tag the commit (`plan-v1`).
-2. Draw the confirmatory sample with a fresh seed (`./step2_sample.sh --seed N`, N ≠ 1).
+2. Draw the confirmatory sample with the pre-registered seed (`./step2_sample.sh`, seed 2,
+   shared with the coupling study; seed 1 is refused).
 3. Run `./step3_run.sh`; confirm no row records `-dirty` and that `halves.json` was written
    before the first repository was measured.
 4. **Before reading confirm:** run the classpath validation (`classpath-check --url

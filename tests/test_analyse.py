@@ -381,6 +381,10 @@ def test_plan_matches_plan_md():
     assert analyse.PLAN["human"]["decide_on"] == ["micro_mcc"] and "micro MCC arm alone" in text
     assert analyse.PLAN["human"]["mlcq_rule"] in text and "minor" in text
     assert "main sample" in text and "halves.json" in text and "seed 1" in text
+    assert f"**Sample seed: {analyse.PLAN['sample_seed']}**" in text
+    assert "sinew-identification-study" in text and "share one Java population" in text
+    step2 = open(os.path.join(root, "step2_sample.sh")).read()
+    assert f"DEFAULT_SEED={analyse.PLAN['sample_seed']}" in step2
     assert "sha256" in text and "owner" in text.lower()
 
 

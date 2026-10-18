@@ -211,8 +211,9 @@ Four numbered scripts, each printing the next. Prerequisites the scripts do **no
 `python3`, `git`, **Java (JRE 17+)**, and the **`gh` CLI authenticated** for step 2.
 
     ./step1_setup.sh                       # venv + pinned deps (incl. the sampler) + PMD/CK into ./lib
-    ./step2_sample.sh --seed N             # draw the main sample and the Java supplement -> sample/
-                                           # (--seed is required; 1 drew the pilot and is refused)
+    ./step2_sample.sh                      # draw the main sample and the Java supplement -> sample/
+                                           # (seed 2, pre-registered and shared with the coupling
+                                           # study; --seed N overrides, 1 drew the pilot and is refused)
     ./step3_run.sh                         # measure both samples -> results/<date>/
     ./step4_analyse.sh --results results/<date>
     ./step5_mlcq.sh                        # optional: the MLCQ human-label sub-study -> results/mlcq/
@@ -398,8 +399,10 @@ machine-readable plan and `PLAN.md` its prose, and the two are tested against ea
    the Friedman subsets) and commit it with the harness.
 2. Tag that commit. `./step3_run.sh` records the harness commit in every row and warns loudly
    if the tree is dirty; a confirmatory run's rows must not say `-dirty`.
-3. Draw the confirmatory sample with a seed that no analysis has ever seen: `step2_sample.sh`
-   requires `--seed` and refuses seed 1, which drew the pilot. The pilot's repositories are
+3. Draw the confirmatory sample with the pre-registered seed 2 (`step2_sample.sh`'s default;
+   seed 1, which drew the pilot, is refused). Seed 2 is shared with the companion coupling
+   study, `sinew-identification-study`, so the two studies draw one Java population by design
+   (PLAN.md, *Sample seed*). The pilot's repositories are
    listed in `pilot/run-v1-repos.txt`; the diagnostics report any run's overlap with them,
    overlapping repositories are retained (the plan was shaped on pilot aggregates, not on
    repositories), and the primary is re-read without them as a labelled sensitivity analysis.

@@ -123,6 +123,11 @@ PLAN = {
                          "method": ["nloc", "hvol", "cc", "cognitive", "cyc_density", "mi"]},
     "friedman_rules": ["mad_z", "double_mad", "iqr", "adj_boxplot", "pct_top1"],
     "bootstrap": {"b": 2000, "seed": 12345},
+    # The confirmatory sample seed (step2_sample.sh's default; seed 1 drew the pilot and is
+    # refused). Seed 2 is shared with the companion coupling study, which draws Java with the
+    # same sampler release, so the two studies read one Java population by design.
+    "sample_seed": 2,
+    "shared_population_with": "sinew-identification-study (Java, seed 2)",
 }
 _CALIBRATION = (("cc", "cc", "pmd_method_CC10"), ("cognitive", "cognitive",
                                                  "pmd_method_Cognitive15"),
