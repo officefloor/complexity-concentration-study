@@ -65,43 +65,65 @@ are split into explore/confirm so the headline is out of sample. See
 ## Where things are
 
 - `complexity_concentration_study/` — extraction (`extract.py`), outlier algorithms and AUC/MCC math
-  (`metrics.py`), the god-oracle wiring and per-repo matrix (`study.py`: PMD/CK/DECOR), and the
-  seeded sampler (`sample.py`, `grow.py`).
+  (`metrics.py`), and the god-oracle wiring and per-repo matrix (`study.py`: PMD/CK/DECOR).
+- Sampling is not in this repository. The population is drawn, and each repository cloned at its
+  pinned commit, by [open-source-repository-sampler](https://github.com/officefloor/open-source-repository-sampler)
+  (pinned in `pyproject.toml`). This study only measures.
 - `paper/analyse.py` — the analysis report over the matrix (class & method level), pure
   standard library.
 - `paper/METHODOLOGY.md` — methodology, grouping, oracles, and caveats.
 
 ## Running it
 
-Three numbered scripts, each printing the next. Prerequisites the scripts do **not** install:
+Four numbered scripts, each printing the next. Prerequisites the scripts do **not** install:
 `python3`, `git`, **Java (JRE 17+)**, and the **`gh` CLI authenticated** (`gh auth login`) for
 the sampling in step 2.
 
-    ./step1_setup.sh                       # venv + pinned Python deps + PMD/CK into ./lib (sha256-verified)
-    ./step2_run.sh --seed 1                # draw the seeded sample and measure it -> results/<date>/
-    ./step3_analyse.sh --results results/<date>    # the full report, class and method level
+    ./step1_setup.sh                                  # venv + pinned deps (incl. the sampler) + PMD/CK into ./lib
+    ./step2_sample.sh                                 # draw the sample -> sample/
+    ./step3_run.sh --sample sample/open-source-repository-sample.csv   # measure it -> results/<date>/
+    ./step4_analyse.sh --results results/<date>       # the full report, class and method level
 
-That is the whole flow — each script ends by printing the exact next command (with the run's
-output directory filled in), so you can follow it top to bottom. `./step1_setup.sh` is a thin
-alias for the clean `./setup.sh` that also prints the next step. The manual equivalents are
-`python -m complexity_concentration_study.cli deps | grow` and `paper/analyse.py`; `pip` pins
-**lizard 1.23.0** (1.24.x has a Java regression that returns no functions for annotated classes).
+Each script ends by printing the exact next command, so you can follow it top to bottom.
+`./step1_setup.sh` is a thin alias for the clean `./setup.sh` that also prints the next step.
+`pip` pins **lizard 1.23.0** (1.24.x has a Java regression that returns no functions for
+annotated classes) and the sampler's release.
 
-Step 2 takes any `grow` flag and passes it through — the seed fixes the draw (a different seed is a
-different, independent sample), and output defaults to `results/<date>/` (override with
-`--out-dir`), PMD/CK default to `./lib` (override with `--lib`/`$CCS_LIB` or exact `--pmd`/`--ck`):
+**Step 2 — the sample.** `./step2_sample.sh` runs
+[open-source-repository-sampler](https://github.com/officefloor/open-source-repository-sampler)
+with this study's criteria, written out in the script: all 11 languages × 3 popularity tiers,
+grown until each language has 30 usable repositories, the analysis's substance floor (≥ 50
+functions in ≥ 15 files with a function), the author's own ecosystem excluded, seed 1. It writes
+two files into `sample/`:
 
-    ./step2_run.sh --seed 1 --out-dir results/my-run --target 40
+- `open-source-repository-sample.csv` — every candidate drawn, usable or excluded with its
+  reason, each pinned to the commit that met the criteria;
+- `open-source-repository-sample.derivation.json` — how the sample was drawn and how to redo it.
 
-It clones hundreds of repositories (PMD + CK on every Java one) and is resumable — re-running
-step 2 with the same `--out-dir` skips repositories already recorded. Alongside the lean
-`study.json` it writes an append-only `study.units.jsonl` sidecar with each repo's per-unit values
-and god membership — the substrate for the conservation and no-calibration analyses.
+They are the study population, and go into the paper's ancillary data unchanged. Extra flags pass
+through to the sampler (for example, `--seed 2` draws a different, independent sample).
+
+**Skip step 2** to measure an existing sample: the one published with the paper, or another
+study's, so that both studies measure exactly the same code. Pass it to step 3 with `--sample`.
+
+**Step 3 — the measurement.** `./step3_run.sh` verifies the sample against its derivation. The
+sampler's run loop then shallow-clones each usable repository at its pinned commit, the study
+measures it, and the clone is deleted, so disk use stays at one repository at a time. Output
+defaults to `results/<date>/` (override with `--out-dir`), and PMD/CK default to `./lib`
+(override with `--lib`/`$CCS_LIB`, or exact `--pmd`/`--ck`):
+
+    ./step3_run.sh --sample sample/open-source-repository-sample.csv --out-dir results/my-run
+
+It measures hundreds of repositories (PMD + CK on every Java one) and is resumable: re-running
+with the same `--out-dir` skips the repositories its `run-log.jsonl` records as done. Alongside the
+lean `study.json` it writes an append-only `study.units.jsonl` sidecar with each repo's per-unit
+values and god membership, which the conservation and no-calibration analyses use. It also writes
+the ancillary package to `<out-dir>/anc/`: `results.csv`, `README.txt` and the sample's two files.
 
 **No silent missing data, no version drift.** A single preflight runs before any clone and fails
-loud on: a blind lizard parser, missing `git`, an unauthenticated `gh`, or a configured PMD/CK
-that does not actually run and return a non-empty panel on a synthetic god class. It also enforces
-the **exact tool pins** — lizard `1.23.0`, PMD `7.27.0`, the CK `0.7.0` jar by sha256 — as a
+loud on any of these: a blind lizard parser, missing `git`, or a configured PMD/CK that does not
+actually run and return a non-empty panel on a synthetic god class. It also enforces the
+**exact tool pins** — lizard `1.23.0`, PMD `7.27.0`, the CK `0.7.0` jar by sha256 — as a
 **hard failure**, not a warning, so every run and every independent review uses identical tools and
 the numbers are comparable. To use a different version deliberately, change the pin in
 `complexity_concentration_study/study.py`: that makes the choice a git-auditable code change, and any difference in
@@ -122,8 +144,10 @@ directory also live in `paper/` (added as the write-up is done).
 
 ## What is and isn't committed
 
-Code only. Both **dependencies** (`./lib`) and **results** (`results/<date>/` — `study.json`, the
-`study.units.jsonl` sidecar, the CSV, the sample, the ancillary package) are **git-ignored**:
+Code, plus the sample once drawn (`sample/`, two small files, worth committing so the study
+population is pinned in the repository). Both **dependencies** (`./lib`) and **results**
+(`results/<date>/` — `study.json`, the `study.units.jsonl` sidecar, the CSV, the run log, the
+ancillary package) are **git-ignored**:
 every machine downloads the exact pinned tools itself, and results are regenerated by running the
 study (a curated subset is published as the paper's ancillary data). This keeps the repository to
 the harness and makes the method fully inspectable in code.

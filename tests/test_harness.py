@@ -1,18 +1,17 @@
 """Regression tests for the study harness: sampling, usability, oracles and reproducibility.
 Each test pins one behaviour so it cannot silently break.
 
-No network: GitHub search, cloning and measurement are replaced by stubs where needed, and
-the pinned-clone test uses a local git repository.
+No network: the study-run test drives the sampler's run loop over a local git repository named
+in a sample CSV, so cloning at the pinned commit and measuring run for real.
 """
 import importlib.util
 import os
-import random
 import subprocess
 import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from complexity_concentration_study import extract, grow, metrics, study
+from complexity_concentration_study import metrics, study
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -60,107 +59,54 @@ def test_average_precision_perfect_ranking_is_one():
     assert ap == 1.0
 
 
-# --- sampling -------------------------------------------------------------------------------
-
-def test_tiers_are_disjoint():
-    from complexity_concentration_study.sample import TIERS, TIER_BANDS
-    assert TIERS["low"].endswith("..999") and TIERS["mid"].startswith("stars:1000")
-    assert TIER_BANDS["low"][-1].endswith("..999") and TIER_BANDS["mid"][0].startswith("1000")
-
-
-def test_band_draw_follows_band_population():
-    def fake(lang, band, pool, exclude, pause):
-        total = {"200..290": 9000, "291..400": 1000}.get(band, 0)
-        return ([{"full_name": f"{band}/{i}", "url": f"{band}-{i}", "stars": 1, "rank": i,
-                  "band": band} for i in range(pool)], total, None)
-    orig, orig_bands = grow._band_candidates, grow.TIER_BANDS
-    grow._band_candidates = fake
-    grow.TIER_BANDS = {"low": ["200..290", "291..400"]}
-    try:
-        order, totals, _ = grow._candidates("java", "low", 400, set(), 0, random.Random(1))
-        again, _, _ = grow._candidates("java", "low", 400, set(), 0, random.Random(1))
-    finally:
-        grow._band_candidates, grow.TIER_BANDS = orig, orig_bands
-    assert [c["url"] for c in order] == [c["url"] for c in again]        # seeded
-    first = [c["band"] for c in order[:50]]
-    assert first.count("200..290") > 35, first                            # ~90% weight
-
-
-def test_grow_draws_every_tier_equally_and_stops_at_target():
-    tmp = tempfile.mkdtemp()
-    measured = []
-
-    def fake_candidates(lang, tier, pool, exclude, pause, rng):
-        return ([{"full_name": f"{tier}/{i}", "url": f"https://x/{tier}{i}.git", "stars": 1,
-                  "rank": i, "band": "b"} for i in range(10)], {"b": 10}, None)
-
-    class _Out:
-        stdout = "abc1234\n"
-
-    patches = {
-        (grow, "_candidates"): fake_candidates,
-        (study, "clone_at"): lambda url, dest, sha=None, timeout=None:
-            (os.makedirs(dest, exist_ok=True), measured.append(url))[0],
-        (study, "_git"): lambda args, cwd=None: _Out(),
-        (study, "_lang"): lambda root: "java",
-        (study, "analyse"): lambda root, pmd, ck=None:
-            {"n_funcs": 100, "matrix": {"class": {"n_univ": 40, "wmc47_gods": 3}}},
-        (study, "tool_versions"): lambda pmd, ck: {},
-        (study, "preflight"): lambda *a, **k: None,      # gh/tool checks tested separately
-        (study, "_summary"): lambda rows, *a, **k: None,
-    }
-    saved = {k: getattr(*k) for k in patches}
-    for (mod, name), fn in patches.items():
-        setattr(mod, name, fn)
-    try:
-        grow.grow(["java"], ["high", "mid", "low"], target=6, cap=6, hw=9.0, seed=1, pool=10,
-                  min_funcs=50, min_univ=15, pmd=None,
-                  out_path=os.path.join(tmp, "s.json"),
-                  manifest_path=os.path.join(tmp, "m.json"),
-                  repos_path=os.path.join(tmp, "repos.txt"), keep=False, pause=0,
-                  max_clones=100)
-    finally:
-        for (mod, name), fn in saved.items():
-            setattr(mod, name, fn)
-    tiers = [u.split("/")[-1][:-5].rstrip("0123456789") for u in measured]
-    assert sorted(tiers) == sorted(["high"] * 2 + ["mid"] * 2 + ["low"] * 2), tiers
-    pins = study.read_repo_pins(os.path.join(tmp, "repos.txt"))
-    assert pins and all(sha == "abc1234" for _, sha in pins), pins   # repos.txt is pinned
-
-
-# --- reproducibility -----------------------------------------------------------------------
-
-def test_read_repo_pins():
-    p = os.path.join(tempfile.mkdtemp(), "repos.txt")
-    with open(p, "w") as fh:
-        fh.write("# header\nhttps://a/x.git 0123abcd   # high, 9 stars\n"
-                 "https://a/y.git   # low, 3 stars\n\nhttps://a/z.git notasha\n")
-    assert study.read_repo_pins(p) == [("https://a/x.git", "0123abcd"),
-                                       ("https://a/y.git", None), ("https://a/z.git", None)]
-    assert study.read_repo_list(p) == ["https://a/x.git", "https://a/y.git", "https://a/z.git"]
-
+# --- a study run measures each sampled repository at its pinned commit ----------------------
 
 def _git(cwd, *args):
     return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True,
                           check=True).stdout.strip()
 
 
-def test_clone_at_checks_out_the_pinned_commit():
+def test_run_measures_each_usable_sampled_repository_at_its_commit():
+    from open_source_repository_sampler import files
     src = tempfile.mkdtemp()
     _git(src, "init", "--quiet")
     _git(src, "config", "user.email", "t@t")
     _git(src, "config", "user.name", "t")
-    _git(src, "config", "uploadpack.allowAnySHA1InWant", "true")
-    for i in range(2):
-        with open(os.path.join(src, "f.txt"), "w") as fh:
-            fh.write(str(i))
-        _git(src, "add", "f.txt")
-        _git(src, "commit", "--quiet", "-m", f"c{i}")
-    first = _git(src, "rev-list", "--max-parents=0", "HEAD")
-    dest = os.path.join(tempfile.mkdtemp(), "clone")
-    assert study.clone_at("file://" + src, dest, first) is None
-    assert _git(dest, "rev-parse", "HEAD") == first
-    assert open(os.path.join(dest, "f.txt")).read() == "0"
+    body = "\n".join(f"def f{i}(x):\n    if x > {i}:\n        return x\n    return {i}\n"
+                     for i in range(60))
+    os.makedirs(os.path.join(src, "pkg"))
+    for i in range(20):
+        open(os.path.join(src, "pkg", f"m{i}.py"), "w").write(body)
+    _git(src, "add", "-A")
+    _git(src, "commit", "--quiet", "-m", "sampled")
+    sampled = _git(src, "rev-parse", "HEAD")
+    open(os.path.join(src, "pkg", "later.py"), "w").write("def later():\n    return 1\n")
+    _git(src, "add", "-A")
+    _git(src, "commit", "--quiet", "-m", "after sampling")       # must NOT be measured
+    tmp = tempfile.mkdtemp()
+    sample = os.path.join(tmp, "open-source-repository-sample.csv")
+    files.write_csv(sample, [
+        {"draw": 1, "status": "usable", "url": "file://" + src, "full_name": "o/proj",
+         "commit": sampled, "commit_date": "2026-01-02T03:04:05+00:00", "language": "python",
+         "stratum_language": "python", "tier": "low", "stars": 300, "rank": 4},
+        {"draw": 2, "status": "excluded", "reason": "n_functions 3 < 50", "url": "file:///nope",
+         "full_name": "o/small", "commit": "0" * 40, "language": "python"}])
+    out = os.path.join(tmp, "results")
+    rows = study.run(sample, out, None, None)
+    assert [r["full_name"] for r in rows] == ["o/proj"]          # the excluded row is not run
+    r = rows[0]
+    assert (r["commit"], r["lang"], r["tier"], r["stars"], r["date"]) == (
+        sampled, "python", "low", 300, "2026-01-02")
+    assert r["n_funcs"] == 20 * 60 and study.is_usable(r)        # later.py's function absent
+    assert sorted(os.listdir(out)) == ["run-log.jsonl", "study.csv", "study.json",
+                                       "study.units.jsonl"]
+    assert study.run(sample, out, None, None) == rows            # resumed: nothing re-measured
+    anc = os.path.join(tmp, "anc")
+    study.write_anc(rows, anc, frame_files=[sample])
+    assert sorted(os.listdir(anc)) == ["README.txt", "open-source-repository-sample.csv",
+                                       "results.csv"]
+    readme = open(os.path.join(anc, "README.txt")).read()
+    assert "{base}_sum" in readme and "1 usable repositories" in readme
 
 
 # --- oracles are keyed by path, over the measured files ------------------------------------
@@ -265,8 +211,8 @@ def test_reporter_latest_results_dir():
 # --- preflight (no silent missing data) -----------------------------------------------------
 
 def test_preflight_passes_with_no_java_tools_and_smoke_class_is_god_like():
-    # with no PMD/CK and no sampling, preflight needs only lizard + git (both present here)
-    study.preflight(None, None, need_gh=False)        # must not raise
+    # with no PMD/CK, preflight needs only lizard + git (both present here)
+    study.preflight(None, None)        # must not raise
     assert study._tool_problems(None, None) == []
     src = study._java_smoke_source()
     assert src.count("public int m") == 30 and src.count("public int f") == 16
@@ -279,7 +225,7 @@ def test_preflight_hard_fails_on_version_drift():
     study.LIZARD_VERSION = "9.9.9"
     try:
         try:
-            study.preflight(None, None, need_gh=False)
+            study.preflight(None, None)
             assert False, "preflight should hard-fail on version drift"
         except RuntimeError as e:
             assert "9.9.9" in str(e) and "pin" in str(e).lower()

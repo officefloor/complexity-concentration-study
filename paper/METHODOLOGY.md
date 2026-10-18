@@ -98,6 +98,34 @@ from the best *non-ingredient* signal; `tokens`, `cognitive`, `params`, `hvol`, 
 concentration. CK cohesion/coupling and the PMD size panel are supporting, tool-derived
 (Java-only) targets.
 
+## The sample
+
+The repositories are drawn by
+[open-source-repository-sampler](https://github.com/officefloor/open-source-repository-sampler),
+a separate tool, so the population is chosen independently of this study's code and outcomes:
+
+- **Strata and draw.** GitHub repositories (non-archived, non-fork) are stratified by language
+  (11) × popularity tier (`high` >5000 stars, `mid` 1000–5000, `low` 200–999). Popularity is a
+  proxy for the spread from heavily maintained to rougher code, not a measure of quality. Each
+  tier is split into star bands, and a seeded shuffle within each band is interleaved in
+  proportion to band size, so the draw spreads across the tier rather than taking its top.
+- **Growth.** Each language is drawn until it has 30 usable repositories, or its strata are
+  exhausted.
+- **Usability.** A repository is usable when the sampler's generic measures meet this study's
+  substance floor: ≥ 50 functions in ≥ 15 source files that hold a function. This is decided on
+  size alone, before any detection outcome, so a repository cannot be selected or dropped on its
+  result. `analyse.py` applies the same floor (`study.is_usable`) to the measured row.
+- **Language and exclusions.** A repository counts toward the language detected from its own
+  source code, not GitHub's label. The author's own ecosystem (`officefloor`,
+  `sagenschneider`) is excluded, as a conflict-of-interest guard.
+- **Pinned commit.** Each repository is pinned to the commit its default branch was on when
+  drawn. The study measures exactly that commit, never a later one.
+
+The criteria are in `step2_sample.sh`. The sample is the pair of files
+`open-source-repository-sample.csv` (every candidate, usable or excluded with its reason) and
+`.derivation.json` (method, parameters, sampler version and commit, every query). They are
+published unchanged as ancillary data.
+
 ## Aggregation and the explore/confirm split
 
 Per the standard for comparing many methods over many data sets (Demšar 2006): the Friedman
@@ -144,6 +172,10 @@ best signal's AUC is then read on the held-out CONFIRM half, so the headline is 
    table), and `mi` is the classic three-metric Maintainability Index built on it; both are
    faithful relative estimates, not certified tool values, and `mi` is stored inverted as a
    burden so higher means worse.
+9. **Popularity tier is a proxy, and GitHub moves.** Tier stands in for maturity and is not
+   controlled for application vs library type, which is reported post hoc (`kind`). Re-running the
+   sampler later reproduces the *method*, not necessarily the same list, because stars and
+   repositories change. The published sample, pinned to commits, is the record of the population.
 
 ## References
 

@@ -23,13 +23,18 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Version Control :: Git",
 ]
-# Standalone and language-independent: lizard supplies the multi-language function list,
-# cyclomatic complexity and line ranges; everything above it is lexical. No other runtime
-# dependency. (Same substrate as impact-gate.)
+# Language-independent: lizard supplies the multi-language function list, cyclomatic
+# complexity and line ranges; everything above it is lexical. (Same substrate as impact-gate.)
 # PINNED, not >=: lizard 1.24.x parses a Java class annotated @Entity then @Table(...) to
 # ZERO functions (study.check_parser fails closed on it). PMD 7.27.0 and CK 0.7.0 are
 # pinned in study.py.
-dependencies = ["lizard==1.23.0"]
+# The sample, and the loop that clones each sampled repository at its pinned commit, come from
+# open-source-repository-sampler, pinned to a release tag (switch to
+# "open-source-repository-sampler==0.1.1" once it is on PyPI).
+dependencies = [
+    "lizard==1.23.0",
+    "open-source-repository-sampler @ git+https://github.com/officefloor/open-source-repository-sampler.git@v0.1.1",
+]
 
 [project.scripts]
 complexity-concentration-study = "complexity_concentration_study.cli:main"
