@@ -1,14 +1,14 @@
-"""god-complexity command line.
+"""complexity-concentration-study command line.
 
-  god-complexity deps                      download the non-pip tools (PMD, CK) into ./lib
-  god-complexity study  [--repos f]        multi-language god-class/method identification study
-  god-complexity sample [--k N --seed S]   seeded stratified GitHub sample -> repos + manifest
-  god-complexity grow   [--target N ...]   adaptive sample: top up until each language hits target
+  complexity-concentration-study deps                      download the non-pip tools (PMD, CK) into ./lib
+  complexity-concentration-study study  [--repos f]        multi-language god-class/method identification study
+  complexity-concentration-study sample [--k N --seed S]   seeded stratified GitHub sample -> repos + manifest
+  complexity-concentration-study grow   [--target N ...]   adaptive sample: top up until each language hits target
 
 Typical replication: `./setup.sh` once (venv + pip + deps), then `grow --seed 1` -- PMD/CK
 default to ./lib and output defaults to results/<date>. The study measures a per-repo
 (level x complexity signal x outlier algorithm x god definition) matrix; analyse it with
-paper/god_complexity.py.
+paper/analyse.py.
 """
 from __future__ import annotations
 
@@ -21,24 +21,24 @@ from . import study, sample, grow, deps
 
 def main(argv: list[str] | None = None) -> int:
     argv_list = list(sys.argv[1:] if argv is None else argv)
-    ap = argparse.ArgumentParser(prog="god-complexity", description=__doc__,
+    ap = argparse.ArgumentParser(prog="complexity-concentration-study", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     dp = sub.add_parser("deps", help="download the non-pip tools (PMD, CK) into ./lib, each "
                         "verified against its pinned sha256 (needs network)")
     dp.add_argument("--lib", default=None, help="install into this dir instead of ./lib "
-                    "(or $GODC_LIB)")
+                    "(or $CCS_LIB)")
     dp.add_argument("--force", action="store_true", help="re-download even if already present")
     st = sub.add_parser("study", help="multi-language god-class/method identification study "
                         "(clones latest default branch, records the commit, deletes clone)")
-    st.add_argument("-o", "--out", default="god_complexity_study.json")
+    st.add_argument("-o", "--out", default="study.json")
     st.add_argument("--repos", default=None, help="file with one `URL [COMMIT]` per line; a "
                     "commit pins the exact revision measured")
     st.add_argument("--pmd", default=None, help="PMD binary (default: ./lib PMD from `deps`)")
     st.add_argument("--ck", default=None, help="CK jar (default: ./lib CK from `deps`), for the "
                     "Java LCOM/TCC/CBO cohesion-and-coupling god definitions")
     st.add_argument("--lib", default=None, help="dependency dir to default --pmd/--ck from "
-                    "(or $GODC_LIB; default ./lib)")
+                    "(or $CCS_LIB; default ./lib)")
     st.add_argument("--anc", default=None, help="write the ancillary-data package here "
                     "(results.csv + README.txt)")
     st.add_argument("--keep", action="store_true", help="do not delete clones")

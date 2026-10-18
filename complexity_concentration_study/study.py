@@ -7,7 +7,7 @@ is the public repo; we keep only the sha), measure, and delete the clone to boun
 
 For every (level, complexity signal, outlier algorithm, god DEFINITION) the per-repo `matrix`
 block records lean confusion counts and the threshold-free AUC/AP of the raw signal. The
-analysis of that matrix lives in paper/god_complexity.py.
+analysis of that matrix lives in paper/analyse.py.
 
 God DEFINITIONS (language-neutral + Java panels):
   * god CLASS  = file WMC >= 47 (Lanza-Marinescu size threshold)
@@ -130,7 +130,7 @@ def _pmd_violations(pmd: str, root: str, files: list[str]) -> dict | None:
     Returns None if PMD could not be run or parsed."""
     if not files:
         return {}
-    fd, lst = tempfile.mkstemp(prefix="godc-pmd-", suffix=".txt")
+    fd, lst = tempfile.mkstemp(prefix="ccs-pmd-", suffix=".txt")
     try:
         with os.fdopen(fd, "w") as fh:
             fh.write("\n".join(os.path.join(root, f) for f in files) + "\n")
@@ -180,7 +180,7 @@ def _ck_gods(ck_jar: str, root: str, files: list[str]) -> dict | None:
     _CONTROLLER = re.compile(r"(process|control|manage|system|command|handler|manager|"
                              r"driver|exec|service|coordinator|dispatcher)", re.I)
     measured = set(files)
-    outdir = tempfile.mkdtemp(prefix="godc-ck-")
+    outdir = tempfile.mkdtemp(prefix="ccs-ck-")
     try:
         subprocess.run(["java", "-jar", ck_jar, root, "false", "0", "false", outdir + os.sep],
                        capture_output=True, text=True, timeout=1800)
@@ -534,7 +534,7 @@ def tool_versions(pmd: str | None, ck: str | None) -> dict:
     v = {"python": platform.python_version(), "lizard": _lizard_version()}
     try:
         from importlib.metadata import version
-        v["god_complexity"] = version("god-complexity")
+        v["complexity_concentration_study"] = version("complexity-concentration-study")
     except Exception:
         pass
     if pmd:
@@ -603,7 +603,7 @@ def _tool_problems(pmd: str | None, ck: str | None) -> list[str]:
     if shutil.which("java") is None:
         return ["no `java` on PATH -- PMD and CK both need a JRE (install one, or omit "
                 "--pmd/--ck to run without the Java panels)."]
-    smoke = tempfile.mkdtemp(prefix="godc-preflight-")
+    smoke = tempfile.mkdtemp(prefix="ccs-preflight-")
     try:
         with open(os.path.join(smoke, "PreflightGod.java"), "w") as fh:
             fh.write(_java_smoke_source())
@@ -649,7 +649,7 @@ def preflight(pmd: str | None, ck: str | None, need_gh: bool = False) -> None:
     if drift:
         problems.append("the tool versions above are pinned for run-to-run reproducibility and "
                         "independent review; to use another version, change the pin in "
-                        "god_complexity/study.py (a git-auditable code change), not at runtime.")
+                        "complexity_concentration_study/study.py (a git-auditable code change), not at runtime.")
     if problems:
         raise RuntimeError(
             "PREFLIGHT FAILED -- fix these before running so the study captures every number "
@@ -715,11 +715,11 @@ def run(repos: list, out_path: str, pmd: str | None, keep: bool,
     preflight(pmd, ck, need_gh=False)   # fail loud/early: parser, git, exact tool pins, PMD/CK
     selection = _load_selection(manifest_path)
     tools = tool_versions(pmd, ck)      # recorded with every row (preflight guarantees pins)
-    work = tempfile.mkdtemp(prefix="godc-study-")
+    work = tempfile.mkdtemp(prefix="ccs-study-")
     pins = [(r, None) if isinstance(r, str) else tuple(r) for r in repos]
     total = len(pins)
     n_pinned = sum(1 for _, sha in pins if sha)
-    print(f"god-complexity study: {total} repositories ({n_pinned} pinned to a commit) | "
+    print(f"complexity-concentration-study study: {total} repositories ({n_pinned} pinned to a commit) | "
           f"references: class WMC>=47, method CC>={CC_GOD}"
           + (", Java PMD panel" if pmd else "") + (", Java CK panel" if ck else "") + "\n"
           f"each repo is shallow-cloned (at its pinned commit, else the latest default branch), "
@@ -831,7 +831,7 @@ def _summary(rows: list[dict], pmd: str | None = None, ck: str | None = None) ->
               f"{len(java_ok)} Java repos -- those rows lack CK oracles: "
               f"{[r.get('name') for r in holes][:15]}" if holes else
               f"CK configured: panel present on all {len(java_ok)} Java repos.")
-    print("Analysis of the comparison matrix: paper/god_complexity.py <study.json>.")
+    print("Analysis of the comparison matrix: paper/analyse.py <study.json>.")
 
 
 def write_anc(rows: list[dict], anc_dir: str, frame_files=None) -> None:
@@ -853,7 +853,7 @@ def write_anc(rows: list[dict], anc_dir: str, frame_files=None) -> None:
     print(f"wrote ancillary-data package -> {anc_dir}/ (results.csv, README.txt)")
 
 
-_ANC_README = """God-complexity: complexity-outlier god-class/method identification study (ancillary data)
+_ANC_README = """Complexity-concentration study: complexity-outlier god-class/method identification study (ancillary data)
 ================================================================================
 
 WHAT THIS IS
@@ -895,16 +895,16 @@ HEADLINE (this run)
   {n_repos} usable repositories, {n_langs} languages ({langs}).
 
 REPRODUCE
-  pip install -e .   (from the god-complexity source)
-  god-complexity grow --anc <out dir>     grow a seeded, stratified sample to target
-  god-complexity study --repos repos.txt  re-measure this exact population, each at its commit
-  python paper/god_complexity.py <study.json> --level class    analyse the matrix
+  pip install -e .   (from the complexity-concentration-study source)
+  complexity-concentration-study grow --anc <out dir>     grow a seeded, stratified sample to target
+  complexity-concentration-study study --repos repos.txt  re-measure this exact population, each at its commit
+  python paper/analyse.py <study.json> --level class    analyse the matrix
 """.replace("{min_funcs}", str(MIN_FUNCS)).replace("{min_univ}", str(MIN_UNIV))
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("-o", "--out", default="god_complexity_study.json")
+    ap.add_argument("-o", "--out", default="study.json")
     ap.add_argument("--repos", default=None, help="file with one git URL per line")
     ap.add_argument("--pmd", default=None, help="PMD binary, for the Java design panel")
     ap.add_argument("--ck", default=None, help="CK jar, for the Java cohesion/coupling panel")

@@ -1,4 +1,4 @@
-"""Hand-worked self-tests for the comparison-matrix math in god_complexity.metrics:
+"""Hand-worked self-tests for the comparison-matrix math in complexity_concentration_study.metrics:
 the threshold-free AUC/AP, the skew-adjusted-boxplot medcouple, the signal value, the
 outlier algorithms, and the concentration measures. Every expected value is derived by hand.
 """
@@ -6,7 +6,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from god_complexity import extract, halstead, metrics
+from complexity_concentration_study import extract, halstead, metrics
 
 
 def test_auc_perfect_separation():

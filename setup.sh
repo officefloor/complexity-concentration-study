@@ -5,7 +5,7 @@
 # sha256.
 #
 # Needs on the machine already: python3, git, and Java (JRE 17+). Override the interpreter with
-# PYTHON=..., the dependency dir with GODC_LIB=... .
+# PYTHON=..., the dependency dir with CCS_LIB=... .
 #
 # (step1_setup.sh wraps this and prints the next step in the numbered flow.)
 set -euo pipefail
@@ -19,5 +19,5 @@ echo "[2/3] installing pinned Python dependencies (editable)"
 .venv/bin/pip install --quiet --upgrade pip
 .venv/bin/pip install --quiet -e .
 echo "[3/3] downloading PMD + CK into ./lib (verified by sha256)"
-.venv/bin/python -m god_complexity.cli deps
+.venv/bin/python -m complexity_concentration_study.cli deps
 echo "setup complete."

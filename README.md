@@ -6,7 +6,7 @@ same classes/methods that a tool-defined god-class/method definition marks, and 
 complexity definition and *which* outlier rule do it best?
 
 It is **identification, not prediction**, measured on freshly sampled repositories. The
-package is `god_complexity`; it measures only per-unit code complexity and compares a relative
+package is `complexity_concentration_study`; it measures only per-unit code complexity and compares a relative
 outlier in it against textbook god definitions.
 
 ## What this is looking to achieve
@@ -60,16 +60,16 @@ outlier rules, do it best.
 
 Signal quality is scored threshold-free by **AUC**; algorithm quality by **MCC**; repositories
 are split into explore/confirm so the headline is out of sample. See
-`paper/GOD_COMPLEXITY_NOTES.md` for the methodology and caveats.
+`paper/METHODOLOGY.md` for the methodology and caveats.
 
 ## Where things are
 
-- `god_complexity/` — extraction (`extract.py`), outlier algorithms and AUC/MCC math
+- `complexity_concentration_study/` — extraction (`extract.py`), outlier algorithms and AUC/MCC math
   (`metrics.py`), the god-oracle wiring and per-repo matrix (`study.py`: PMD/CK/DECOR), and the
   seeded sampler (`sample.py`, `grow.py`).
-- `paper/god_complexity.py` — the analysis report over the matrix (class & method level), pure
+- `paper/analyse.py` — the analysis report over the matrix (class & method level), pure
   standard library.
-- `paper/GOD_COMPLEXITY_NOTES.md` — methodology, grouping, oracles, and caveats.
+- `paper/METHODOLOGY.md` — methodology, grouping, oracles, and caveats.
 
 ## Running it
 
@@ -84,12 +84,12 @@ the sampling in step 2.
 That is the whole flow — each script ends by printing the exact next command (with the run's
 output directory filled in), so you can follow it top to bottom. `./step1_setup.sh` is a thin
 alias for the clean `./setup.sh` that also prints the next step. The manual equivalents are
-`python -m god_complexity.cli deps | grow` and `paper/god_complexity.py`; `pip` pins
+`python -m complexity_concentration_study.cli deps | grow` and `paper/analyse.py`; `pip` pins
 **lizard 1.23.0** (1.24.x has a Java regression that returns no functions for annotated classes).
 
 Step 2 takes any `grow` flag and passes it through — the seed fixes the draw (a different seed is a
 different, independent sample), and output defaults to `results/<date>/` (override with
-`--out-dir`), PMD/CK default to `./lib` (override with `--lib`/`$GODC_LIB` or exact `--pmd`/`--ck`):
+`--out-dir`), PMD/CK default to `./lib` (override with `--lib`/`$CCS_LIB` or exact `--pmd`/`--ck`):
 
     ./step2_run.sh --seed 1 --out-dir results/my-run --target 40
 
@@ -104,14 +104,14 @@ that does not actually run and return a non-empty panel on a synthetic god class
 the **exact tool pins** — lizard `1.23.0`, PMD `7.27.0`, the CK `0.7.0` jar by sha256 — as a
 **hard failure**, not a warning, so every run and every independent review uses identical tools and
 the numbers are comparable. To use a different version deliberately, change the pin in
-`god_complexity/study.py`: that makes the choice a git-auditable code change, and any difference in
+`complexity_concentration_study/study.py`: that makes the choice a git-auditable code change, and any difference in
 the results is then traceable to it. An omitted panel is announced explicitly, never silent.
 
 Analyse a run (any `python3`, no dependencies) — point it at a results directory, or let it pick
 the latest:
 
-    python3 paper/god_complexity.py --results results/<date> --level class
-    python3 paper/god_complexity.py --level class          # uses the latest results/<date>
+    python3 paper/analyse.py --results results/<date> --level class
+    python3 paper/analyse.py --level class          # uses the latest results/<date>
 
 The report covers: the out-of-sample AUC headline (with a bootstrap CI), the signal and
 outlier-rule rankings, the **conservation** check (do different complexity measures rank the same

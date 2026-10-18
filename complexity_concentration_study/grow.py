@@ -13,7 +13,7 @@ hidden). "Usable" excludes repos below a minimum substance floor (`--min-funcs`,
 reproducible; the manifest records the rounds and the exact selection, star and rank of
 every repository drawn.
 
-    god-complexity grow --target 30 --cap 40 --seed 1 \\
+    complexity-concentration-study grow --target 30 --cap 40 --seed 1 \\
         -o repos.txt -m sampling-manifest.json -O study.json --anc anc/ --pmd pmd
 
 Requires the `gh` CLI, authenticated, for the GitHub search rate limit (same as `sample`).
@@ -41,7 +41,7 @@ CLONE_TIMEOUT = 600         # seconds; a single clone cannot stall the whole run
 
 # ---------------------------------------------------------------------------
 # The default configuration, in one place. Running
-#     god-complexity grow
+#     complexity-concentration-study grow
 # with no arguments uses these defaults: a fixed seed, per-language target and
 # precision bar, substance floor, languages and tiers. Change any value only to
 # run a DIFFERENT configuration, and say so. The CLI reads its defaults straight from
@@ -210,7 +210,7 @@ def grow(langs: list[str], tiers: list[str], target: int, cap: int, hw: float, s
     # Fail loud/early, before any clone: lizard parser, git, authenticated gh, and -- when
     # configured -- PMD and CK actually running on a synthetic Java class (no silent panel holes).
     study.preflight(pmd, ck, need_gh=True)
-    work = tempfile.mkdtemp(prefix="godc-grow-")
+    work = tempfile.mkdtemp(prefix="ccs-grow-")
     tools = study.tool_versions(pmd, ck)
     selection: dict = {}
     n_cloned = 0
@@ -343,7 +343,7 @@ def _write_manifest(path, rows, selection, totals, exhausted, seed, target, cap,
             {"url": r["repo"], "full_name": r.get("name"), "commit": r.get("commit"),
              "stars": r.get("stars"), "rank": r.get("rank"), "star_band": r.get("star_band")})
     manifest = {
-        "generated_by": "god-complexity grow",
+        "generated_by": "complexity-concentration-study grow",
         "sampled_at_utc": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d"),
         "seed": seed, "mode": "adaptive-grow",
         "target_per_lang": target, "cap_per_lang": cap,
@@ -375,10 +375,10 @@ def _write_repos(path, rows) -> None:
     for r in rows:
         by_lang.setdefault(r.get("stratum_lang") or "?", []).append(r)
     with open(path, "w") as fh:
-        fh.write("# Repositories sampled by `god-complexity grow` (adaptive, seeded).\n")
-        fh.write("# The method is in god_complexity/grow.py; the frozen frame with every\n")
+        fh.write("# Repositories sampled by `complexity-concentration-study grow` (adaptive, seeded).\n")
+        fh.write("# The method is in complexity_concentration_study/grow.py; the frozen frame with every\n")
         fh.write("# query, match count and selection is in the manifest beside this file.\n")
-        fh.write("# Each line is `URL COMMIT`: `god-complexity study --repos <this file>`\n")
+        fh.write("# Each line is `URL COMMIT`: `complexity-concentration-study study --repos <this file>`\n")
         fh.write("# re-measures every repository at exactly that commit.\n")
         for lang in sorted(by_lang):
             fh.write(f"# --- {lang} ---\n")
@@ -432,7 +432,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--ck", default=None, help="CK jar (default: the ./lib CK from `deps`) for "
                     "the Java LCOM/TCC/CBO cohesion-and-coupling god definitions")
     ap.add_argument("--lib", default=None, help="dependency dir to default --pmd/--ck from "
-                    "(or $GODC_LIB; default ./lib)")
+                    "(or $CCS_LIB; default ./lib)")
     ap.add_argument("--anc", default=None, help="ancillary-data package dir (default <out-dir>/anc)")
     ap.add_argument("--keep", action="store_true", help="do not delete clones")
     ap.add_argument("--max-clones", type=int, default=STUDY["max_clones"],

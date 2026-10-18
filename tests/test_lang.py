@@ -8,7 +8,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from god_complexity.study import _lang
+from complexity_concentration_study.study import _lang
 
 
 def _tree(files: dict) -> str:
@@ -42,8 +42,8 @@ def test_js_family_aggregates():
 def test_labels_match_sample_langs():
     # Every studied language must be a label _lang can emit, or grow can never credit a repo
     # toward that language's target -- the mismatch that made the sampler loop on js/ts.
-    from god_complexity import study as _study
-    from god_complexity.sample import LANGS
+    from complexity_concentration_study import study as _study
+    from complexity_concentration_study.sample import LANGS
     emittable = set(_study._EXT_LANG.values())
     missing = [L for L in LANGS if L not in emittable]
     assert not missing, f"sample.LANGS not emittable by _lang: {missing}"

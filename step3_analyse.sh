@@ -7,7 +7,7 @@
 # Prints the full report at BOTH levels (class = god classes, method = god methods / brain
 # method): the out-of-sample AUC headline with bootstrap CI, the signal and outlier-rule
 # rankings, the conservation check, and the no-calibration head-to-head. Any extra flags are
-# passed through to paper/god_complexity.py.
+# passed through to paper/analyse.py.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -27,12 +27,12 @@ echo "=== STEP 3/3: analyse ${RESULTS:-the latest run} ==="
 for LVL in class method; do
   echo
   echo "############################## level = $LVL ##############################"
-  python3 paper/god_complexity.py ${RESARG[@]+"${RESARG[@]}"} --level "$LVL" ${PASS[@]+"${PASS[@]}"}
+  python3 paper/analyse.py ${RESARG[@]+"${RESARG[@]}"} --level "$LVL" ${PASS[@]+"${PASS[@]}"}
 done
 
 echo
 echo "=== STEP 3 complete. ==="
 echo "Re-run a single level any time, e.g.:"
 echo
-echo "    python3 paper/god_complexity.py ${RESULTS:+--results $RESULTS }--level class"
+echo "    python3 paper/analyse.py ${RESULTS:+--results $RESULTS }--level class"
 echo

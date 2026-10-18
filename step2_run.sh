@@ -6,7 +6,7 @@
 #
 # Draws the seeded sample and measures it. PMD/CK default to ./lib (from step 1); output goes to
 # results/<date>/ unless you pass --out-dir. Any extra flags are passed straight through to
-# `god-complexity grow` (e.g. --target, --langs). It is resumable: re-run with the same
+# `complexity-concentration-study grow` (e.g. --target, --langs). It is resumable: re-run with the same
 # --out-dir to continue. The script prints the exact analyse command for step 3.
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -24,7 +24,7 @@ while [ $# -gt 0 ]; do
 done
 
 echo "=== STEP 2/3: run the study -> $OUTDIR ==="
-.venv/bin/python -m god_complexity.cli grow --out-dir "$OUTDIR" ${ARGS[@]+"${ARGS[@]}"}
+.venv/bin/python -m complexity_concentration_study.cli grow --out-dir "$OUTDIR" ${ARGS[@]+"${ARGS[@]}"}
 
 echo
 echo "=== STEP 2 complete. ==="

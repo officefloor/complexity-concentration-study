@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Can an unsupervised, relative COMPLEXITY outlier reproduce a tool-defined god class?
 
-    python god_complexity.py [--results results/<date> | <study.json>] [--level class|method]
+    python analyse.py [--results results/<date> | <study.json>] [--level class|method]
 
 With neither a path nor --results, it reads the latest results/<date>/study.json.
 
@@ -240,7 +240,7 @@ def pooled(rows, lvl, s, a, defs):
 
 def _results_base():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # project root (../ of paper/)
-    return os.environ.get("GODC_RESULTS") or os.path.join(root, "results")
+    return os.environ.get("CCS_RESULTS") or os.path.join(root, "results")
 
 
 def _latest_results_dir():

@@ -10,7 +10,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from god_complexity import extract
+from complexity_concentration_study import extract
 
 SRC = {
     "Owner.java": """package t;
@@ -42,7 +42,7 @@ public class CtlTest {
 
 
 def _tree():
-    root = tempfile.mkdtemp(prefix="god_complexity_test_")
+    root = tempfile.mkdtemp(prefix="complexity_concentration_study_test_")
     for name, body in SRC.items():
         path = os.path.join(root, name)
         os.makedirs(os.path.dirname(path), exist_ok=True)

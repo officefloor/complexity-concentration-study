@@ -2,9 +2,9 @@
 match, and where the project keeps them so the CLI can default to those locations.
 
 pip installs the Python side (see pyproject). The two Java tools are not on PyPI, so `setup.sh`
-(or `god-complexity deps`) downloads them here into ./lib, each verified against the sha256 the
+(or `complexity-concentration-study deps`) downloads them here into ./lib, each verified against the sha256 the
 study pins, and the CLI then defaults --pmd/--ck to these paths -- a replication run needs only
-the key flags. Override the location with --lib or $GODC_LIB, or point --pmd/--ck elsewhere.
+the key flags. Override the location with --lib or $CCS_LIB, or point --pmd/--ck elsewhere.
 
 Everything is plain, inspectable code: the source URLs, the sha256 each artifact must match, and
 the extraction. A download that does not match its pinned sha256 is removed and raises, so a
@@ -27,13 +27,13 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def default_lib() -> str:
-    """Where downloaded (non-pip) dependencies live: $GODC_LIB, else <project>/lib."""
-    return os.environ.get("GODC_LIB") or os.path.join(PROJECT_ROOT, "lib")
+    """Where downloaded (non-pip) dependencies live: $CCS_LIB, else <project>/lib."""
+    return os.environ.get("CCS_LIB") or os.path.join(PROJECT_ROOT, "lib")
 
 
 def default_results() -> str:
-    """Base directory for run output: $GODC_RESULTS, else <project>/results."""
-    return os.environ.get("GODC_RESULTS") or os.path.join(PROJECT_ROOT, "results")
+    """Base directory for run output: $CCS_RESULTS, else <project>/results."""
+    return os.environ.get("CCS_RESULTS") or os.path.join(PROJECT_ROOT, "results")
 
 
 # --- PMD: the GitHub release zip, pinned by study.PMD_VERSION and by the zip's sha256 ---------
@@ -97,7 +97,7 @@ def fetch(lib: str | None = None, force: bool = False) -> dict:
 
     pmd = pmd_path(lib)
     if force or not os.path.exists(pmd):
-        with tempfile.TemporaryDirectory(prefix="godc-pmd-dl-") as td:
+        with tempfile.TemporaryDirectory(prefix="ccs-pmd-dl-") as td:
             zpath = os.path.join(td, "pmd.zip")
             _download_verified(PMD_URL, PMD_ZIP_SHA256, zpath)
             shutil.rmtree(os.path.join(lib, f"pmd-bin-{study.PMD_VERSION}"), ignore_errors=True)

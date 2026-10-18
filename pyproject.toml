@@ -3,7 +3,7 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "god-complexity"
+name = "complexity-concentration-study"
 version = "0.0.1"
 description = "Identify god classes/methods as relative outliers in per-unit code complexity."
 readme = "README.md"
@@ -32,8 +32,8 @@ classifiers = [
 dependencies = ["lizard==1.23.0"]
 
 [project.scripts]
-god-complexity = "god_complexity.cli:main"
-godc = "god_complexity.cli:main"
+complexity-concentration-study = "complexity_concentration_study.cli:main"
+ccs = "complexity_concentration_study.cli:main"
 
 [tool.setuptools]
-packages = ["god_complexity"]
+packages = ["complexity_concentration_study"]

@@ -21,7 +21,7 @@ study, not controlled here (GitHub topics are too sparse to stratify on reliably
 
 Requires the `gh` CLI, authenticated (`gh auth status`), for the higher search rate limit.
 
-    god-complexity sample --k 3 --seed 1 -o repos.txt -m sampling-manifest.json
+    complexity-concentration-study sample --k 3 --seed 1 -o repos.txt -m sampling-manifest.json
 """
 from __future__ import annotations
 
@@ -103,7 +103,7 @@ def sample(langs: list[str], tiers: list[str], k: int, seed: int, pool: int,
                   + (f"  ERROR {res['error']}" if res.get("error") else ""), flush=True)
             time.sleep(pause)
     return {
-        "generated_by": "god-complexity sample",
+        "generated_by": "complexity-concentration-study sample",
         "sampled_at_utc": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d"),
         "seed": seed, "k_per_stratum": k, "pool_per_stratum": pool,
         "langs": langs, "tiers": {t: TIERS[t] for t in tiers},
@@ -118,10 +118,10 @@ def sample(langs: list[str], tiers: list[str], k: int, seed: int, pool: int,
 
 def write_repos(manifest: dict, path: str) -> None:
     with open(path, "w") as fh:
-        fh.write(f"# Repositories sampled by `god-complexity sample` "
+        fh.write(f"# Repositories sampled by `complexity-concentration-study sample` "
                  f"(seed {manifest['seed']}, {manifest['sampled_at_utc']}).\n")
         fh.write("# Stratified by language x popularity tier; seeded random pick per stratum.\n")
-        fh.write("# The method is in god_complexity/sample.py; the frozen frame with "
+        fh.write("# The method is in complexity_concentration_study/sample.py; the frozen frame with "
                  "every query and\n# match count is in the manifest beside this file. "
                  "GitHub moves, so this list is the record.\n")
         by_lang: dict = {}

@@ -1,7 +1,7 @@
 # Complexity concentration → god classes/methods — methodology and caveats
 
 This note governs the comparison produced by `study.analyse` (the `matrix` block in each
-`study.json` row) and rendered by `paper/god_complexity.py`. It exists so the comparison is
+`study.json` row) and rendered by `paper/analyse.py`. It exists so the comparison is
 read honestly rather than as a fishing expedition.
 
 ## Hypothesis and motivation
@@ -35,7 +35,7 @@ may pick whichever measure they like. The study makes the claim falsifiable in t
    sample (explore/confirm). High AUC with *no threshold chosen* is the hypothesis holding.
 2. **Across measures (conservation).** The cross-measure correlation and the spread of AUC over
    measures: if many uncorrelated-in-name measures all recover the oracle, concentration is the
-   common cause. `paper/god_complexity.py` reports this.
+   common cause. `paper/analyse.py` reports this.
 3. **Relative beats a tuned constant.** The head-to-head of the per-repo relative rule against
    the single best *global* absolute cutoff (the Alves-style calibrated constant). If the
    self-calibrating rule matches or beats an optimally-tuned fixed threshold, the constant was
@@ -105,7 +105,7 @@ block is the **repository**. Within a repo, a signal's AUC (or an algorithm's MC
 averaged over the definitions of the group it has, then signals are ranked per repo, the ranks
 averaged, and Friedman + the Nemenyi critical difference read next to the plain mean.
 
-`god_complexity.py` splits the usable repositories (the headline substance floor) into an
+`analyse.py` splits the usable repositories (the headline substance floor) into an
 EXPLORE and a CONFIRM half by a hash of the repository URL. Data-driven choices — which signals
 are dropped as degenerate, which complexity signal is strongest — are made on EXPLORE; the
 best signal's AUC is then read on the held-out CONFIRM half, so the headline is out of sample.
