@@ -19,8 +19,12 @@
 # and every tool method-level definition is Java-only, so the class-level headline's effective
 # sample is the number of JAVA repositories, not the number of repositories. 30 is too few for a
 # held-out confirm half with a median of ~2 god classes per repository. Same seed and criteria:
-# the supplement's draw ORDER is identical to the main sample's Java draw, so its first 30 usable
-# Java repositories ARE the main sample's; step 3 measures each repository once.
+# the supplement's draw ORDER repeats the main sample's Java draw, so its first 30 usable Java
+# repositories are normally the main sample's. That holds only while both enumerations of
+# GitHub return the same candidate set (the seeded shuffle runs over the sorted set, so one
+# repository gained or lost between the two draws permutes the order); if they differ, the
+# Java population is the UNION of the two draws, step 3 still measures each repository once,
+# and the analysis reports how many Java rows each sample drew.
 #
 # The study's sampling criteria are set here, once, as code. Each flag is written out even when it
 # equals the sampler's default, so the design is readable here and recorded in the derivation:
@@ -77,8 +81,10 @@ COMMON=(
   --exclude-owners officefloor,sagenschneider
 )
 LANGS="$("$VENV/bin/python" -c 'from complexity_concentration_study.study import SAMPLED_LANGUAGES as L; print(",".join(L))')"
-MAIN=(--langs "$LANGS" --target 30 --pool 400)
-JAVA=(--langs java --target "$JAVA_TARGET" --pool 400 --label java-supplement)
+# (The sampler enumerates the whole population of each stratum, so there is no candidate pool to
+# size; sampler 0.1.0 has no such flag and refuses one.)
+MAIN=(--langs "$LANGS" --target 30)
+JAVA=(--langs java --target "$JAVA_TARGET" --label java-supplement)
 
 echo "=== STEP 2/4: draw the MAIN sample ($LANGS x 30) -> $OUTDIR ==="
 "$SAMPLER" sample "${COMMON[@]}" "${MAIN[@]}" --out-dir "$OUTDIR" ${ARGS[@]+"${ARGS[@]}"}

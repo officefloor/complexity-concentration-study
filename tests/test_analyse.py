@@ -36,7 +36,7 @@ json.dump(out, sys.stdout)
 '''
 
 
-def _synthetic_run(n_java=16, n_py=4, seed=7):
+def _synthetic_run(n_java=24, n_py=4, seed=7):
     root = tempfile.mkdtemp()
     pmd = os.path.join(root, "pmd")
     open(pmd, "w").write(FAKE_PMD.format(py=sys.executable))
@@ -195,28 +195,54 @@ def test_report_runs_to_the_plan_and_writes_every_section():
     for marker in ("1. DIAGNOSTICS", "2. PRIMARY", "3. SECONDARY", "4. RULES", "5. SIGNALS",
                    "6. EXPLORATORY", "calibration", "flag rate", "FP in god-free repos",
                    "macro FPR", "DECISION (pre-registered", "verdict:", "FROZEN before measurement",
-                   "overlap with the pilot", "all-tied blocks dropped"):
+                   "overlap with the pilot", "all-tied blocks dropped", "standardised - raw",
+                   "threshold-free reading", "SENSITIVITY", "owner concentration",
+                   "classpath validation", "MCC margin", "FPR margin"):
         assert marker in text, marker
     assert out["plan"] == analyse.PLAN and out["is_exploratory"] is False
     assert out["study_sha256"] and out["diagnostics"]["split_frozen"] is True
     assert out["diagnostics"]["n_pilot"] > 500 and out["diagnostics"]["pilot_overlap"] == []
+    assert out["diagnostics"]["n_java"] == 24 and out["diagnostics"]["n_java_main_sample"] == 22
+    assert out["diagnostics"]["owners"]["distinct"] == 1              # all synthetic rows are o/*
+    assert out["diagnostics"]["classpath"]["n_reports"] == 0
     prim = out["primary"]["pmd_GodClass"]
     dec = prim["decision"]
     assert dec["overall"] in ("superior", "non-inferior", "inconclusive", "inferior", "not estimable")
-    assert dec["powered"] is False                                   # 10 synthetic repos
+    assert dec["powered"] is False and dec["confirmatory"] is False   # 12 confirm Java repos
     assert set(dec["paired"]) == {"macro_mcc", "micro_mcc", "macro_fpr"}
+    assert dec["arms"] == analyse.PLAN["decision"]["arms"] and set(dec["verdicts"]) == set(dec["paired"])
     assert dec["paired"]["macro_mcc"] is not None and dec["overall"] != "not estimable"
     pm = dec["paired"]["macro_mcc"]
-    assert pm["lo"] <= pm["value"] <= pm["hi"] and pm["n"] == dec["n_paired_repos"] >= 5
+    # the macro arm is read over the repositories with >= 1 positive only
+    assert pm["lo"] <= pm["value"] <= pm["hi"]
+    assert 5 <= pm["n"] == dec["n_paired_repos_macro"] < dec["n_paired_repos"] == dec["paired"]["micro_mcc"]["n"]
+    # the MCC margin is min(ceiling, fraction x explore level), both recorded
+    assert dec["margin_ceiling"] == 0.10 and dec["explore_level"] is not None
+    assert abs(dec["margin"] - min(0.10, 0.30 * dec["explore_level"])) < 1e-12
+    assert dec["fpr_margin"] == 0.05
+    # no classpath reports: flagged, not confirmatory
+    assert dec["classpath"]["n_reports"] == 0 and dec["classpath"]["within_bound"] is None
+    assert any("classpath validation missing" in n for n in dec["notes"])
+    # the pilot sensitivity: nothing overlaps here, so it is the same decision
+    assert prim["sensitivity_without_pilot"] == {"n_pilot_removed": 0, "same_as_decision": True}
     assert "macro_fpr" in prim["confirm"]["relative_default"]
     assert "_cells" not in prim["confirm"]["relative_default"]
     assert prim["chosen_signal"] and metrics.family_of("class", prim["chosen_signal"]) in ("peak", "density")
     c = prim["confirm"]
     assert c["pooled_auc_standardised"]["standardised"] is True
     assert c["pooled_auc_raw"]["standardised"] is False
+    d = c["pooled_auc_difference"]
+    assert d["reading"] in ("relative ranking better", "absolute ranking better",
+                            "no difference resolved", "not estimable")
+    if d["paired"]:
+        assert abs(d["paired"]["value"] - (c["pooled_auc_standardised"]["auc"]
+                                           - c["pooled_auc_raw"]["auc"])) < 1e-9
     assert c["relative_default"]["micro"]["n_blocks"] > 0
     assert c["absolute_cutoff"]["cut"] is not None
     assert "lang=java" in prim["breakdown"]
+    # secondaries are decided on the plan's arms; a human definition would use the micro arm
+    assert out["secondary"]["pmd_method_NPath200"]["decision"]["arms"] == analyse.PLAN["decision"]["arms"]
+    assert analyse.PLAN["human"]["decide_on"] == ["micro_mcc"]
     assert set(out["secondary"]) >= {"pmd_method_NPath200", "brain_method"}
     assert out["friedman_rules"] is not None and out["friedman_rules"]["k"] == len(analyse.PLAN["friedman_rules"])
     assert "class:pmd_GodClass" in out["exploratory"]
@@ -225,11 +251,104 @@ def test_report_runs_to_the_plan_and_writes_every_section():
     # main writes analysis.json beside the run ONCE; a re-run needs --exploratory
     assert analyse.main(["--results", run.dir]) == 0
     assert "primary" in json.load(open(os.path.join(run.dir, "analysis.json")))
+    digest = open(os.path.join(run.dir, "analysis.json.sha256")).read().split()[0]
+    assert digest == analyse._sha256(os.path.join(run.dir, "analysis.json"))
     assert analyse.main(["--results", run.dir]) == 3
     assert analyse.main(["--results", run.dir, "--exploratory"]) == 0
-    extra = [f for f in os.listdir(run.dir) if f.startswith("analysis.exploratory.")]
+    extra = [f for f in os.listdir(run.dir)
+             if f.startswith("analysis.exploratory.") and f.endswith(".json")]
     assert len(extra) == 1 and json.load(open(os.path.join(run.dir, extra[0])))["is_exploratory"] is True
     assert json.load(open(os.path.join(run.dir, "analysis.json")))["is_exploratory"] is False
+
+
+def test_verdicts_read_each_margin_in_its_own_direction():
+    ci = lambda lo, hi: {"value": (lo + hi) / 2, "lo": lo, "hi": hi, "n": 50}
+    # an MCC difference: higher is better
+    assert analyse._verdict(ci(0.01, 0.2), 0.10) == "superior"
+    assert analyse._verdict(ci(-0.05, 0.1), 0.10) == "non-inferior"
+    assert analyse._verdict(ci(-0.3, -0.15), 0.10) == "inferior"
+    assert analyse._verdict(ci(-0.2, 0.1), 0.10) == "inconclusive"
+    assert analyse._verdict(None, 0.10) == "not estimable"
+    # a false-positive-rate difference: lower is better, so the margin is on the upper bound
+    assert analyse._verdict_lower_better(ci(-0.02, -0.001), 0.05) == "superior"
+    assert analyse._verdict_lower_better(ci(-0.01, 0.03), 0.05) == "non-inferior"
+    assert analyse._verdict_lower_better(ci(0.06, 0.1), 0.05) == "inferior"
+    assert analyse._verdict_lower_better(ci(-0.01, 0.08), 0.05) == "inconclusive"
+    # the verdict is the weakest arm
+    assert min(["superior", "non-inferior", "inconclusive"], key=lambda x: analyse._RANK[x]) == "inconclusive"
+
+
+def test_classpath_reports_bound_the_primary_and_name_their_half():
+    run = _run()
+    d = tempfile.mkdtemp()
+    java = [r for r in run.rows if r["lang"] == "java"]
+    ex = next(r for r in java if run.halves[r["repo"]] == "explore")
+    co = next(r for r in java if run.halves[r["repo"]] == "confirm")
+
+    def rep(name, url, without, lost, gained):
+        json.dump({"url": url, "godclass_flips": len(lost) + len(gained),
+                   "rules": {"GodClass": {"without": without, "with": without - len(lost) + len(gained),
+                                          "lost": lost, "gained": gained}}},
+                  open(os.path.join(d, name), "w"))
+    # 12 reports on explore repositories: ten with 2 GodClass verdicts each (one of them loses
+    # one with the classpath, one gains one), two with none: 2 flips over 21 verdicts in the
+    # union -> 9.5%, within the bound
+    for i in range(12):
+        rep(f"e{i}.json", ex["full_name"], 2 if i < 10 else 0, ["x"] if i == 0 else [],
+            ["y"] if i == 1 else [])
+    r2 = analyse.Run(run.dir, classpath_dir=d)
+    cp = analyse.classpath_summary(r2)
+    assert cp["n_reports"] == 12 and cp["flips"] == 2 and cp["union"] == 21
+    assert abs(cp["flip_rate"] - 2 / 21) < 1e-12 and cp["within_bound"] is True
+    assert cp["confirm_touched"] == [] and cp["halves_named"][ex["full_name"].lower()] == "explore"
+    # one more flip tips it over the bound; a report naming a confirm repository is caught
+    rep("e12.json", co["repo"], 1, ["z"], [])
+    cp = analyse.classpath_summary(analyse.Run(run.dir, classpath_dir=d))
+    assert cp["flip_rate"] > 0.10 and cp["within_bound"] is False
+    assert cp["confirm_touched"] == [co["repo"].lower()]
+    # too few reports is not within the bound either, whatever the rate
+    few = tempfile.mkdtemp()
+    json.dump({"url": ex["full_name"], "godclass_flips": 0,
+               "rules": {"GodClass": {"without": 3, "with": 3, "lost": [], "gained": []}}},
+              open(os.path.join(few, "a.json"), "w"))
+    cp = analyse.classpath_summary(analyse.Run(run.dir, classpath_dir=few))
+    assert cp["flip_rate"] == 0.0 and cp["enough_repos"] is False and cp["within_bound"] is False
+    # a report without a url is counted but its half cannot be checked
+    json.dump({"godclass_flips": 0, "rules": {"GodClass": {"without": 1, "with": 1, "lost": [], "gained": []}}},
+              open(os.path.join(few, "b.json"), "w"))
+    assert analyse.classpath_summary(analyse.Run(run.dir, classpath_dir=few))["unnamed_reports"] == 1
+
+
+def test_macro_arm_excludes_god_free_repositories_and_margin_scales_to_explore_level():
+    run = _run()
+    java = [r for r in run.rows if r["lang"] == "java"]
+    co = [r for r in java if run.halves[r["repo"]] == "confirm"]
+    ex = [r for r in java if run.halves[r["repo"]] == "explore"]
+    sig = "nloc_max"
+    cut = stats.best_cutoff(run.pairs(ex, "class", sig, "pmd_GodClass"))
+    buf = io.StringIO()
+    level = run.explore_level(ex, "class", sig, "pmd_GodClass", run.rule_fn("mad_z"))
+    dec = analyse._decision(run, co, "class", sig, "pmd_GodClass", run.rule_fn("mad_z"),
+                            run.cutoff_fn(cut["cut"]), None, 0, lambda *a: print(*a, file=buf),
+                            explore_level=level)
+    god_free = sum(1 for r in co if not r.get("pmd_gods"))
+    assert dec["n_paired_repos"] == len(co) and dec["n_paired_repos_macro"] == len(co) - god_free
+    assert dec["paired"]["micro_mcc"]["n"] == len(co)
+    assert dec["margin"] == min(0.10, 0.30 * level)
+    # a low explore level shrinks the margin; a high one is capped at the ceiling
+    small = analyse._decision(run, co, "class", sig, "pmd_GodClass", run.rule_fn("mad_z"),
+                              run.cutoff_fn(cut["cut"]), None, 0, lambda *a: None, explore_level=0.1)
+    big = analyse._decision(run, co, "class", sig, "pmd_GodClass", run.rule_fn("mad_z"),
+                            run.cutoff_fn(cut["cut"]), None, 0, lambda *a: None, explore_level=0.9)
+    assert abs(small["margin"] - 0.03) < 1e-12 and big["margin"] == 0.10
+    none = analyse._decision(run, co, "class", sig, "pmd_GodClass", run.rule_fn("mad_z"),
+                             run.cutoff_fn(cut["cut"]), None, 0, lambda *a: None)
+    assert none["margin"] == 0.10 and none["explore_level"] is None
+    # a human definition is decided on the micro arm alone; the others are reported
+    micro = analyse._decision(run, co, "class", sig, "pmd_GodClass", run.rule_fn("mad_z"),
+                              run.cutoff_fn(cut["cut"]), None, 0, lambda *a: None, arms=["micro_mcc"])
+    assert micro["arms"] == ["micro_mcc"] and micro["overall"] == micro["verdicts"]["micro_mcc"]
+    assert set(micro["verdicts"]) == {"macro_mcc", "micro_mcc", "macro_fpr"}
 
 
 def test_latest_results_dir_is_the_latest_dated_run_never_a_named_one():
@@ -252,9 +371,17 @@ def test_plan_matches_plan_md():
     for fam in p["families"]:
         assert fam in text
     d = analyse.PLAN["decision"]
-    assert f"{d['noninferiority_margin']}" in text and f"{d['auc_floor']}" in text
+    assert f"min({d['noninferiority_margin']:.2f}, {d['margin_fraction_of_explore_level']:.2f} ×" in text
+    assert f"**FPR margin: {d['fpr_margin']}" in text and f"{d['auc_floor']}" in text
     assert f"**{d['min_confirm_repos_auc']}**" in text and f"**{d['min_confirm_repos_mcc']}**" in text
+    assert f"**{round(d['classpath_flip_bound'] * 100)}%**" in text and f"**{d['classpath_min_repos']}**" in text
+    for arm in d["arms"]:
+        assert arm.replace("_", " ").replace("mcc", "MCC").replace("fpr", "FPR") in text, arm
+    assert "≥ 1 positive" in text and "oracle-bounded" in text and "sensitivity" in text
+    assert analyse.PLAN["human"]["decide_on"] == ["micro_mcc"] and "micro MCC arm alone" in text
+    assert analyse.PLAN["human"]["mlcq_rule"] in text and "minor" in text
     assert "main sample" in text and "halves.json" in text and "seed 1" in text
+    assert "sha256" in text and "owner" in text.lower()
 
 
 if __name__ == "__main__":

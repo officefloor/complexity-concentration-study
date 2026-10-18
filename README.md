@@ -96,6 +96,15 @@ tests whether the scale-free rule recovers what the tuned definitions mark; agre
 definition cannot show that the definition's constant is drifting. That argument belongs in a
 paper's discussion, hedged, not in its results.
 
+Nor does it test **portability across languages**. Ten languages are sampled and every signal
+and rule is computed in all of them, but every external god definition (PMD, CK, MLCQ) is a
+Java tool or a Java data set, so the primary is a Java, class-level result. The only
+cross-language definition is `brain_method`, which is the study's own signals thresholded:
+a result on it is internal consistency. The other nine languages supply the flag-rate and
+scale-kind diagnostics (does the rule's constant transfer?), the internal-consistency
+secondary, and the per-language breakdowns; they do not supply recovery of an external
+definition, and the paper may not present them as if they did.
+
 ## What the harness varies
 
 - **signal**, a per-unit complexity definition, each oriented so higher means more god-like:
@@ -176,9 +185,13 @@ criteria:
 - the **Java supplement**: Java only, grown to 150 usable repositories. Every composite
   class-level definition and every tool method-level definition is Java-only, so the class-level
   headline's effective sample is the number of *Java* repositories, not the number of
-  repositories. With the same seed the supplement's draw order is identical to the main sample's
-  Java draw, so its first 30 usable repositories are the main sample's; step 3 measures each
-  repository once and records which sample drew it.
+  repositories. With the same seed the supplement's draw order repeats the main sample's Java
+  draw, so its first 30 usable repositories are normally the main sample's. That holds only
+  while both enumerations of GitHub return the same candidate set: the seeded shuffle runs over
+  the sorted set, so a repository gained or lost between the two draws permutes the order. If
+  they differ, the Java population is the union of the two draws. Step 3 measures each
+  repository once and records which sample drew it, and the diagnostics report how many Java
+  rows each sample contributed.
 
 A repository is **usable** on size alone, decided before any detection outcome: at least 50
 functions in at least 15 source files with a function (the same floor `study.is_usable` applies
@@ -230,9 +243,11 @@ not a negative, and the analysis scores the human definition within the reviewed
 The MLCQ data set (Madeyski and Lewowski 2020, Zenodo 3666840: Blob at class level, Long
 Method at function level, several reviews per sample) is one script, `./step5_mlcq.sh`: it
 downloads the file from Zenodo and verifies its sha256 against the datasheet's, converts it
-with a pre-registered aggregation rule (strict majority by default; `--rule any|all`) and one
+with a pre-registered aggregation rule (strict majority of reviews with any severity above
+`none`, so *minor* counts as positive; `--rule any|all` are labelled sensitivity runs) and one
 commit per repository, measures every labelled repository at its labelled commit, and prints
-the report. In MLCQ 1.1 that is 522 Java repositories, 254 Blob and 276 Long Method positives
+the report to the sub-study's own plan (PLAN.md, *The MLCQ sub-study*: decided on the micro
+arm alone, since the reviewed universe of a repository is a handful of classes). In MLCQ 1.1 that is 522 Java repositories, 254 Blob and 276 Long Method positives
 among 2334 and 2430 reviewed samples, so the run is a few hours of cloning; it is resumable.
 The pieces are also separate commands:
 
@@ -320,27 +335,32 @@ of them.
    composite with a size clause, report `auc_given` next to `auc`: the AUC within the units
    that already pass the clause. If the density and peak families carry nothing beyond size,
    say so.
-4. **Keep god-free repositories, and use a statistic that can see them.** A relative rule
-   flags something in every repository by construction, so the repositories where a definition
-   finds nothing are where its false positives live. Pool with `stats.pooled_confusion`, which
-   keeps `n_god_univ == 0` blocks and reports `fp_in_no_god` and the false-positive rate; never
-   filter on "has gods". The **macro MCC cannot see them**: `stats.mcc` is 0 whenever a
-   marginal is empty, so a god-free repository scores 0 whether the rule flagged nothing or
-   twenty files. Report the macro false-positive rate (`stats.fpr`, defined there) beside it,
-   and let no verdict rest on the macro MCC alone (PLAN.md, *Decision rule*). The pooled AUC
-   (`stats.pooled_auc`) keeps god-free blocks too; a within-repository AUC cannot, so say that
-   the per-repository AUC conditions on at least one positive.
+4. **Keep god-free repositories, and use a statistic that can see them.** A relative rule is
+   fitted to each repository's own distribution, so it can flag units in a repository where a
+   definition finds nothing (the top-percentile rule always does; the modified z and the
+   fences usually do), and those repositories are where its false positives live. Pool with
+   `stats.pooled_confusion`, which keeps `n_god_univ == 0` blocks and reports `fp_in_no_god`
+   and the false-positive rate; never filter on "has gods". The **macro MCC cannot see them**:
+   `stats.mcc` is 0 whenever a marginal is empty, so a god-free repository scores 0 whether the
+   rule flagged nothing or twenty files, and a paired difference of two rules there is an
+   uninformative 0 − 0 that only narrows the interval. The macro MCC arm of the decision is
+   therefore read over repositories with at least one positive, and the false positives in
+   god-free repositories are decided on through the micro MCC and the macro false-positive
+   rate (`stats.fpr`, defined there), with its own margin (PLAN.md, *Decision rule*). The
+   pooled AUC (`stats.pooled_auc`) keeps god-free blocks too; a within-repository AUC cannot,
+   so say that the per-repository AUC conditions on at least one positive.
 5. **Split once, before measuring; tune on explore, read on confirm.** The half of every
    repository is assigned by `study.run` from the sample CSV with `stats.assign_halves`,
    stratified by language and tier, before any repository is measured, and recorded in the
    row. Choose the signal, the rule's cut and the absolute cutoff on explore; read all of them
    on confirm. Pre-specify **one** primary estimand (one definition, one level, one family)
-   **and the decision rule that reads it** (a paired comparison, its margin, an AUC floor and
-   the minimum effective sample) before the run; every other confirm number is secondary.
+   **and the decision rule that reads it** (the paired comparisons, their margins, an AUC floor
+   and the minimum effective sample) before the run; every other confirm number is secondary.
 6. **Relative at defaults first.** The primary head-to-head is the relative rule at its
    literature constant against the absolute cutoff tuned on explore, since "no re-tuning" is the
    claim. The tuned-relative comparison is secondary. Report the threshold-free form as well:
-   `stats.pooled_auc` on the sidecar, standardised against raw.
+   `stats.pooled_auc` on the sidecar, standardised against raw, **with a paired bootstrap over
+   repositories of the difference**; two point estimates without an interval cannot be read.
 7. **Macro before micro, paired for comparisons; say the effective sample.** One repository,
    one vote: `stats.bootstrap_mean` over per-repository statistics is the descriptive form;
    a comparison of two rules read on the same repositories is a **paired** bootstrap of their
@@ -380,10 +400,17 @@ machine-readable plan and `PLAN.md` its prose, and the two are tested against ea
    if the tree is dirty; a confirmatory run's rows must not say `-dirty`.
 3. Draw the confirmatory sample with a seed that no analysis has ever seen: `step2_sample.sh`
    requires `--seed` and refuses seed 1, which drew the pilot. The pilot's repositories are
-   listed in `pilot/run-v1-repos.txt` and the diagnostics report any run's overlap with them.
-4. Run the classpath validation on explore-half Java repositories only (PLAN.md, step 4).
-5. Run, then analyse once: `analysis.json` is written once and never overwritten. Everything
-   after that is exploratory, needs `--exploratory`, and is labelled exploratory.
+   listed in `pilot/run-v1-repos.txt`; the diagnostics report any run's overlap with them,
+   overlapping repositories are retained (the plan was shaped on pilot aggregates, not on
+   repositories), and the primary is re-read without them as a labelled sensitivity analysis.
+4. Run the classpath validation on explore-half Java repositories only, writing each report
+   into `results/<run>/classpath/` with `--url` (PLAN.md, step 4). The analysis aggregates them
+   and applies the pre-registered bound: above a 10% GodClass flip rate, or with the validation
+   missing, the primary verdict is marked *oracle-bounded* and is not read as confirmatory.
+5. Run, then analyse once: `analysis.json` is written once and never overwritten, and its
+   sha256 is printed and written beside it; commit that digest so the file the paper quotes is
+   auditable. Everything after that is exploratory, needs `--exploratory`, and is labelled
+   exploratory.
 
 ### The classpath validation sub-study
 
@@ -392,9 +419,12 @@ declare and `pmd_GodClass` is under-counted by an unknown amount. Before the con
 analysis, on at least ten Java repositories of the **explore half** (`halves.json`) that build
 with Maven or Gradle: build, run PMD with `--aux-classpath` on the built classpath over the
 same file list, and report the number of GodClass verdicts that flip. The pre-registered
-bound is 10%: above it, the paper reports the flip rate as an explicit bound on the headline
-and makes no recovery claim beyond it (PLAN.md, step 4). Confirm repositories are never built
-or inspected for this.
+bound is 10% on at least ten repositories: above it, or with the validation missing, the
+primary verdict is marked *oracle-bounded* and not read as confirmatory, the class-level
+headline becomes the flip rate itself, and the recovery result is reported as exploratory
+(PLAN.md, *Decision rule* and step 4). Confirm repositories are never built or inspected for
+this; each report names its repository (`--url`) so the analysis can check that against the
+frozen split.
 
 ## Threats to validity
 
@@ -420,11 +450,12 @@ method universes with trivial functions; `trivial_frac` and `anon_frac` size the
 **External.** GitHub repositories with 200 or more stars, ten languages, one commit each, drawn
 with equal allocation across three popularity tiers, so pooled numbers are unweighted over
 strata, not population estimates. Popularity tier is a proxy for maintenance intensity, not
-quality; application versus library is a post-hoc heuristic. Non-size definitions are
-Java-only, so the class-level composite result is a Java result until human labels or a second
-language's composite oracle are added. Re-running the sampler reproduces the method, not
-necessarily the list; the published samples, pinned to commits, are the record of the
-population.
+quality; application versus library is a post-hoc heuristic. Repositories of one GitHub owner
+are not independent draws, and the bootstrap resamples repositories; the owner concentration
+of the sample is reported with the diagnostics. Non-size definitions are Java-only, so the
+class-level composite result is a Java result until human labels or a second language's
+composite oracle are added. Re-running the sampler reproduces the method, not necessarily the
+list; the published samples, pinned to commits, are the record of the population.
 
 **Conclusion.** The matrix is a large search (signals × rules × definitions × levels); the
 single best cell is upward-biased, which is why one primary estimand and one decision rule are
@@ -457,7 +488,8 @@ coarse; hence rules 7 and 10 above and the effective-sample gate in PLAN.md.
 - `PLAN.md`: the pre-registered plan, in prose.
 - `pilot/run-v1-repos.txt`: every repository the pilot measured, so overlap is reported.
 - `tests/`: hand-worked and PMD-calibrated tests for all of the above. Run them with
-  `.venv/bin/python tests/test_<name>.py` (each file is its own runner) or with pytest.
+  `.venv/bin/python tests/test_<name>.py` (each file is its own runner, nothing to install) or
+  with pytest after `.venv/bin/pip install -e '.[test]'`.
 - `paper/`: the write-up (its old analysis script is superseded by the package's `analyse`).
 
 ## What is and isn't committed

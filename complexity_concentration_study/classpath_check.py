@@ -6,8 +6,13 @@ is under-counted by an unknown amount. This module measures that amount on one r
 it runs PMD twice over the same Java files, without and with a classpath, and reports every
 class finding that flips.
 
-    complexity-concentration-study classpath-check --repo PATH \\
-        [--classpath-file cp.txt | --aux-classpath 'a.jar:b.jar'] [--pmd PMD] [--out r.json]
+    complexity-concentration-study classpath-check --repo PATH --url owner/name \\
+        [--classpath-file cp.txt | --aux-classpath 'a.jar:b.jar'] [--pmd PMD] \\
+        [--out results/<run>/classpath/<name>.json]
+
+Write each report into the run's `classpath/` directory: `analyse` aggregates every report
+there, checks each named repository against the frozen split, and bounds the primary with the
+GodClass flip rate (PLAN.md step 4).
 
 Getting a classpath (not done here; it needs the project's own build):
     Maven   mvn -q dependency:build-classpath -Dmdep.outputFile=cp.txt   (then --classpath-file cp.txt)
@@ -59,10 +64,12 @@ def java_files(root: str) -> list[str]:
     return sorted(f for f in extract.scan_files(root)["source"] if f.endswith(".java"))
 
 
-def compare(pmd: str, root: str, aux_classpath: str) -> dict:
+def compare(pmd: str, root: str, aux_classpath: str, url: str | None = None) -> dict:
     """Run PMD without and with `aux_classpath` on the study's Java files of `root`; report,
     per class rule, the files flagged under each and the ones that flip either way, and the
-    GodClass flip rate (flips over the union of GodClass verdicts)."""
+    GodClass flip rate (flips over the union of GodClass verdicts). `url` names the sampled
+    repository (its clone URL or owner/name) so the analysis can check the report against the
+    frozen split: the validation runs on EXPLORE repositories only (PLAN.md step 4)."""
     files = java_files(root)
     without = study._pmd_report(pmd, root, files)
     with_cp = study._pmd_report(pmd, root, files, aux_classpath=aux_classpath)
@@ -79,7 +86,7 @@ def compare(pmd: str, root: str, aux_classpath: str) -> dict:
     flips = len(g["gained"]) + len(g["lost"])
     stable = g["without"] - len(g["lost"])            # flagged under both
     union = stable + flips                            # every file flagged under either
-    return {"root": os.path.abspath(root), "n_java_files": len(files),
+    return {"root": os.path.abspath(root), "url": url, "n_java_files": len(files),
             "aux_classpath_entries": len([p for p in aux_classpath.split(os.pathsep) if p]),
             "pmd": study.pmd_version(pmd), "rules": rules,
             "godclass_flips": flips,
@@ -93,6 +100,9 @@ def main(argv=None) -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
                                  epilog=__doc__)
     ap.add_argument("--repo", required=True, help="a Java checkout (built, for --build-output)")
+    ap.add_argument("--url", default=None,
+                    help="the sampled repository this checkout is (clone URL or owner/name), "
+                         "recorded so the analysis can verify it is an EXPLORE repository")
     ap.add_argument("--pmd", default=None, help="PMD binary (default: ./lib PMD)")
     ap.add_argument("--aux-classpath", default="", help="classpath string (path-separated)")
     ap.add_argument("--classpath-file", default=None,
@@ -118,7 +128,10 @@ def main(argv=None) -> int:
         print("no classpath: pass --classpath-file or --aux-classpath, or build the project "
               "so its compiled classes exist", file=sys.stderr)
         return 2
-    rep = compare(pmd, args.repo, cp)
+    rep = compare(pmd, args.repo, cp, url=args.url)
+    if not args.url:
+        print("NOTE: no --url given; the analysis cannot check that this is an explore "
+              "repository", file=sys.stderr)
     print(f"{rep['root']}: {rep['n_java_files']} Java files, {rep['aux_classpath_entries']} "
           f"classpath entries, PMD {rep['pmd']}")
     for rule, r in rep["rules"].items():

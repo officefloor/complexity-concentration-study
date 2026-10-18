@@ -3,10 +3,12 @@ library) so the paper's report cannot re-introduce the shortcuts an earlier draf
 
   * pooled_confusion   -- micro-averaged confusion over MANY (repo, definition) blocks, which
                           INCLUDES blocks where the definition found no god. A relative rule
-                          flags something in every repository by construction, so the
-                          repositories where the oracle finds nothing are exactly where its
-                          false positives live; dropping them biases every pooled number in
-                          the relative rule's favour.
+                          is fitted to each repository's own distribution, so it can flag
+                          units in a repository where the oracle finds nothing (the top
+                          percentile always does; the modified z and the fences usually do),
+                          and those repositories are exactly where its false positives live;
+                          dropping them biases every pooled number in the relative rule's
+                          favour.
   * mcc                -- Matthews correlation from the four counts (Chicco & Jurman 2020).
   * friedman           -- Friedman chi-square AND the Iman-Davenport F correction Demsar (2006)
                           recommends, with exact p-values (regularised gamma / beta).

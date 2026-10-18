@@ -62,9 +62,10 @@ def test_build_output_dirs_and_main():
     assert dirs == ["mod/build/classes/java/main", "target/classes"]
     out = os.path.join(root, "r.json")
     assert classpath_check.main(["--repo", root, "--pmd", pmd, "--classpath-file", cp,
-                                 "--out", out]) == 0
+                                 "--url", "o/r", "--out", out]) == 0
     rep = json.load(open(out))
     assert rep["aux_classpath_entries"] == 4                     # 2 jars + 2 build dirs
+    assert rep["url"] == "o/r"                                   # named, so its half can be checked
     assert classpath_check.main(["--repo", root, "--pmd", pmd, "--no-build-output"]) == 2  # no cp
 
 

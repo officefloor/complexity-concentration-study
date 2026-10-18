@@ -1486,7 +1486,8 @@ def run(sample_paths, out_dir: str, pmd: str | None, ck: str | None = None,
     row per repository, rewritten atomically after each), the append-only study.units.jsonl
     sidecar (per-unit values and god membership), oracles.json (the definition registry),
     study.csv, and the sampler's run log. A repository present in two samples (the Java
-    supplement overlaps the main sample by construction) is measured once. Resumable: a re-run
+    supplement normally overlaps the main sample's Java draw) is measured once, under the first
+    sample that lists it. Resumable: a re-run
     with the same out_dir skips what the run log records as done -- and refuses to resume a
     directory whose study.json is missing or unreadable while its log or sidecar says work was
     done, so no row can be silently lost."""
@@ -1698,7 +1699,9 @@ WHAT THIS IS
   The repositories were drawn by open-source-repository-sampler: each sample is a pair of
   files, open-source-repository-sample*.csv (every candidate drawn, each pinned to a commit)
   and *.derivation.json (how it was drawn, and how to redo it). The Java supplement sample
-  overlaps the main sample by construction; each repository is measured once.
+  normally overlaps the main sample's Java draw (same seed and criteria; the overlap is exact
+  only if both enumerations of GitHub returned the same candidates); each repository is
+  measured once, and the `sample` column says which sample drew it.
 
 THE SIGNALS (per function; class level = per-file sum / mean / max of each)
   cc (cyclomatic), cognitive (Campbell), nloc, tokens, params, nesting (max depth of nested

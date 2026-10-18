@@ -35,6 +35,11 @@ dependencies = [
     "open-source-repository-sampler==0.1.0",
 ]
 
+[project.optional-dependencies]
+# `pip install -e '.[test]'` to run the suite with pytest; every tests/test_*.py is also its
+# own runner (`.venv/bin/python tests/test_<name>.py`) and needs nothing beyond the package.
+test = ["pytest"]
+
 [project.scripts]
 complexity-concentration-study = "complexity_concentration_study.cli:main"
 ccs = "complexity_concentration_study.cli:main"

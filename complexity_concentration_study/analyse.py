@@ -47,16 +47,65 @@ PLAN = {
     # one vote) AND the micro (pooled) MCC, because the macro MCC is 0 in a god-free repository
     # whatever was flagged and only the micro number sees those false positives.
     "decision": {
-        "statistic": "MCC(relative rule at default) - MCC(absolute cutoff tuned on explore), "
-                     "on the same confirm repositories, 95% paired percentile bootstrap",
-        "noninferiority_margin": 0.10,     # relative is non-inferior if CI lower bound > -0.10;
-                                           # the pilot's paired per-repository SD of ~0.25 makes
-                                           # 0.05 unresolvable at ~75 confirm repositories
+        "statistic": "relative rule at default minus absolute cutoff tuned on explore, on the "
+                     "same confirm repositories, 95% paired percentile bootstrap, on three arms",
+        # The three arms, each a paired difference; the verdict is the WEAKEST of them.
+        #   macro_mcc  mean per-repository MCC, over the repositories with >= 1 positive (in a
+        #              god-free repository the MCC is 0 for both rules by convention, and such
+        #              0 - 0 pairs would only narrow the interval)
+        #   micro_mcc  pooled MCC over every repository carrying the definition, god-free ones
+        #              included: the arm that sees the false positives in god-free repositories
+        #   macro_fpr  mean per-repository false-positive rate, every repository; LOWER is
+        #              better, so its margin is read the other way round
+        "arms": ["macro_mcc", "micro_mcc", "macro_fpr"],
+        "macro_mcc_population": "confirm repositories with >= 1 positive",
+        # The MCC margin: non-inferior if the lower bound of the difference is above -margin.
+        # 0.10 is the ceiling; the margin read is min(0.10, 0.30 x the explore-half macro MCC of
+        # the relative rule on the chosen signal), because the pilot measured only per-file
+        # SUMS at class level, so the level of a peak or density signal is unknown until explore
+        # and a fixed 0.10 could be most of it.
+        "noninferiority_margin": 0.10,
+        "margin_fraction_of_explore_level": 0.30,
+        # The FPR margin: the relative rule is non-inferior on false positives if the upper
+        # bound of (relative FPR - absolute FPR) is below this. 0.05 is below the pilot's own
+        # relative-rule FPR level (mad_z flagged 5-7% of the non-god files per Java repository),
+        # so a rule that flags five points more non-gods than the tuned cut is read as inferior.
+        "fpr_margin": 0.05,
         "auc_floor": 0.70,                 # the signal carries the definition at all: macro
                                            # per-repository AUC lower bound >= this
         "min_confirm_repos_auc": 20,       # repositories with >= min_positives on confirm
         "min_confirm_repos_mcc": 40,       # repositories carrying the definition on confirm
+        # The absolute competitor is ONE raw-scale cutoff, tuned to maximise the POOLED MCC on
+        # explore, and that single cut is read on every arm. On the macro arm that mildly
+        # disadvantages the absolute rule; the design is tilted toward it everywhere else.
+        "absolute_cutoff": "one raw cut maximising the pooled MCC on explore, read on all arms",
+        # The classpath validation (PLAN.md step 4): classpath-check reports under
+        # <results>/classpath/ (or --classpath-dir) are aggregated; above the bound the
+        # primary oracle is under-counted by a material amount and the verdict is reported as
+        # ORACLE-BOUNDED, not read as confirmatory. Missing reports are flagged the same way.
+        "classpath_flip_bound": 0.10,
+        "classpath_min_repos": 10,
+        # Pilot overlap: repositories the pilot measured are RETAINED (the plan was shaped on
+        # pilot aggregates, not on repositories), reported, and the primary is re-read on the
+        # confirm half without them as a labelled sensitivity analysis.
+        "pilot_overlap": "retained; sensitivity re-read of the primary without pilot repositories",
     },
+    # The threshold-free form of the relative claim: the pooled AUC on the per-repository
+    # modified z minus the pooled AUC on the raw value, over the same confirm repositories, as a
+    # paired bootstrap. Read three ways (lower bound > 0: the relative ranking is better; upper
+    # bound < 0: the absolute ranking is better; else: no difference resolved). It is a
+    # different question from the operating-point verdict (ranking, not a cut) and is reported
+    # beside it, not folded into it.
+    "threshold_free": {"statistic": "pooled AUC standardised - pooled AUC raw, paired bootstrap "
+                                    "over confirm repositories; reported beside the verdict"},
+    # Human-label definitions (the MLCQ sub-study): a reviewed universe of a few classes per
+    # repository makes a per-repository MCC or FPR mostly noise, so the decision for a human
+    # definition is read on the micro arm alone (pooled over the reviewed units of the confirm
+    # half), with the same margin rule; the macro numbers are reported. MLCQ's aggregation rule
+    # is the strict majority of reviews with any severity above 'none' as positive; the 'any'
+    # and 'all' rules are labelled sensitivity runs.
+    "human": {"decide_on": ["micro_mcc"], "mlcq_rule": "majority",
+              "mlcq_positive": "severity above none", "mlcq_sensitivity_rules": ["any", "all"]},
     # All-language statistics (a definition whose scope is not Java) are read on the MAIN
     # sample only: the Java supplement would otherwise make Java a third of every pooled
     # cross-language number.
@@ -123,12 +172,39 @@ def _pilot_repos() -> set:
     return out
 
 
+def _classpath_reports(path: str) -> list[dict]:
+    """Every classpath-check report (classpath_check.compare, written with --out) found in
+    `path`, so the analysis can aggregate the GodClass flip rate PLAN.md step 4 bounds the
+    primary with. An empty list when the directory is absent."""
+    out = []
+    try:
+        names = sorted(os.listdir(path))
+    except OSError:
+        return out
+    for name in names:
+        if not name.endswith(".json"):
+            continue
+        try:
+            d = json.load(open(os.path.join(path, name)))
+        except (OSError, ValueError):
+            continue
+        if isinstance(d, dict) and "godclass_flips" in d:
+            out.append({**d, "_file": name})
+    return out
+
+
+def _owner(full_name: str | None) -> str:
+    return (full_name or "").split("/")[0].lower()
+
+
 class Run:
     """A results directory, loaded: usable rows, their halves, the sidecar and the registry."""
 
-    def __init__(self, results_dir: str, plan: dict = PLAN):
+    def __init__(self, results_dir: str, plan: dict = PLAN, classpath_dir: str | None = None):
         self.dir = results_dir
         self.plan = plan
+        self.pilot = _pilot_repos()
+        self.classpath = _classpath_reports(classpath_dir or os.path.join(results_dir, "classpath"))
         self.rows = [r for r in json.load(open(os.path.join(results_dir, "study.json")))
                      if study.is_usable(r) and r.get("matrix")]
         self.all_rows = json.load(open(os.path.join(results_dir, "study.json")))
@@ -324,6 +400,16 @@ class Run:
                 out.append((a, b))
         return out
 
+    def explore_level(self, rows, level, signal, oracle, flagged_fn) -> float | None:
+        """The explore-half macro MCC of a rule over the repositories with >= 1 positive: the
+        level the non-inferiority margin is scaled to (PLAN['decision'])."""
+        cs = [self.counts(r["repo"], level, signal, oracle, flagged_fn) for r in rows]
+        per = [stats.mcc(c["tp"], c["fp"], c["fn"], c["tn"]) for c in cs if c and c["n_god_univ"]]
+        return sum(per) / len(per) if per else None
+
+    def without_pilot(self, rows) -> list[dict]:
+        return [r for r in rows if (r.get("full_name") or "").lower() not in self.pilot]
+
     def candidates(self, level, oracle, families):
         ing = set(self.registry.get(oracle, {}).get("ingredients") or [])
         return [s for fam in families for s in metrics.FAMILIES[level][fam] if s not in ing]
@@ -345,9 +431,11 @@ class Run:
 # the report
 # ---------------------------------------------------------------------------
 def readout(run: Run, level: str, oracle: str, families: list[str], rule: str,
-            label: str, out: dict, print_fn=print) -> None:
-    """One definition, explore -> confirm, as PLAN.md orders the read-outs."""
+            label: str, out: dict, print_fn=print, arms: list[str] | None = None) -> None:
+    """One definition, explore -> confirm, as PLAN.md orders the read-outs. `arms` names the
+    decision arms read for this definition (default: PLAN['decision']['arms'])."""
     p = print_fn
+    arms = arms or run.plan["decision"]["arms"]
     halves = run.halves_for(oracle)
     ex, co = halves["explore"], halves["confirm"]
     meta = run.registry.get(oracle, {})
@@ -387,9 +475,13 @@ def readout(run: Run, level: str, oracle: str, families: list[str], rule: str,
     giv_c = run.macro([run.auc_given(r["repo"], level, best, oracle) for r in co])
     # _blocks already standardised on the fitting population (so a human definition's reviewed
     # units are scored on z-scores fitted on all units), hence the flag is set here
-    pooled_std = {**stats.pooled_auc(_blocks(run, co, level, best, oracle, True)),
-                  "standardised": True}
-    pooled_raw = stats.pooled_auc(_blocks(run, co, level, best, oracle, False))
+    std_blocks = _blocks(run, co, level, best, oracle, True)
+    raw_blocks = _blocks(run, co, level, best, oracle, False)
+    pooled_std = {**stats.pooled_auc(std_blocks), "standardised": True}
+    pooled_raw = stats.pooled_auc(raw_blocks)
+    bcfg = run.plan["bootstrap"]
+    auc_diff = stats.bootstrap_paired(list(zip(std_blocks, raw_blocks)), _pooled_auc_diff,
+                                      b=bcfg["b"], seed=bcfg["seed"])
     rel = run.macro_mcc(co, level, best, oracle, run.rule_fn(rule))
     cut = stats.best_cutoff(run.pairs(ex, level, best, oracle))
     absd = run.macro_mcc(co, level, best, oracle, run.cutoff_fn(cut["cut"])) if cut else None
@@ -402,6 +494,11 @@ def readout(run: Run, level: str, oracle: str, families: list[str], rule: str,
     p(f"      pooled AUC standardised       {_f(pooled_std['auc'])}  (pos {pooled_std['n_pos']}, "
       f"neg {pooled_std['n_neg']}, god-free repos {pooled_std['n_blocks_no_god']})")
     p(f"      pooled AUC raw                {_f(pooled_raw['auc'])}")
+    tf = _threshold_free_reading(auc_diff)
+    p(f"      standardised - raw            "
+      + (f"{auc_diff['value']:+.3f} [{auc_diff['lo']:+.3f}, {auc_diff['hi']:+.3f}]"
+         if auc_diff else "   n/a")
+      + f"  -> {tf} (threshold-free reading; reported beside the verdict, not part of it)")
     _mcc_line(p, f"{rule} at default", rel)
     if absd:
         _mcc_line(p, f"absolute {best} >= {cut['cut']:g} (tuned on explore)", absd)
@@ -410,14 +507,39 @@ def readout(run: Run, level: str, oracle: str, families: list[str], rule: str,
     strip = lambda m: m and {k: v for k, v in m.items() if k != "_cells"}
     res.update({"confirm": {
         "auc_macro": auc_c, "auc_given_macro": giv_c, "pooled_auc_standardised": pooled_std,
-        "pooled_auc_raw": pooled_raw, "relative_default": strip(rel),
+        "pooled_auc_raw": pooled_raw,
+        "pooled_auc_difference": {"paired": auc_diff, "reading": tf},
+        "relative_default": strip(rel),
         "absolute_cutoff": {"cut": cut["cut"] if cut else None, "explore_mcc": cut and cut["mcc"],
                             "confirm": strip(absd)},
         "relative_tuned": {"z_cut": zcut["cut"] if zcut else None, "confirm": strip(relt)}}})
-    # the pre-registered decision: paired, on the same confirm repositories
+    # the pre-registered decision: paired, on the same confirm repositories. The MCC margin is
+    # scaled to the EXPLORE level of the relative rule on the chosen signal (PLAN['decision']).
     if cut:
+        level_ex = run.explore_level(ex, level, best, oracle, run.rule_fn(rule))
+        is_primary = label.startswith("PRIMARY")
         res["decision"] = _decision(run, co, level, best, oracle, run.rule_fn(rule),
-                                    run.cutoff_fn(cut["cut"]), auc_c, nrep["confirm"], p)
+                                    run.cutoff_fn(cut["cut"]), auc_c, nrep["confirm"], p,
+                                    arms=arms, explore_level=level_ex,
+                                    classpath=is_primary, label="DECISION")
+        if is_primary:
+            co_np = run.without_pilot(co)
+            n_pilot = len(co) - len(co_np)
+            if n_pilot:
+                p(f"   SENSITIVITY: the same decision on the confirm half without the {n_pilot} "
+                  f"repositories the pilot measured (labelled sensitivity, PLAN.md):")
+                auc_np = run.macro([run.auc(r["repo"], level, best, oracle) for r in co_np])
+                n_auc_np = sum(1 for r in co_np
+                               if (run.n_pos(r["repo"], level, oracle) or 0) >= run.plan["min_positives"])
+                res["sensitivity_without_pilot"] = _decision(
+                    run, co_np, level, best, oracle, run.rule_fn(rule), run.cutoff_fn(cut["cut"]),
+                    auc_np, n_auc_np, p, arms=arms, explore_level=level_ex, classpath=False,
+                    label="SENSITIVITY (without pilot repositories)")
+            else:
+                p("   SENSITIVITY: no pilot repository in the confirm half; the decision above "
+                  "is also the pilot-free one")
+                res["sensitivity_without_pilot"] = {"n_pilot_removed": 0,
+                                                    "same_as_decision": True}
     # breakdowns for the primary only
     if label.startswith("PRIMARY"):
         p("   breakdown on confirm (macro mean AUC | default-rule MCC | n repos):")
@@ -454,6 +576,24 @@ def _blocks(run, rows, level, signal, oracle, standardise):
     return out
 
 
+def _pooled_auc_diff(items) -> float | None:
+    """pooled AUC of the standardised blocks minus pooled AUC of the raw blocks, over the same
+    repositories (one (std_block, raw_block) item per repository)."""
+    s = stats.pooled_auc([a for a, _ in items])["auc"]
+    r = stats.pooled_auc([b for _, b in items])["auc"]
+    return None if s is None or r is None else s - r
+
+
+def _threshold_free_reading(b) -> str:
+    if not b:
+        return "not estimable"
+    if b["lo"] > 0:
+        return "relative ranking better"
+    if b["hi"] < 0:
+        return "absolute ranking better"
+    return "no difference resolved"
+
+
 def _mcc_line(p, name, m):
     mi = m["micro"]
     gf = m.get("god_free") or {}
@@ -486,6 +626,7 @@ def _human_match(run, rows, oracle, p) -> dict:
 
 
 def _verdict(b, margin):
+    """Higher is better (an MCC difference): non-inferior if the lower bound clears -margin."""
     if not b:
         return "not estimable"
     if b["lo"] > 0:
@@ -497,13 +638,69 @@ def _verdict(b, margin):
     return "inconclusive"
 
 
-def _decision(run, co, level, signal, oracle, fn_rel, fn_abs, auc_c, n_auc_repos, p) -> dict:
-    """The pre-registered read-out (PLAN['decision']): paired bootstrap over the confirm
-    repositories of relative-at-default minus absolute-tuned, on the macro MCC, the micro MCC
-    and the macro false-positive rate; the AUC floor; and the effective-sample gate."""
+def _verdict_lower_better(b, margin):
+    """Lower is better (a false-positive-rate difference): non-inferior if the upper bound of
+    relative minus absolute stays below +margin."""
+    if not b:
+        return "not estimable"
+    if b["hi"] < 0:
+        return "superior"
+    if b["hi"] < margin:
+        return "non-inferior"
+    if b["lo"] > margin:
+        return "inferior"
+    return "inconclusive"
+
+
+_RANK = {"superior": 3, "non-inferior": 2, "inconclusive": 1, "inferior": 0, "not estimable": -1}
+
+
+def classpath_summary(run: Run) -> dict:
+    """The classpath validation aggregated (PLAN.md step 4): reports found, GodClass flips over
+    the union of verdicts, the flip rate, and whether it is within the pre-registered bound on
+    at least the minimum number of repositories. A report that names its repository (--url) is
+    checked against the frozen split: the validation must never touch a confirm repository."""
     d = run.plan["decision"]
+    reps = run.classpath
+    flips = sum(int(r.get("godclass_flips") or 0) for r in reps)
+    union = 0
+    for r in reps:
+        g = (r.get("rules") or {}).get("GodClass") or {}
+        lost = len(g.get("lost") or [])
+        union += (int(g.get("without") or 0) - lost) + lost + len(g.get("gained") or [])
+    halves = {}
+    for r in reps:
+        key = (r.get("url") or r.get("full_name") or "").lower()
+        if not key:
+            continue
+        for row in run.rows:
+            if key in ((row.get("repo") or "").lower(), (row.get("full_name") or "").lower()):
+                halves[key] = run.halves.get(row["repo"])
+    rate = (flips / union) if union else None
+    enough = len(reps) >= d["classpath_min_repos"]
+    within = None if not reps else (rate is not None and rate <= d["classpath_flip_bound"] and enough)
+    return {"n_reports": len(reps), "files": [r["_file"] for r in reps], "flips": flips,
+            "union": union, "flip_rate": rate, "bound": d["classpath_flip_bound"],
+            "min_repos": d["classpath_min_repos"], "enough_repos": enough, "within_bound": within,
+            "halves_named": halves,
+            "confirm_touched": sorted(k for k, h in halves.items() if h == "confirm"),
+            "unnamed_reports": sum(1 for r in reps if not (r.get("url") or r.get("full_name")))}
+
+
+def _decision(run, co, level, signal, oracle, fn_rel, fn_abs, auc_c, n_auc_repos, p,
+              arms=None, explore_level=None, classpath: bool = False,
+              label: str = "DECISION") -> dict:
+    """The pre-registered read-out (PLAN['decision']): paired bootstrap over the confirm
+    repositories of relative-at-default minus absolute-tuned on three arms (macro MCC over the
+    repositories with >= 1 positive, micro MCC over all, macro FPR over all, lower better); the
+    verdict is the weakest arm named in `arms`. Then the AUC floor, the effective-sample gate
+    and, for the primary, the classpath bound. The MCC margin is min(ceiling, fraction x
+    `explore_level`)."""
+    d = run.plan["decision"]
+    arms = arms or d["arms"]
     bcfg = run.plan["bootstrap"]
     items = run.paired(co, level, signal, oracle, fn_rel, fn_abs)
+    items_pos = [(a, b) for a, b in items if a["n_god_univ"] > 0]
     m = lambda c: stats.mcc(c["tp"], c["fp"], c["fn"], c["tn"])
 
     def macro_diff(its):
@@ -519,35 +716,68 @@ def _decision(run, co, level, signal, oracle, fn_rel, fn_abs, auc_c, n_auc_repos
         ds = [x - y for x, y in ds if x is not None and y is not None]
         return sum(ds) / len(ds) if ds else None
 
-    bs = {k: stats.bootstrap_paired(items, fn, b=bcfg["b"], seed=bcfg["seed"])
-          for k, fn in (("macro_mcc", macro_diff), ("micro_mcc", micro_diff),
-                        ("macro_fpr", fpr_diff))}
-    margin = d["noninferiority_margin"]
-    v = {k: _verdict(bs[k], margin) for k in ("macro_mcc", "micro_mcc")}
-    rank = {"superior": 3, "non-inferior": 2, "inconclusive": 1, "inferior": 0,
-            "not estimable": -1}
-    overall = min(v.values(), key=lambda x: rank[x])
+    bs = {"macro_mcc": stats.bootstrap_paired(items_pos, macro_diff, b=bcfg["b"], seed=bcfg["seed"]),
+          "micro_mcc": stats.bootstrap_paired(items, micro_diff, b=bcfg["b"], seed=bcfg["seed"]),
+          "macro_fpr": stats.bootstrap_paired(items, fpr_diff, b=bcfg["b"], seed=bcfg["seed"])}
+    ceiling = d["noninferiority_margin"]
+    scaled = (d["margin_fraction_of_explore_level"] * explore_level
+              if explore_level is not None else None)
+    margin = min(ceiling, scaled) if scaled is not None else ceiling
+    v = {"macro_mcc": _verdict(bs["macro_mcc"], margin),
+         "micro_mcc": _verdict(bs["micro_mcc"], margin),
+         "macro_fpr": _verdict_lower_better(bs["macro_fpr"], d["fpr_margin"])}
+    decided = {k: v[k] for k in arms}
+    overall = min(decided.values(), key=lambda x: _RANK[x])
     auc_ok = bool(auc_c) and auc_c["lo"] >= d["auc_floor"]
     powered = (n_auc_repos >= d["min_confirm_repos_auc"]
                and len(items) >= d["min_confirm_repos_mcc"])
-    p(f"   DECISION (pre-registered; paired bootstrap over {len(items)} confirm repositories, "
-      f"margin {margin}):")
+    cp = classpath_summary(run) if classpath else None
+    p(f"   {label} (pre-registered; paired bootstrap over {len(items)} confirm repositories, "
+      f"{len(items_pos)} with >= 1 positive; MCC margin {margin:.3f} = min({ceiling}, "
+      f"{d['margin_fraction_of_explore_level']} x explore level {_f(explore_level).strip()}); "
+      f"FPR margin {d['fpr_margin']}):")
     for k, name in (("macro_mcc", "macro MCC"), ("micro_mcc", "micro MCC"),
                     ("macro_fpr", "macro FPR")):
         b = bs[k]
         p(f"      relative - absolute, {name:10} "
-          + (f"{b['value']:+.3f} [{b['lo']:+.3f}, {b['hi']:+.3f}]" if b else "   n/a")
-          + (f"  -> {v[k]}" if k in v else "  (reported, not decided on)"))
+          + (f"{b['value']:+.3f} [{b['lo']:+.3f}, {b['hi']:+.3f}] n={b['n']}" if b else "   n/a")
+          + f"  -> {v[k]}" + ("" if k in arms else "  (reported, not decided on)"))
     p(f"      AUC floor {d['auc_floor']}: lower bound "
       f"{_f(auc_c and auc_c['lo'])} -> {'met' if auc_ok else 'NOT met'}")
     p(f"      effective sample: {n_auc_repos} repositories with >= {run.plan['min_positives']} "
       f"positives (need {d['min_confirm_repos_auc']}), {len(items)} carrying the definition "
       f"(need {d['min_confirm_repos_mcc']}) -> {'powered' if powered else 'UNDERPOWERED'}")
-    p(f"      verdict: {overall.upper()}"
-      + ("" if powered else " (underpowered: reported, not read as confirmatory)")
-      + ("" if auc_ok else " (AUC floor not met: the signal does not carry the definition)"))
-    return {"paired": bs, "verdicts": v, "overall": overall, "auc_floor_met": auc_ok,
-            "powered": powered, "n_paired_repos": len(items), "n_auc_repos": n_auc_repos}
+    notes = []
+    if not powered:
+        notes.append("underpowered: reported, not read as confirmatory")
+    if not auc_ok:
+        notes.append("AUC floor not met: the signal does not carry the definition")
+    if cp is not None:
+        if cp["n_reports"] == 0:
+            p(f"      classpath validation: NO reports under <results>/classpath (PLAN.md step 4)")
+            notes.append("classpath validation missing: not read as confirmatory")
+        else:
+            p(f"      classpath validation: {cp['n_reports']} repositories (need "
+              f"{cp['min_repos']}), GodClass flips {cp['flips']} of {cp['union']} verdicts, "
+              f"flip rate {_f(cp['flip_rate'])} (bound {cp['bound']}) -> "
+              f"{'within bound' if cp['within_bound'] else 'NOT within bound'}"
+              + (f"; CONFIRM repositories touched: {cp['confirm_touched']}"
+                 if cp["confirm_touched"] else ""))
+            if not cp["within_bound"]:
+                notes.append(f"ORACLE-BOUNDED: GodClass flip rate {_f(cp['flip_rate']).strip()} "
+                             f"on {cp['n_reports']} repositories; the oracle is under-counted by "
+                             f"a material amount and the verdict is not read as confirmatory")
+            if cp["confirm_touched"]:
+                notes.append("classpath validation touched confirm repositories: not confirmatory")
+    confirmatory = powered and auc_ok and (cp is None or bool(cp["within_bound"])) \
+        and not (cp and cp["confirm_touched"])
+    p(f"      verdict: {overall.upper()}" + "".join(f" ({n})" for n in notes))
+    return {"paired": bs, "verdicts": v, "arms": list(arms), "overall": overall,
+            "margin": margin, "margin_ceiling": ceiling, "explore_level": explore_level,
+            "fpr_margin": d["fpr_margin"], "auc_floor_met": auc_ok, "powered": powered,
+            "n_paired_repos": len(items), "n_paired_repos_macro": len(items_pos),
+            "n_auc_repos": n_auc_repos, "classpath": cp, "notes": notes,
+            "confirmatory": confirmatory}
 
 
 def diagnostics(run: Run, out: dict, print_fn=print) -> None:
@@ -579,12 +809,36 @@ def diagnostics(run: Run, out: dict, print_fn=print) -> None:
                      if (r.get("full_name") or "").lower() in pilot)
     p(f"   overlap with the pilot (pilot/run-v1-repos.txt, {len(pilot)} repositories): "
       f"{len(overlap)} of {len(run.rows)} usable rows {overlap[:10]}")
+    java_rows = [r for r in run.rows if r.get("lang") == "java"]
+    java_main = sum(1 for r in java_rows if _is_main_sample(r))
     p(f"   main sample {len(run.main_rows)} rows; supplement {len(run.rows) - len(run.main_rows)} "
-      f"(all-language statistics are read on the main sample only)")
+      f"(all-language statistics are read on the main sample only); Java rows {len(java_rows)} "
+      f"({java_main} drawn by the main sample, {len(java_rows) - java_main} by the supplement; "
+      f"the supplement's draw repeats the main Java draw only if both enumerations of GitHub "
+      f"returned the same candidates)")
+    # owner concentration: repositories of one GitHub owner are not independent draws, and the
+    # bootstrap resamples repositories; the concentration is reported so a reader can judge it
+    owners = defaultdict(list)
+    for r in run.rows:
+        owners[_owner(r.get("full_name"))].append(r.get("full_name"))
+    multi = {o: len(v) for o, v in owners.items() if len(v) > 1}
+    shared = sum(multi.values())
+    top = sorted(multi.items(), key=lambda kv: -kv[1])[:5]
+    p(f"   owner concentration: {len(owners)} distinct owners for {len(run.rows)} rows; "
+      f"{shared} rows share an owner with another row; largest owners {top}")
     d.update({"n_usable": len(run.rows), "n_main_sample": len(run.main_rows),
+              "n_java": len(java_rows), "n_java_main_sample": java_main,
               "usable_flips": flips, "errors": errors,
               "harness_commits": commits, "dirty_rows": dirty, "split_frozen": run.split_frozen,
-              "pilot_overlap": overlap, "n_pilot": len(pilot)})
+              "pilot_overlap": overlap, "n_pilot": len(pilot),
+              "owners": {"distinct": len(owners), "rows_sharing_owner": shared, "largest": top}})
+    cp = classpath_summary(run)
+    p(f"   classpath validation reports: {cp['n_reports']} (GodClass flips {cp['flips']} of "
+      f"{cp['union']}, flip rate {_f(cp['flip_rate'])}; bound {cp['bound']} on >= {cp['min_repos']} "
+      f"repositories)" + (f"; {cp['unnamed_reports']} report(s) name no repository, so their half "
+                          f"cannot be checked" if cp["unnamed_reports"] else "")
+      + (f"; CONFIRM repositories touched: {cp['confirm_touched']}" if cp["confirm_touched"] else ""))
+    d["classpath"] = cp
     skipped = defaultdict(int)
     outside = defaultdict(int)
     for r in run.rows:
@@ -812,13 +1066,14 @@ def report(run: Run, print_fn=print, is_exploratory: bool = False) -> dict:
             meta = run.registry.get(o, {})
             if meta.get("origin") == "human" and meta.get("kind") == "human":
                 secs.append({"level": level, "definition": o,
-                             "families": run.plan["human_families"][level]})
+                             "families": run.plan["human_families"][level],
+                             "arms": run.plan["human"]["decide_on"]})
     order = {"tool": 0, "human": 0, "composed": 1, "internal": 2}
     secs.sort(key=lambda s: order.get(run.registry.get(s["definition"], {}).get("origin"), 3))
     for s in secs:
         if present(s["definition"], s["level"]):
             readout(run, s["level"], s["definition"], s["families"], prim["rule"],
-                    "SECONDARY", out["secondary"], p)
+                    "SECONDARY", out["secondary"], p, arms=s.get("arms"))
         else:
             p(f"\nSECONDARY: {s['definition']} is not in this run")
     if chosen:
@@ -854,6 +1109,9 @@ def main(argv=None) -> int:
                     help="a re-analysis of a run already analysed: labelled exploratory and "
                          "written to <results>/analysis.exploratory.<utc>.json; the "
                          "confirmatory analysis.json is never overwritten")
+    ap.add_argument("--classpath-dir", default=None,
+                    help="directory of classpath-check reports (default <results>/classpath); "
+                         "their GodClass flip rate bounds the primary (PLAN.md step 4)")
     args = ap.parse_args(argv)
     from . import deps
     import datetime
@@ -873,11 +1131,17 @@ def main(argv=None) -> int:
               f"--exploratory to write a dated analysis.exploratory.<utc>.json beside it.",
               file=sys.stderr)
         return 3
-    run = Run(results)
+    run = Run(results, classpath_dir=args.classpath_dir)
     out = report(run, is_exploratory=args.exploratory)
     with open(path, "w") as fh:
         json.dump(out, fh, indent=2, default=str)
-    print(f"\nwrote {path}")
+    digest = _sha256(path)
+    with open(path + ".sha256", "w") as fh:
+        fh.write(f"{digest}  {os.path.basename(path)}\n")
+    print(f"\nwrote {path}\nsha256 {digest}  (also in {path}.sha256)")
+    if not args.exploratory:
+        print("Commit that digest with the harness (PLAN.md, procedure step 5) so the "
+              "confirmatory analysis is auditable against this file.")
     return 0
 
 
