@@ -68,6 +68,24 @@ def test_agreement_counts_on_the_reviewed_units_only():
     assert out["confirm_only"]["n_repos"] == 5
 
 
+def test_exploratory_section_prints_a_definition_without_a_kind():
+    # human_blob is registered without a "kind"; the MLCQ run's analysis crashed formatting it
+    d = _run_dir()
+    path = os.path.join(d, "study.units.jsonl")
+    units = [json.loads(ln) for ln in open(path)]
+    with open(path, "w") as fh:
+        for u in units:
+            u["class"]["signals"] = list(metrics.CLASS_SIGNALS)
+            u["class"]["values"] = {s: VALUES for s in metrics.CLASS_SIGNALS}
+            fh.write(json.dumps(u) + "\n")
+    run = analyse.Run(d)
+    for r in run.rows:
+        r["matrix"]["class"].update(cells={}, oracle_gods={"human_blob": 3})
+    lines = []
+    analyse.exploratory(run, {}, print_fn=lines.append)
+    assert any("human_blob " in ln and "[None" in ln for ln in lines)
+
+
 def test_main_constants_are_checked_against_the_main_analysis():
     d = tempfile.mkdtemp()
     a = {"plan": {"primary": {"rule": "mad_z"}},

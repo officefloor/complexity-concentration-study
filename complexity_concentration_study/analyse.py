@@ -1007,7 +1007,7 @@ def exploratory(run: Run, out: dict, print_fn=print):
                         cells[(s, a)] = sum(v) / len(v)
             bc = max(cells, key=cells.get) if cells else (None, None)
             star = "*" if bs in ing else ""
-            p(f"   {level:6} {o:28} [{meta.get('kind'):11} {str(meta.get('origin')):8}] "
+            p(f"   {level:6} {o:28} [{str(meta.get('kind')):11} {str(meta.get('origin')):8}] "
               f"AUC {bs}{star}={sig[bs]:.3f}   MCC {bc[0]}/{bc[1]}={cells.get(bc, 0):.3f}")
             ex[f"{level}:{o}"] = {"best_signal": bs, "best_signal_is_ingredient": bs in ing,
                                   "auc": sig[bs], "best_cell": list(bc),
