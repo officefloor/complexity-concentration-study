@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+#
+# Step 4c — re-analyse the run with the classpath reports, labelled EXPLORATORY.
+#
+#   ./step4c_reanalyse.sh [--results results/<date>] [any other `analyse` flag]
+#
+# The confirmatory analysis.json was written before the classpath validation (step 4b) ran, so
+# it reads the primary as not confirmatory ("classpath validation missing"). This re-analysis
+# aggregates <results>/classpath/ and applies the pre-registered 10% GodClass flip bound, but it
+# comes after confirm was read, so it is written to a dated analysis.exploratory.<utc>.json and
+# reported as a deviation from the plan, never in place of analysis.json. Its sha256 is appended
+# to analysis-hashes.txt; commit that.
+#
+# Decisions, made on 2026-10-19 after the confirmatory analysis.json was read:
+#   - analysis.json stays the analysis of record; the paper quotes it as the planned analysis
+#     and this file as the deviation, with the order of events (analysis-hashes.txt was
+#     committed in 35cdd4c, before any classpath report existed).
+#   - The bound is applied unchanged (10% on at least 10 repositories); fewer reports are
+#     analysed anyway and read as "not enough repositories", not topped up by relaxing it.
+#   - Nothing else about the analysis changes: same results, same plan, only the classpath
+#     reports are new. Any other change would be a separate, separately labelled analysis.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+RESULTS=""
+PASS=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --results) RESULTS="$2"; shift 2 ;;
+    --results=*) RESULTS="${1#*=}"; shift ;;
+    *) PASS+=("$1"); shift ;;
+  esac
+done
+[ -n "$RESULTS" ] || RESULTS="$(ls -d results/*/ 2>/dev/null | sort | tail -n1)"
+RESULTS="${RESULTS%/}"
+[ -f "$RESULTS/analysis.json" ] || { echo "ERROR: no analysis.json in '$RESULTS' — run ./step4_analyse.sh first" >&2; exit 1; }
+
+N=$(ls "$RESULTS"/classpath/*.json 2>/dev/null | wc -l)
+echo "=== STEP 4c: exploratory re-analysis of $RESULTS with $N classpath report(s) ==="
+[ "$N" -ge 10 ] || echo "WARNING: fewer than 10 classpath reports; the bound will read as not enough repositories." >&2
+
+BEFORE="$(ls "$RESULTS"/analysis.exploratory.*.json 2>/dev/null || true)"
+./step4_analyse.sh --results "$RESULTS" --exploratory ${PASS[@]+"${PASS[@]}"}
+NEW="$(comm -13 <(printf '%s\n' "$BEFORE" | sort) <(ls "$RESULTS"/analysis.exploratory.*.json | sort) | tail -n1)"
+[ -n "$NEW" ] || { echo "ERROR: no new analysis.exploratory.*.json was written" >&2; exit 1; }
+
+{
+  echo "# exploratory re-analysis with $N classpath report(s), after confirm was read (a deviation, PLAN.md step 4):"
+  sha256sum "$NEW"
+} >> analysis-hashes.txt
+
+echo
+echo "=== STEP 4c complete: $NEW ==="
+echo "Its sha256 is appended to analysis-hashes.txt; commit that with classpath-log.tsv."
