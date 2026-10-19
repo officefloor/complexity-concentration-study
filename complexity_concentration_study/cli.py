@@ -6,6 +6,7 @@
   complexity-concentration-study analyse [--results d]             the report, to the README rules and PLAN.md
   complexity-concentration-study classpath-check --repo p ...      the classpath validation on one Java checkout
   complexity-concentration-study mlcq --input csv --out-dir d      convert MLCQ into --labels and --sample files
+  complexity-concentration-study agreement [--results d]           exploratory: tool rules vs MLCQ reviewers
 
 The sample(s) (open-source-repository-sample*.csv) are drawn by open-source-repository-sampler
 (./step2_sample.sh: the main all-language sample and the Java supplement), which also runs the
@@ -61,11 +62,11 @@ def main(argv: list[str] | None = None) -> int:
                     "(results.csv + oracles.json + README.txt + the sample files; default "
                     "<out-dir>/anc)")
     for name, mod in (("analyse", "analyse"), ("classpath-check", "classpath_check"),
-                      ("mlcq", "mlcq")):
+                      ("mlcq", "mlcq"), ("agreement", "agreement")):
         sub.add_parser(name, add_help=False, help=f"see `{name} --help`")
     if argv is None:
         argv = sys.argv[1:]
-    if argv and argv[0] in ("analyse", "classpath-check", "mlcq"):
+    if argv and argv[0] in ("analyse", "classpath-check", "mlcq", "agreement"):
         import importlib
         mod = importlib.import_module(f".{argv[0].replace('-', '_')}", __package__)
         return mod.main(argv[1:])
