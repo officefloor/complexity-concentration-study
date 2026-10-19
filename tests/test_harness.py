@@ -179,7 +179,8 @@ def test_human_labels_at_both_levels_with_reviewed_universes():
              "long_method": {("deep.py", 3)}, "long_method_reviewed": {("deep.py", 3), ("deep.py", 18)}}
     res = study.analyse(root, None, None, human=human)
     assert res["human_labels"]["blob"] == {"labelled": 1, "measured": 1}
-    assert res["human_labels"]["long_method@method"] == {"labelled": 1, "measured": 1}
+    assert res["human_labels"]["long_method@method"] == {"labelled": 1, "measured": 1,
+                                                         "after_annotation": 0}
     assert res["human_labels"]["long_method_reviewed@method"]["measured"] == 2
     assert study.ORACLES["human_blob"]["conditional_on"] == "human_blob_reviewed"
     assert study.ORACLES["human_method_long_method"]["conditional_on"] == "human_method_long_method_reviewed"
@@ -193,6 +194,42 @@ def test_human_labels_at_both_levels_with_reviewed_universes():
     units = res["_units"]["method"]
     gi = units["god_idx"]["human_method_long_method"]
     assert len(gi) == 1 and units["units"][gi[0]].startswith("deep.py::deep@")
+
+
+def test_method_label_on_an_annotation_names_the_annotated_method():
+    """MLCQ's line is where its sample starts: the `@Override` above an annotated method, which
+    is outside the method's [start_line, end_line] (found in the first MLCQ repositories)."""
+    root = tempfile.mkdtemp()
+    src = "\n".join([
+        "class A {",                                         # 1
+        "  int f;",                                          # 2
+        "",                                                  # 3
+        "  @Override",                                       # 4  label -> onCreate
+        "  protected void onCreate(int x) {",                # 5
+        "    if (x > 0) { f = x; }",                         # 6
+        "  }",                                               # 7
+        "",                                                  # 8  label on a blank line
+        "  @SuppressWarnings({\"a\",",                       # 9  label -> start (multi-line)
+        "      \"b\"})",                                     # 10
+        "  // comment (unbalanced",                          # 11
+        "  @Deprecated",                                     # 12
+        "  public void start(int y) {",                      # 13
+        "    if (y > 1) { f = y; }",                         # 14
+        "  }",                                               # 15
+        "  public static void main(String[] a) {",           # 16 label inside -> main
+        "    f = 0;",                                        # 17
+        "  }",                                               # 18
+        "}",                                                 # 19
+    ]) + "\n"
+    open(os.path.join(root, "A.java"), "w").write(src)
+    human = {"long_method_reviewed": {("A.java", 4), ("A.java", 8), ("A.java", 9), ("A.java", 16)}}
+    res = study.analyse(root, None, None, human=human)
+    assert res["human_labels"]["long_method_reviewed@method"] == {
+        "labelled": 4, "measured": 3, "after_annotation": 2}
+    units = res["_units"]["method"]
+    named = {units["units"][i].split("::")[1].split("@")[0]
+             for i in units["god_idx"]["human_method_long_method_reviewed"]}
+    assert named == {"onCreate", "start", "main"}
 
 
 def test_java_scoped_definitions_are_scored_on_java_units_only():

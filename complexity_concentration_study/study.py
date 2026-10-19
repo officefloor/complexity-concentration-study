@@ -432,6 +432,47 @@ def _unit_at(by_file: dict, rel: str, line: int):
     return best[2] if best else None
 
 
+# A line a human label may start on that is not yet the method: an annotation (or a line of a
+# multi-line one), a comment or a blank line. Used by _labelled_unit_at only.
+_LEAD_IN = re.compile(r"^\s*(?:@|//|/\*|\*|$)")
+
+
+def _labelled_unit_at(by_file: dict, root: str, rel: str, line: int) -> tuple:
+    """The unit a human method label names: (fid, stepped). MLCQ's line is where its code
+    sample starts, which for an annotated method is the annotation (`@Override` on 44, the
+    signature on 45), outside the extractor's [start_line, end_line]. So when `line` is in no
+    function, step forward over annotation, comment and blank lines (and the continuation lines
+    of a multi-line annotation, by bracket depth) in the source file, and take the function that
+    STARTS on the first other line. A label on a blank line, or one that reaches a line no
+    function starts on, stays unmatched and is counted as such: no distance tolerance, so a
+    label never lands on a neighbouring method. `stepped` is True when
+    the label was matched by stepping, so the run can report how many were."""
+    fid = _unit_at(by_file, rel, line)
+    if fid is not None:
+        return fid, False
+    try:
+        with open(os.path.join(root, rel), encoding="utf-8", errors="replace") as fh:
+            src = fh.read().splitlines()
+    except OSError:
+        return None, False
+    if not (0 < line <= len(src)) or not src[line - 1].strip():
+        return None, False                             # a label on a blank line names nothing
+    depth = 0
+    for n in range(line, len(src) + 1):
+        text = src[n - 1]
+        if depth > 0 or text.lstrip().startswith("@"):
+            depth = max(0, depth + text.count("(") + text.count("{")
+                        - text.count(")") - text.count("}"))
+            continue
+        if _LEAD_IN.match(text):
+            continue
+        for st, _, fid in by_file.get(rel, ()):
+            if st == n:
+                return fid, True
+        return None, False
+    return None, False
+
+
 def _by_file(funcs: dict) -> dict:
     by_file: dict = defaultdict(list)
     for fid, r in funcs.items():
@@ -838,13 +879,16 @@ def analyse(root: str, pmd: str | None, ck: str | None = None,
             if lines:
                 name = register_human(label, "method")
                 matched = set()
+                stepped = 0
                 for p, ln in lines:
-                    fid = _unit_at(by_file, p, ln)
+                    fid, via = _labelled_unit_at(by_file, root, p, ln)
                     if fid is not None:
                         matched.add(fid)
+                        stepped += via
                 method_oracles[name] = matched
                 out["human_labels"][label + "@method"] = {"labelled": len(lines),
-                                                          "measured": len(matched)}
+                                                          "measured": len(matched),
+                                                          "after_annotation": stepped}
         link_reviewed()
 
     # full (level x signal x algorithm x oracle) comparison matrix, computed once per SCOPE
