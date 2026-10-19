@@ -20,6 +20,10 @@
 # Needs step 1 (venv, PMD, CK) and network for the download and the clones.
 set -euo pipefail
 cd "$(dirname "$0")"
+# Python block-buffers its output into a pipe (`| tee step5.log`), so the analysis printed
+# nothing for hours and a crash flushed its report only at exit. Unbuffered, progress shows as
+# it happens. Output only: no result depends on it.
+export PYTHONUNBUFFERED=1
 
 VENV="${VENV:-.venv}"
 OUTDIR="results/mlcq"
