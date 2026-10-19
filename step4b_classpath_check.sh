@@ -36,8 +36,13 @@
 #     only). A build that needs any file edited, a dependency forced, or more than --timeout
 #     (45m) is a fail. Skipping test compilation can break a build that consumes a test-jar;
 #     that is a fail too, not a reason to change the flags.
-#   - Skips, recorded but not counted: Android projects (no SDK on this machine), Gradle without
-#     a wrapper (no way to know which Gradle the project needs), and no Maven/Gradle build.
+#   - Skips, recorded but not counted: a build that fails for want of an Android SDK (none on
+#     this machine), Gradle without a wrapper (no way to know which Gradle the project needs),
+#     and no Maven/Gradle build. Android is judged by the build failing for want of the SDK, not
+#     by the build files mentioning Android: a project whose Android module is optional (e.g.
+#     Mindustry includes it only when an SDK is found) builds its Java modules without one.
+#   - Builds run with stdin from /dev/null: `timeout` puts the build in its own process group,
+#     and a build that reads the terminal from there is stopped by the kernel, timer and all.
 #   - JDK: whatever is on PATH; a fail that is only a JDK version mismatch may be retried under
 #     another JDK with --only. The JDK of every attempt is in the log.
 #   - The classpath: the union over modules of each module's main runtime classpath (Maven's
@@ -122,6 +127,14 @@ log() {  # order full_name status reason
 
 n_ok() { awk -F'\t' 'NR>1 && $3=="ok"' "$LOG" | wc -l; }
 
+build_failed() {  # order full_name tool: a skip if the build wanted an Android SDK, else a fail
+  if grep -qiE "SDK location not found|ANDROID_HOME|ANDROID_SDK_ROOT|define a valid SDK location" "$BLOG"; then
+    log "$1" "$2" skip "$3 build needs an Android SDK"
+  else
+    log "$1" "$2" fail "$3 build failed or timed out ($TIMEOUT)"
+  fi
+}
+
 if [ -n "$ONLY" ]; then
   grep -q -P "^\d+\t\Q$ONLY\E\t" "$CANDS" || { echo "ERROR: $ONLY is not in $CANDS" >&2; exit 1; }
   awk -F'\t' -v r="$ONLY" '$2!=r' "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"
@@ -157,19 +170,14 @@ while IFS=$'\t' read -r ORDER REPO COMMIT TIER GODS <&3; do
     fi
   fi
 
-  if grep -qsE "com\.android\.(application|library)|com\.android\.tools\.build" \
-       "$W"/build.gradle* "$W"/*/build.gradle* "$W"/settings.gradle* 2>/dev/null; then
-    log "$ORDER" "$REPO" skip "Android project (no SDK)"; continue
-  fi
-
   CP="$W/all-cp.txt"
   rm -f "$CP"
   if [ -f "$W/pom.xml" ]; then
     echo "  maven build (log: $BLOG)"
     if ! (cd "$W" && timeout "$TIMEOUT" mvn -B -q -Dmaven.repo.local="$WORK/m2" \
             -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip=true \
-            install dependency:build-classpath -Dmdep.outputFile=cp.txt) >> "$BLOG" 2>&1; then
-      log "$ORDER" "$REPO" fail "maven build failed or timed out ($TIMEOUT)"; continue
+            install dependency:build-classpath -Dmdep.outputFile=cp.txt) < /dev/null >> "$BLOG" 2>&1; then
+      build_failed "$ORDER" "$REPO" maven; continue
     fi
     find "$W" -name cp.txt -not -path '*/node_modules/*' -exec cat {} + | tr ':' '\n' | sed '/^$/d' | sort -u > "$CP"
   elif ls "$W"/build.gradle* >/dev/null 2>&1 || ls "$W"/settings.gradle* >/dev/null 2>&1; then
@@ -178,9 +186,9 @@ while IFS=$'\t' read -r ORDER REPO COMMIT TIER GODS <&3; do
     fi
     chmod +x "$W/gradlew"
     echo "  gradle build (log: $BLOG)"
-    if ! (cd "$W" && timeout "$TIMEOUT" ./gradlew --no-daemon -q -I "$INIT" printCp) > "$W/printcp.out" 2>> "$BLOG"; then
+    if ! (cd "$W" && timeout "$TIMEOUT" ./gradlew --no-daemon -q -I "$INIT" printCp) < /dev/null > "$W/printcp.out" 2>> "$BLOG"; then
       cat "$W/printcp.out" >> "$BLOG"
-      log "$ORDER" "$REPO" fail "gradle build failed or timed out ($TIMEOUT)"; continue
+      build_failed "$ORDER" "$REPO" gradle; continue
     fi
     grep '^CP=' "$W/printcp.out" | cut -c4- | tr ':' '\n' | sed '/^$/d' | sort -u > "$CP"
   else
