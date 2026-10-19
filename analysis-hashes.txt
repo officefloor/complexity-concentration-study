@@ -1,0 +1,7 @@
+# sha256 of the confirmatory analysis (PLAN.md, Procedure step 5) and of the sample it was drawn from.
+# analysis.json: written 2026-10-18T22:18:48Z by harness f9b26ba (plan-v1), is_exploratory=false; results/ is not committed.
+1f8e2bfa05f15a05b24fb4d6d0ba6c64c904498cfae4f1a736065b3cb97961bf  results/2026-10-19/analysis.json
+f37afd6f621ed253f21fdf833284b12683d3b39c0cfe8d07f9ee2f094580dd40  sample/open-source-repository-sample.csv
+04e896e6812a43cbbbe8afe0cb3bfa7719add83e88fc5abf5053d3b4ff12d318  sample/open-source-repository-sample.derivation.json
+b6c69f9c40289a02fa27779481800d33432edd96a1e9dd1337f4bd24d7921337  sample/open-source-repository-sample.java-supplement.csv
+620f8534b498fb2333b70bf3320cfed819778e36db78664fd2c3b70ef361e69c  sample/open-source-repository-sample.java-supplement.derivation.json
