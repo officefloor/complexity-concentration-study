@@ -1,0 +1,92 @@
+order	full_name	status	reason	jdk	utc
+-	-	run	step4b_classpath_check.sh at 7c4ffaf; target 10; timeout 45m; JDKs in order: 17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504	-	2026-10-19T02:48:54Z
+1	Anuken/Mindustry	ok	results/2026-10-19/classpath/Anuken__Mindustry.json	17.0.20.1	2026-10-19T02:49:20Z
+2	cabaletta/baritone	ok	results/2026-10-19/classpath/cabaletta__baritone.json	17.0.20.1	2026-10-19T02:53:16Z
+3	secure-software-engineering/FlowDroid	retry	maven build failed or timed out (45m)	17.0.20.1	2026-10-19T02:53:18Z
+3	secure-software-engineering/FlowDroid	retry	maven build failed or timed out (45m)	21.0.12.1	2026-10-19T02:53:20Z
+3	secure-software-engineering/FlowDroid	retry	maven build failed or timed out (45m)	11.0.32.1	2026-10-19T02:53:23Z
+3	secure-software-engineering/FlowDroid	retry	maven build failed or timed out (45m)	1.8.0_504	2026-10-19T02:53:25Z
+3	secure-software-engineering/FlowDroid	fail	maven build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T02:53:25Z
+4	Qihoo360/RePlugin	skip	no Maven or Gradle build	-	2026-10-19T02:53:25Z
+5	jenkinsci/jenkins	retry	maven build failed or timed out (45m)	17.0.20.1	2026-10-19T02:53:28Z
+5	jenkinsci/jenkins	ok	results/2026-10-19/classpath/jenkinsci__jenkins.json	21.0.12.1	2026-10-19T03:09:18Z
+6	resilience4j/resilience4j	retry	gradle build failed or timed out (45m)	17.0.20.1	2026-10-19T03:09:31Z
+6	resilience4j/resilience4j	ok	results/2026-10-19/classpath/resilience4j__resilience4j.json	21.0.12.1	2026-10-19T03:11:47Z
+7	Itiviti/simple-slack-api	retry	gradle build failed or timed out (45m)	17.0.20.1	2026-10-19T03:11:48Z
+7	Itiviti/simple-slack-api	retry	gradle build failed or timed out (45m)	21.0.12.1	2026-10-19T03:11:49Z
+7	Itiviti/simple-slack-api	retry	gradle build failed or timed out (45m)	11.0.32.1	2026-10-19T03:11:55Z
+7	Itiviti/simple-slack-api	retry	gradle build failed or timed out (45m)	1.8.0_504	2026-10-19T03:11:59Z
+7	Itiviti/simple-slack-api	fail	gradle build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:11:59Z
+8	Berikai/bitwig-theme-editor	ok	results/2026-10-19/classpath/Berikai__bitwig-theme-editor.json	17.0.20.1	2026-10-19T03:12:08Z
+9	Hitomis/transferee	retry	gradle build failed or timed out (45m)	17.0.20.1	2026-10-19T03:12:10Z
+9	Hitomis/transferee	retry	gradle build failed or timed out (45m)	21.0.12.1	2026-10-19T03:12:12Z
+9	Hitomis/transferee	skip	gradle build needs an Android SDK	11.0.32.1	2026-10-19T03:13:08Z
+10	LuckSiege/PictureSelector	retry	gradle build failed or timed out (45m)	17.0.20.1	2026-10-19T03:13:13Z
+10	LuckSiege/PictureSelector	retry	gradle build failed or timed out (45m)	21.0.12.1	2026-10-19T03:13:18Z
+10	LuckSiege/PictureSelector	retry	gradle build failed or timed out (45m)	11.0.32.1	2026-10-19T03:13:23Z
+10	LuckSiege/PictureSelector	retry	gradle build failed or timed out (45m)	1.8.0_504	2026-10-19T03:13:26Z
+10	LuckSiege/PictureSelector	fail	gradle build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:13:26Z
+11	FreddyChen/NettyChat	retry	gradle build failed or timed out (45m)	17.0.20.1	2026-10-19T03:14:02Z
+11	FreddyChen/NettyChat	retry	gradle build failed or timed out (45m)	21.0.12.1	2026-10-19T03:14:02Z
+11	FreddyChen/NettyChat	retry	gradle build failed or timed out (45m)	11.0.32.1	2026-10-19T03:14:03Z
+11	FreddyChen/NettyChat	skip	gradle build needs an Android SDK	1.8.0_504	2026-10-19T03:14:54Z
+12	lerry903/RuoYi	retry	maven build failed or timed out (45m)	17.0.20.1	2026-10-19T03:15:28Z
+12	lerry903/RuoYi	retry	maven build failed or timed out (45m)	21.0.12.1	2026-10-19T03:15:31Z
+12	lerry903/RuoYi	retry	maven build failed or timed out (45m)	11.0.32.1	2026-10-19T03:16:12Z
+12	lerry903/RuoYi	retry	maven build failed or timed out (45m)	1.8.0_504	2026-10-19T03:16:15Z
+12	lerry903/RuoYi	fail	maven build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:16:15Z
+13	yarolegovich/DiscreteScrollView	retry	gradle build failed or timed out (45m)	17.0.20.1	2026-10-19T03:17:13Z
+13	yarolegovich/DiscreteScrollView	retry	gradle build failed or timed out (45m)	21.0.12.1	2026-10-19T03:17:15Z
+13	yarolegovich/DiscreteScrollView	retry	gradle build failed or timed out (45m)	11.0.32.1	2026-10-19T03:17:39Z
+13	yarolegovich/DiscreteScrollView	retry	gradle build failed or timed out (45m)	1.8.0_504	2026-10-19T03:17:45Z
+13	yarolegovich/DiscreteScrollView	fail	gradle build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:17:45Z
+14	ProgrammerAnthony/RocketMQC	retry	maven build failed or timed out (45m)	17.0.20.1	2026-10-19T03:18:36Z
+14	ProgrammerAnthony/RocketMQC	retry	maven build failed or timed out (45m)	21.0.12.1	2026-10-19T03:18:41Z
+14	ProgrammerAnthony/RocketMQC	retry	maven build failed or timed out (45m)	11.0.32.1	2026-10-19T03:18:46Z
+14	ProgrammerAnthony/RocketMQC	retry	maven build failed or timed out (45m)	1.8.0_504	2026-10-19T03:18:52Z
+14	ProgrammerAnthony/RocketMQC	fail	maven build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:18:52Z
+15	prestodb/presto	retry	maven build failed or timed out (45m)	17.0.20.1	2026-10-19T03:23:33Z
+15	prestodb/presto	retry	maven build failed or timed out (45m)	21.0.12.1	2026-10-19T03:24:00Z
+15	prestodb/presto	retry	maven build failed or timed out (45m)	11.0.32.1	2026-10-19T03:24:29Z
+15	prestodb/presto	retry	maven build failed or timed out (45m)	1.8.0_504	2026-10-19T03:24:56Z
+15	prestodb/presto	fail	maven build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:24:56Z
+16	agentscope-ai/agentscope-java	retry	maven build failed or timed out (45m)	17.0.20.1	2026-10-19T03:26:27Z
+16	agentscope-ai/agentscope-java	retry	maven build failed or timed out (45m)	21.0.12.1	2026-10-19T03:26:32Z
+16	agentscope-ai/agentscope-java	retry	maven build failed or timed out (45m)	11.0.32.1	2026-10-19T03:26:34Z
+16	agentscope-ai/agentscope-java	retry	maven build failed or timed out (45m)	1.8.0_504	2026-10-19T03:26:36Z
+16	agentscope-ai/agentscope-java	fail	maven build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:26:36Z
+17	ta4j/ta4j	retry	maven build failed or timed out (45m)	17.0.20.1	2026-10-19T03:26:43Z
+17	ta4j/ta4j	retry	maven build failed or timed out (45m)	21.0.12.1	2026-10-19T03:26:44Z
+17	ta4j/ta4j	retry	maven build failed or timed out (45m)	11.0.32.1	2026-10-19T03:26:46Z
+17	ta4j/ta4j	retry	maven build failed or timed out (45m)	1.8.0_504	2026-10-19T03:26:47Z
+17	ta4j/ta4j	fail	maven build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:26:47Z
+18	jfree/jfreechart	ok	results/2026-10-19/classpath/jfree__jfreechart.json	17.0.20.1	2026-10-19T03:27:14Z
+19	singwhatiwanna/dynamic-load-apk	skip	no Maven or Gradle build	-	2026-10-19T03:27:17Z
+20	openpreserve/jhove	ok	results/2026-10-19/classpath/openpreserve__jhove.json	17.0.20.1	2026-10-19T03:29:56Z
+21	linkedin/dr-elephant	skip	no Maven or Gradle build	-	2026-10-19T03:29:58Z
+22	liaohuqiu/android-Ultra-Pull-To-Refresh	retry	maven build failed or timed out (45m)	17.0.20.1	2026-10-19T03:30:14Z
+22	liaohuqiu/android-Ultra-Pull-To-Refresh	retry	maven build failed or timed out (45m)	21.0.12.1	2026-10-19T03:30:16Z
+22	liaohuqiu/android-Ultra-Pull-To-Refresh	retry	maven build failed or timed out (45m)	11.0.32.1	2026-10-19T03:30:17Z
+22	liaohuqiu/android-Ultra-Pull-To-Refresh	retry	maven build failed or timed out (45m)	1.8.0_504	2026-10-19T03:30:19Z
+22	liaohuqiu/android-Ultra-Pull-To-Refresh	fail	maven build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:30:19Z
+23	typ0520/bizsocket	retry	gradle build failed or timed out (45m)	17.0.20.1	2026-10-19T03:30:43Z
+23	typ0520/bizsocket	retry	gradle build failed or timed out (45m)	21.0.12.1	2026-10-19T03:30:43Z
+23	typ0520/bizsocket	retry	gradle build failed or timed out (45m)	11.0.32.1	2026-10-19T03:30:43Z
+23	typ0520/bizsocket	retry	gradle build failed or timed out (45m)	1.8.0_504	2026-10-19T03:30:49Z
+23	typ0520/bizsocket	fail	gradle build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:30:49Z
+24	over-driver/SevenTV	retry	gradle build failed or timed out (45m)	17.0.20.1	2026-10-19T03:31:35Z
+24	over-driver/SevenTV	retry	gradle build failed or timed out (45m)	21.0.12.1	2026-10-19T03:31:37Z
+24	over-driver/SevenTV	skip	gradle build needs an Android SDK	11.0.32.1	2026-10-19T03:32:30Z
+25	microsoft/playwright-java	ok	results/2026-10-19/classpath/microsoft__playwright-java.json	17.0.20.1	2026-10-19T03:32:47Z
+26	appium/java-client	ok	results/2026-10-19/classpath/appium__java-client.json	17.0.20.1	2026-10-19T03:35:41Z
+27	OpnTec/ots15-companion	retry	gradle build failed or timed out (45m)	17.0.20.1	2026-10-19T03:36:03Z
+27	OpnTec/ots15-companion	retry	gradle build failed or timed out (45m)	21.0.12.1	2026-10-19T03:36:04Z
+27	OpnTec/ots15-companion	retry	gradle build failed or timed out (45m)	11.0.32.1	2026-10-19T03:36:04Z
+27	OpnTec/ots15-companion	skip	gradle build needs an Android SDK	1.8.0_504	2026-10-19T03:36:53Z
+28	DTStack/flinkStreamSQL	retry	maven build failed or timed out (45m)	17.0.20.1	2026-10-19T03:38:13Z
+28	DTStack/flinkStreamSQL	retry	maven build failed or timed out (45m)	21.0.12.1	2026-10-19T03:38:16Z
+28	DTStack/flinkStreamSQL	retry	maven build failed or timed out (45m)	11.0.32.1	2026-10-19T03:38:19Z
+28	DTStack/flinkStreamSQL	retry	maven build failed or timed out (45m)	1.8.0_504	2026-10-19T03:38:22Z
+28	DTStack/flinkStreamSQL	fail	maven build failed under every JDK (17.0.20.1, 21.0.12.1, 11.0.32.1, 1.8.0_504)	-	2026-10-19T03:38:22Z
+29	blendi-remade/falcraft	retry	gradle build failed or timed out (45m)	17.0.20.1	2026-10-19T03:38:32Z
+29	blendi-remade/falcraft	ok	results/2026-10-19/classpath/blendi-remade__falcraft.json	21.0.12.1	2026-10-19T03:41:30Z
