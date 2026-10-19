@@ -1,5 +1,6 @@
-# sha256 of the confirmatory analysis (PLAN.md, Procedure step 5) and of the sample it was drawn from.
-# analysis.json: written 2026-10-18T22:18:48Z by harness f9b26ba (plan-v1), is_exploratory=false; results/ is not committed.
+# sha256 of the analyses of results/2026-10-19 and of what they rest on. Written by ./record_hashes.sh;
+# never edited by hand. analysis.json is the confirmatory analysis (PLAN.md step 5);
+# analysis.exploratory.*.json are re-analyses; classpath/*.json are step 4b's reports.
 1f8e2bfa05f15a05b24fb4d6d0ba6c64c904498cfae4f1a736065b3cb97961bf  results/2026-10-19/analysis.json
 f37afd6f621ed253f21fdf833284b12683d3b39c0cfe8d07f9ee2f094580dd40  sample/open-source-repository-sample.csv
 04e896e6812a43cbbbe8afe0cb3bfa7719add83e88fc5abf5053d3b4ff12d318  sample/open-source-repository-sample.derivation.json
