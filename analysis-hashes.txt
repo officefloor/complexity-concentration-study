@@ -2,6 +2,17 @@
 # never edited by hand. analysis.json is the confirmatory analysis (PLAN.md step 5);
 # analysis.exploratory.*.json are re-analyses; classpath/*.json are step 4b's reports.
 1f8e2bfa05f15a05b24fb4d6d0ba6c64c904498cfae4f1a736065b3cb97961bf  results/2026-10-19/analysis.json
+2107c54d4ee2d38bd0fb46baff682bfec941473c0ee20fa6f9afaddcbc90cf43  results/2026-10-19/analysis.exploratory.20261019T044359Z.json
+91b60f1d8575052800d9efefbab37aaaa397026560add6ed984566af66d31035  results/2026-10-19/classpath/Anuken__Mindustry.json
+2c577577bfd83202e3e2e6b1ebf11ae7016f15e2f68f3e78ea89c13676c3fbaf  results/2026-10-19/classpath/appium__java-client.json
+a9b05b83759be3549ff1dbe4e1e03d00eacc2fc3b91511d7fd17aeaee9571d78  results/2026-10-19/classpath/Berikai__bitwig-theme-editor.json
+45c1f9927e6304da68ce443d5e88eaef815884f21aadd8d7683d9ad83ce90fd3  results/2026-10-19/classpath/blendi-remade__falcraft.json
+76233806ad153ff20c072def827078ed1af29d48adf60ad3815a579f2e95b80b  results/2026-10-19/classpath/cabaletta__baritone.json
+ff1ec6cc9c001d27497749eabfc9e367d195aae68577222bbfd00b21749a83f3  results/2026-10-19/classpath/jenkinsci__jenkins.json
+abae88b1603e2c2cb2c07faa168558e1050e9c19a609610626aed38091fd2590  results/2026-10-19/classpath/jfree__jfreechart.json
+993dfc6af8e25f28411d59321b604c845afc8af878003363836553b4ea662f3d  results/2026-10-19/classpath/microsoft__playwright-java.json
+786d1bb37490cc0530c1e27a9101655b0ea01d154aa0619e893ee225df2db4f4  results/2026-10-19/classpath/openpreserve__jhove.json
+eed20539e76693a7a98172ae9157ebab340cc59ca5988ed778e6dc91ae02d6a5  results/2026-10-19/classpath/resilience4j__resilience4j.json
 f37afd6f621ed253f21fdf833284b12683d3b39c0cfe8d07f9ee2f094580dd40  sample/open-source-repository-sample.csv
 04e896e6812a43cbbbe8afe0cb3bfa7719add83e88fc5abf5053d3b4ff12d318  sample/open-source-repository-sample.derivation.json
 b6c69f9c40289a02fa27779481800d33432edd96a1e9dd1337f4bd24d7921337  sample/open-source-repository-sample.java-supplement.csv
