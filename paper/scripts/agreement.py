@@ -19,6 +19,8 @@ repository is used, with the confirm half beside it as a sensitivity.
   A. each fixed rule as a predictor of the reviewers' verdict (pooled precision, recall, MCC
      with a repository bootstrap interval): the tool definitions, the relative rule and the
      tuned absolute cutoff on the main study's chosen signal;
+  C. the relative rule's MCC minus each other predictor's on the same units, paired over
+     repositories, so a lead in A is read with its interval rather than from point estimates;
   B. the reviewers' positive rate in the classes the relative rule flags that the tool does
      not (its "false positives" in the main study), the classes neither flags, and the classes
      the tool flags; with the paired difference (relative-not-tool minus neither) and its
@@ -121,6 +123,16 @@ def _rate(items, fn):
     return (k / n if n else None), k, n
 
 
+def _reading_mcc(ci):
+    if not ci:
+        return "not estimable"
+    if ci["lo"] > 0:
+        return "relative rule higher"
+    if ci["hi"] < 0:
+        return "relative rule lower"
+    return "no difference resolved"
+
+
 def _reading(ci):
     if not ci:
         return "not estimable"
@@ -141,6 +153,18 @@ def compare(items, cfg) -> dict:
     for pr in cfg["tools"] + ("rel", "abs"):
         if any(pr in u for r in items for u in r):
             out["predictors"][pr] = predictor(items, pr)
+    # C. the relative rule's MCC minus each other predictor's, on the same units, paired over
+    # repositories: whether its lead (or lag) in the table above is resolved
+    out["rel_minus"] = {}
+    if "rel" in out["predictors"]:
+        for pr in out["predictors"]:
+            if pr == "rel":
+                continue
+
+            def dmcc(its, pr=pr):
+                return stats.mcc(*_confusion(its, "rel")) - stats.mcc(*_confusion(its, pr))
+            ci = stats.bootstrap_paired(items, dmcc, **BOOT)
+            out["rel_minus"][pr] = {"paired": ci, "reading": _reading_mcc(ci)}
     for g, fn in G.items():
         rate, k, n = _rate(items, fn)
         out["groups"][g] = {"rate": rate, "positive": k, "n": n}
@@ -163,6 +187,11 @@ def _print(p, title, res, cfg, cut):
         ci = m["mcc_ci"]
         p(f"     {names.get(k, k):40} {m['precision'] if m['precision'] is None else round(m['precision'], 3):>8}  "
           f"{round(m['recall'], 3):>6}    {m['mcc']:+.3f}" + (f" [{ci['lo']:+.3f}, {ci['hi']:+.3f}]" if ci else ""))
+    p("  C. relative rule's MCC minus each predictor's, paired over repositories")
+    for k, d in res.get("rel_minus", {}).items():
+        ci = d["paired"]
+        p(f"     rel - {names.get(k, k):34} " + (f"{ci['value']:+.3f} [{ci['lo']:+.3f}, {ci['hi']:+.3f}]" if ci else "n/a")
+          + f"  -> {d['reading']}")
     p(f"  B. reviewers' positive rate by group (tool = {cfg['tool']})")
     for g, v in res["groups"].items():
         p(f"     {g:24} {v['rate'] if v['rate'] is None else round(v['rate'], 3):>6}  ({v['positive']} of {v['n']})")

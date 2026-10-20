@@ -9,7 +9,9 @@ for every Java repository and every class signal, the AUC against PMD GodClass a
 the analysis chose, the confusion counts under every relative rule at its default and under
 the absolute cutoffs the analysis tuned on explore; and, for the primary signal, every Java
 class unit's raw value, its per-repository modified z and its PMD GodClass membership (the
-pooled distribution in the figures). Method level: the same for PMD NPath and brain_method.
+pooled distribution in the figures), with its path, its size signals and the component
+definitions it meets (the size-confound numbers and false_positives.py). Method level: the same
+for PMD NPath and brain_method, without the per-unit extras.
 Every number is computed with the harness's own metrics and stats modules.
 """
 from __future__ import annotations
@@ -43,8 +45,17 @@ def cuts_from_analysis(results_dir: str) -> dict:
     return out, a
 
 
+# At class level the dist also carries, per unit, its path, the size signals and the component
+# definitions it meets, for the size-confound numbers and the false-positive characterisation.
+DIST_MEMBERS = ("wmc47", "pmd_CouplingBetweenObjects", "pmd_TooManyMethods", "pmd_ExcessiveImports",
+                "pmd_ExcessivePublicCount", "pmd_TooManyFields", "ck_CBOhigh", "ck_LCOM", "ck_TCClow",
+                "ck_LargeClass", "decor_blob")
+DIST_AUX = ("nloc_sum", "nom", "cc_sum")
+SIZE_SIGNALS = ("nloc_sum", "nom", "cc_sum", "tokens_sum")
+
+
 def collect(pl: dict, exts, oracles: list[str], rule_signals, abs_cuts: dict, dist_signal: str,
-            dist_oracle: str) -> dict:
+            dist_oracle: str, rich: bool = False) -> dict:
     units = pl["units"]
     fit = common.fit_indices(units, exts)
     out = {"n_fit": len(fit), "oracles": {}}
@@ -92,6 +103,15 @@ def collect(pl: dict, exts, oracles: list[str], rule_signals, abs_cuts: dict, di
         out["dist"] = {"signal": dist_signal, "oracle": dist_oracle,
                        "raw": [v[i] for i in fit], "z": [round(z, 4) for z in zs],
                        "god": [k for k, i in enumerate(fit) if i in gods]}
+        if rich:
+            out["dist"]["units"] = [units[i] for i in fit]
+            out["dist"]["members"] = {o: [k for k, i in enumerate(fit) if i in set(pl["god_idx"][o])]
+                                      for o in DIST_MEMBERS if o in pl["god_idx"]}
+            out["dist"]["aux"] = {s: [pl["values"][s][i] for i in fit] for s in DIST_AUX if s in pl["values"]}
+            # the size confound: Spearman of the dist signal with each size signal over the fit units
+            xs = [v[i] for i in fit]
+            out["size_confound"] = {s: stats.spearman(xs, [pl["values"][s][i] for i in fit])
+                                    for s in SIZE_SIGNALS if s in pl["values"]}
     return out
 
 
@@ -119,7 +139,7 @@ def main(argv=None) -> int:
         if "class" in d:
             out["class"][repo] = collect(d["class"], (".java",), class_oracles, CLASS_RULE_SIGNALS,
                                          {o: cuts.get(("class", o), {}) for o in class_oracles},
-                                         DIST_SIGNAL["class"], DIST_ORACLE["class"])
+                                         DIST_SIGNAL["class"], DIST_ORACLE["class"], rich=True)
         if "method" in d:
             # Java-scoped definitions fit on the Java units; brain_method (scope all) on every unit
             m_java = collect(d["method"], (".java",), ["pmd_method_NPath200"], METHOD_RULE_SIGNALS,

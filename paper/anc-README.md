@@ -18,7 +18,7 @@ Everything is public and Apache-2.0 licensed unless stated.
 | Repository | What it is |
 |---|---|
 | https://github.com/officefloor/complexity-concentration-study | **The harness and the paper.** The pre-registered plan (`PLAN.md`, tag `plan-v1`), the measurement harness (`complexity_concentration_study/`), the numbered step scripts, the samples it drew (`sample/`), the committed digests of every analysis (`analysis-hashes.txt`, `mlcq-hashes.txt`), the classpath validation's order and log, and the paper with its scripts (`paper/`). |
-| https://github.com/officefloor/open-source-repository-sampler | **The sampler.** Drew the repositories (release 0.1.0, seed 2), independently of the study's code and outcomes; its `run` loop clones each one at its pinned commit for the harness. |
+| https://github.com/officefloor/open-source-repository-sampler | **The sampler.** The author's separate tool; drew the repositories (release 0.1.0, seed 2) from GitHub's index and the criteria alone, with no input from the study's code or outcomes; its `run` loop clones each one at its pinned commit for the harness. |
 | https://github.com/officefloor/spring-petclinic-rest-long-degradation-test | **The companion study** (conservation of complexity under change; doi:10.5281/zenodo.23190619), whose finding motivates this one. |
 | https://github.com/officefloor/concentration-divergence-study | **The follow-on study**, registered (tag `plan-v1`, 2026-10-20) before this paper's human-label read-out existed: does coupling divergence, what a unit hands on against what it receives, separate a complex leaf from a god unit among the units complexity alone flags? Its plan records what of this study it had seen. It also holds `mlcq-moved-repositories.csv`, the MLCQ repositories whose labelled commits have moved to another GitHub location, built from locations and commit SHAs alone. |
 | https://github.com/officefloor/sinew-identification-study | An earlier coupling-study harness, on hold; the construct the follow-on study tests was first stated there. |
@@ -59,13 +59,18 @@ Everything is public and Apache-2.0 licensed unless stated.
 | File | What it is |
 |---|---|
 | `human.json`, `human_readout.log` | The pre-registered human-label read-out (Blob and Long Method, both populations: every repository with a reviewed unit, and only those with a positive), computed by `paper/scripts/human_readout.py` (in the harness repository) from the reviewed units. |
-| `agreement.json`, `agreement.log` | The exploratory agreement of tool definitions and the main run's rules with MLCQ's reviewers, on the reviewed units, by `paper/scripts/agreement.py` (in the harness repository). |
+| `agreement.json`, `agreement.log` | The exploratory agreement of tool definitions and the main run's rules with MLCQ's reviewers, on the reviewed units, with the paired differences between the relative rule and each fixed definition, by `paper/scripts/agreement.py` (in the harness repository). |
+| `transfer.json`, `transfer.log` | Exploratory: each population's explore-tuned cutoff read on the other population's confirm half, beside the relative rule, by `paper/scripts/transfer.py`. |
+| `false_positives.json`, `false_positives.log` | Exploratory: the relative rule's false positives characterised, and the merged readings, by `paper/scripts/false_positives.py`. |
+| `readings/fp_readings_*.json` | The raw decisions of the false-positive reading, one file per reader: the only input no script reproduces. How the sample was randomised and blinded, the protocol, and the model reading's script and prompt are in `paper/scripts/false_positives.py` and `paper/scripts/fp_reading.py`. |
+| `readings/fp_model_runs/batch_*.json` | Each model reader's `claude -p` session as recorded by `paper/scripts/fp_reading.py run-model`: the prompt, the command, the CLI version, the batch it was shown and the full result; `fp_readings_model.json` is collected from these. |
+| `readings/fp_units.json` | The units the readings refer to (repository, commit, path, group), by `paper/scripts/false_positives.py`. |
 
 The scripts that produce these and every table, figure and inline number are `paper/scripts/` in
 the harness repository: `extract_main.py`, `extract_mlcq.py` (stream the per-unit sidecars into
 `paper/data/*.json`), `check_extract.py` (checks the reduction against `analysis.json`),
-`human_readout.py`, `agreement.py`, `tables.py` (every table and inline number), `figures.py`
-(every figure), `common.py`.
+`human_readout.py`, `agreement.py`, `transfer.py`, `false_positives.py`, `fp_reading.py`, `tables.py` (every
+table and inline number), `figures.py` (every figure), `common.py`.
 
 ## Reproducing
 

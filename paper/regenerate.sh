@@ -10,9 +10,14 @@
 #   3. scripts/extract_mlcq.py   streams the MLCQ run's sidecar               -> data/mlcq.json
 #   4. scripts/human_readout.py  the planned human-label read-out             -> data/human.json
 #   5. scripts/agreement.py      exploratory: tools and rules vs the reviewers -> data/agreement.json
-#   6. scripts/tables.py         every table and inline number                -> generated/*.tex
-#   7. scripts/figures.py        every figure                                 -> figures/*.pdf
-# Steps 1-6 run on the harness's virtualenv (../.venv); step 7 on ./.venv (./setup.sh).
+#   6. scripts/transfer.py       exploratory: the cutoff carried across populations -> data/transfer.json
+#   7. scripts/false_positives.py exploratory: the false positives characterised, the blinded
+#                                reading sample, and the readings in readings/ merged -> data/false_positives.json
+#   8. scripts/tables.py         every table and inline number                -> generated/*.tex
+#   9. scripts/figures.py        every figure                                 -> figures/*.pdf
+# The reading itself is not regenerated: scripts/fp_reading.py prepares it and runs the model
+# readers (claude -p) into readings/, which holds every reader's decisions and is committed.
+# Steps 1-8 run on the harness's virtualenv (../.venv); step 9 on ./.venv (./setup.sh).
 # --skip-extract reuses data/*.json from an earlier run (steps 1-3 take a few minutes each).
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -33,15 +38,17 @@ done
 [ -n "$MAIN" ] && export CCS_MAIN_RESULTS="$(cd "$ROOT" && realpath "$MAIN")"
 [ -n "$MLCQ" ] && export CCS_MLCQ_RESULTS="$(cd "$ROOT" && realpath "$MLCQ")"
 if [ "$SKIP" = 0 ]; then
-  echo "== 1/7 extract main run";  "$HPY" scripts/extract_main.py
-  echo "== 2/7 check extraction";  "$HPY" scripts/check_extract.py
-  echo "== 3/7 extract MLCQ run";  "$HPY" scripts/extract_mlcq.py
+  echo "== 1/9 extract main run";  "$HPY" scripts/extract_main.py
+  echo "== 2/9 check extraction";  "$HPY" scripts/check_extract.py
+  echo "== 3/9 extract MLCQ run";  "$HPY" scripts/extract_mlcq.py
 else
-  echo "== 1-3/7 skipped (--skip-extract)"
+  echo "== 1-3/9 skipped (--skip-extract)"
 fi
-echo "== 4/7 human-label read-out"; "$HPY" scripts/human_readout.py | tee data/human_readout.log
-echo "== 5/7 agreement";            "$HPY" scripts/agreement.py | tee data/agreement.log
-echo "== 6/7 tables and numbers";   "$HPY" scripts/tables.py
-echo "== 7/7 figures";              "$FPY" scripts/figures.py
+echo "== 4/9 human-label read-out"; "$HPY" scripts/human_readout.py | tee data/human_readout.log
+echo "== 5/9 agreement";            "$HPY" scripts/agreement.py | tee data/agreement.log
+echo "== 6/9 transfer";             "$HPY" scripts/transfer.py | tee data/transfer.log
+echo "== 7/9 false positives";      "$HPY" scripts/false_positives.py | tee data/false_positives.log
+echo "== 8/9 tables and numbers";   "$HPY" scripts/tables.py
+echo "== 9/9 figures";              "$FPY" scripts/figures.py
 echo
 echo "Regenerated. Next: ./build.sh"

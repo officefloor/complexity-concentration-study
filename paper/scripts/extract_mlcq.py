@@ -7,7 +7,8 @@ MLCQ's reviewers graded a handful of classes and methods per repository, so the 
 definitions are scored only on those REVIEWED units (an unreviewed unit is unknown, not a
 negative), while every relative rule is fitted on the repository's whole Java population, as
 the harness fits it (analyse.Run.block). The sidecar is streamed once and reduced to, per
-repository and level, the reviewed units with: their raw value and per-repository modified z
+repository and level, the reviewed units with (and, for the cross-population transfer, every
+Java class unit's cognitive_max, modified z and PMD GodClass membership, `pmd_dist`): their raw value and per-repository modified z
 for every signal; whether each relative rule at its default flags them (every rule for a
 small set of signals, the modified-z rule for all); the reviewers' verdict (human_blob /
 human_method_long_method); and the tool definitions' verdicts on them. Nothing else of the
@@ -74,6 +75,23 @@ def reduce_level(pl: dict, human: str, tools, full_rule_signals) -> dict | None:
     return out
 
 
+def pmd_dist(pl: dict) -> dict | None:
+    """Every Java class unit's raw cognitive_max, per-repository modified z and PMD GodClass
+    membership, as data/main.json's dist: the cross-population transfer (transfer.py) reads
+    the main plan's primary on MLCQ's population from it."""
+    if "cognitive_max" not in pl["values"] or "pmd_GodClass" not in pl["god_idx"]:
+        return None
+    fit = common.fit_indices(pl["units"], (".java",))
+    if not fit:
+        return None
+    v = pl["values"]["cognitive_max"]
+    raw = [v[i] for i in fit]
+    gods = set(pl["god_idx"]["pmd_GodClass"])
+    return {"signal": "cognitive_max", "oracle": "pmd_GodClass", "raw": raw,
+            "z": [round(z, 4) for z in stats.modified_z_values(raw)],
+            "god": [k for k, i in enumerate(fit) if i in gods]}
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--results", default=common.MLCQ_RESULTS)
@@ -91,7 +109,7 @@ def main(argv=None) -> int:
            "analysis_sha256": common.sha256(os.path.join(args.results, "analysis.json")),
            "harness_commits": sorted({(r.get("tools") or {}).get("harness_commit") for r in rows}),
            "registry_human": {k: v for k, v in registry.items() if k.startswith("human_")},
-           "rows": rows, "class": {}, "method": {}}
+           "rows": rows, "class": {}, "method": {}, "pmd_dist": {}}
     n = 0
     for d in common.iter_sidecar(args.results, keep=keep):
         repo = d["repo"]
@@ -99,6 +117,9 @@ def main(argv=None) -> int:
             c = reduce_level(d["class"], "human_blob", CLASS_TOOLS, CLASS_FULL_RULES)
             if c is not None:
                 out["class"][repo] = c
+            pd = pmd_dist(d["class"])
+            if pd is not None:
+                out["pmd_dist"][repo] = pd
         if "method" in d:
             m = reduce_level(d["method"], "human_method_long_method", METHOD_TOOLS, METHOD_FULL_RULES)
             if m is not None:

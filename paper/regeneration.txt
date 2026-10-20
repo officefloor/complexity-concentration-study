@@ -5,7 +5,7 @@ Every number the paper prints is produced by a script under paper/scripts/ (in t
 repository, https://github.com/officefloor/complexity-concentration-study; the scripts are not
 part of this ancillary bundle) from the harness's analysis files (anc/main-run/analysis.json,
 anc/mlcq-run/analysis.json, the exploratory re-analysis and the classpath reports) and from the
-paper's own reductions of the per-unit sidecars (anc/paper/human.json, anc/paper/agreement.json). No number is typed by hand: main.tex
+paper's own reductions of the per-unit sidecars (anc/paper/human.json, agreement.json, transfer.json, false_positives.json). No number is typed by hand: main.tex
 quotes macros from generated/numbers.tex and includes tables from generated/tab_*.tex, both
 written by scripts/tables.py; the figures are written by scripts/figures.py. If a script's
 output ever disagrees with the prose, the script is the authority.
@@ -27,24 +27,29 @@ STEP BY STEP
   ../.venv/bin/python scripts/extract_mlcq.py     results/mlcq/study.units.jsonl    -> data/mlcq.json
   ../.venv/bin/python scripts/human_readout.py    data/mlcq.json -> data/human.json (prints the read-out)
   ../.venv/bin/python scripts/agreement.py        data/mlcq.json -> data/agreement.json
+  ../.venv/bin/python scripts/transfer.py         data/main.json + data/mlcq.json -> data/transfer.json
+  ../.venv/bin/python scripts/false_positives.py  data/main.json + readings/ -> data/false_positives.json
+  ../.venv/bin/python scripts/fp_reading.py       the reading: prepare, run-model (claude -p), collect-model
+                                                  (not part of regenerate.sh; its docstring says how)
   ../.venv/bin/python scripts/tables.py           -> generated/tab_*.tex, generated/numbers.tex
   .venv/bin/python   scripts/figures.py           -> figures/*.pdf
 
-TABLES (generated/)
-  Table 1  tab_registry           the definitions, from main-run/oracles.json
-  Table 2  tab_rules              the rules and constants, from oracles.json
-  Table 3  tab_sample             strata, from analysis.json diagnostics
-  Table 4  tab_calibration        estimators vs PMD, both analysis.json files
-  Table 5  tab_explore_primary    the explore choice, analysis.json primary
-  Table 6  tab_confirm_primary    the primary read-out on confirm
-  Table 7  tab_decisions          every decision row: analysis.json (main, MLCQ) and human.json
-  Table 8  tab_secondary          the three secondaries
-  Table 9  tab_friedman           Friedman tests, both runs
-  Table 10 tab_classpath          the classpath reports under main-run/classpath/
-  Table 11 tab_confirm_human_class_all, Table 12 tab_confirm_human_method_all   human.json
-  Table 13 tab_human_candidates_class, Table 14 tab_human_candidates_method    human.json
-  Table 15 tab_agreement          agreement.json      (tab_agreement_groups is also written)
-  Table 16 tab_exploratory        analysis.json exploratory section
+TABLES (generated/), in the order the paper places them
+  tab_sample                strata, from analysis.json diagnostics (Section 4)
+  tab_calibration           estimators vs PMD, both analysis.json files (Section 5.1)
+  tab_explore_primary       the explore choice, analysis.json primary (Section 5.2)
+  tab_confirm_primary       the primary read-out on confirm (Section 5.2)
+  tab_decisions             every decision row: analysis.json (main, MLCQ) and human.json
+  tab_secondary             the three secondaries (Section 5.3)
+  tab_friedman              Friedman tests, both runs (Section 5.4)
+  tab_classpath             the classpath reports under main-run/classpath/ (Section 5.5)
+  tab_transfer              the cutoff carried across populations, transfer.json (Section 5.7)
+  tab_confirm_human_class_all, tab_confirm_human_method_all      human.json (Section 5.8)
+  tab_agreement             agreement.json (Section 5.8; tab_agreement_groups is also written)
+  tab_fp_breakdown          false_positives.json (Section 5.9); tab_fp_readings once readings exist
+  Appendix A: tab_registry (main-run/oracles.json), tab_rules (oracles.json),
+              tab_human_candidates_class, tab_human_candidates_method (human.json),
+              tab_exploratory (analysis.json exploratory section)
   (also written, not placed: tab_explore_{class,method}_{all,pos}, tab_confirm_human_*_pos,
    tab_confirm_{npath,decor,brain,mlcq_pmd}, tab_explore_mlcq_pmd)
 
@@ -57,10 +62,12 @@ FIGURES (figures/, scripts/figures.py)
   Figure 6 human_agreement.pdf      data/agreement.json
 
 INLINE NUMBERS
-  Every inline number is a macro in generated/numbers.tex (800 of them), named by its source:
+  Every inline number is a macro in generated/numbers.tex (about 1,100 of them), named by its source:
   prim* (the primary), npath*/decor*/brain* (secondaries), mlcqPmd* (the plan on MLCQ's
   population), humBlob*/humLongMethod* with All/Pos (the human read-out, both populations),
-  agrBlob*/agrLm* (the agreement), calib*, scale*, trivial*, flag*, cp* (classpath), sample*,
-  mlcq* (coverage), fried*. `grep newcommand generated/numbers.tex` lists them with their values.
+  agrBlob*/agrLm* (the agreement, with RelMinus* the paired differences), transfer* (the cutoff
+  carried across populations), fp* (the false positives: fpTp*/fpFp*/fpFn*/fpNeither*/fpAbsFp*
+  the component breakdown, fpRead*/fpKappa* the reading), sizeRho* (the size correlations),
+  calib*, scale*, trivial*, flag*, cp* (classpath), sample*, javaFiles*, mlcq* (coverage), fried*. `grep newcommand generated/numbers.tex` lists them with their values.
   Dates and commit identifiers in the timeline paragraph are provenance from the harness
   repository's git history and the analysis files' `analysed_utc` fields.

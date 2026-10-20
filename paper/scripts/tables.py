@@ -55,6 +55,23 @@ def ci(b, nd=3, plus=False):
     return f"[{f(lo, nd, plus)}, {f(hi, nd, plus)}]"
 
 
+def ptex(p) -> str:
+    """A p-value for a table: a bound when it underflows, scientific notation otherwise."""
+    if p is None:
+        return "--"
+    if p < 1e-300:
+        return "$p<10^{-300}$"
+    s = f"{p:.2g}"
+    if "e" in s:
+        m, e = s.split("e")
+        return f"$p={m}\\times10^{{{int(e)}}}$"
+    return f"$p={s}$"
+
+
+def camel(k: str) -> str:
+    return "".join(p.capitalize() for p in k.split("_"))
+
+
 def tex(s: str) -> str:
     return s.replace("_", "\\_").replace("%", "\\%").replace("&", "\\&").replace("#", "\\#")
 
@@ -275,7 +292,7 @@ def table_friedman(a: dict, b: dict, out: str) -> None:
             return [f"\\multicolumn{{3}}{{l}}{{\\emph{{{title}}}: too few complete blocks}} \\\\"]
         rows = [f"\\multicolumn{{3}}{{l}}{{\\emph{{{title}}}}} \\\\",
                 f"\\multicolumn{{3}}{{l}}{{\\quad $N={fr['n']}$, $k={fr['k']}$, Iman--Davenport $F={fr['F']:.1f}$, "
-                f"$p={fr['p_F']:.2g}$, Nemenyi CD$_{{0.05}}={fr['cd_05']:.3f}$, all-tied blocks dropped {fr.get('n_tied_dropped', 0)}}} \\\\"]
+                f"{ptex(fr['p_F'])}, Nemenyi CD$_{{0.05}}={fr['cd_05']:.3f}$, all-tied blocks dropped {fr.get('n_tied_dropped', 0)}}} \\\\"]
         for m, rk in sorted(fr["mean_rank"].items(), key=lambda kv: kv[1]):
             rows.append(f"\\quad {sig_tex(m)} & {rk:.2f} & \\\\")
         return rows
@@ -419,6 +436,7 @@ def table_agreement(g: dict, out: str) -> None:
         num(pre + "Units", thousands(res["n_reviewed_units"]))
         num(pre + "Pos", str(res["n_positive"]))
         num(pre + "BaseRate", pct(res["base_rate"]))
+        num("agrComputedUtc", g["computed_utc"].replace("T", " ").replace("Z", " UTC"))
         for k, m in res["predictors"].items():
             kk = "".join(p.capitalize() for p in k.split("_"))
             num(pre + kk + "Mcc", f(m["mcc"], 3, True))
@@ -426,6 +444,11 @@ def table_agreement(g: dict, out: str) -> None:
             num(pre + kk + "Precision", f(m["precision"], 2))
             num(pre + kk + "Recall", f(m["recall"], 2))
             num(pre + kk + "Flagged", str(m["tp"] + m["fp"]))
+        for k, d in (res.get("rel_minus") or {}).items():
+            b = d["paired"]
+            num(pre + "RelMinus" + camel(k), f(b["value"], 3, True) if b else "--")
+            num(pre + "RelMinus" + camel(k) + "CI", ci(b, 3, True))
+            num(pre + "RelMinus" + camel(k) + "Reading", d["reading"])
         for rule in ("rel", "abs"):
             d = res[f"{rule}_extra_minus_neither"]
             b = d["paired"]
@@ -457,12 +480,13 @@ def table_agreement(g: dict, out: str) -> None:
     write(out, "tab_agreement_groups.tex", "\n".join(body) + "\n")
 
 
-def table_exploratory(a: dict, out: str) -> None:
+def table_exploratory(a: dict, registry: dict, out: str) -> None:
     body = ["\\begin{tabular}{llllrlr}", "\\toprule", "Level & Definition & Kind & Best signal (AUC) & & Best cell (macro MCC) & \\\\", "\\midrule"]
     for key, e in a["exploratory"].items():
         level, o = key.split(":", 1)
         star = "$^{*}$" if e["best_signal_is_ingredient"] else ""
-        body.append(f"{level} & {sig_tex(o)} & {tex(str(e.get('kind', '')))} & {sig_tex(e['best_signal'])}{star} & {f(e['auc'])} & "
+        kind = e.get("kind") or (registry.get(o) or {}).get("kind", "")
+        body.append(f"{level} & {sig_tex(o)} & {tex(str(kind))} & {sig_tex(e['best_signal'])}{star} & {f(e['auc'])} & "
                     f"{sig_tex(e['best_cell'][0])} / {sig_tex(e['best_cell'][1])} & {f(e['mcc'])} \\\\")
     body += ["\\bottomrule", "\\end{tabular}"]
     write(out, "tab_exploratory.tex", "\n".join(body) + "\n")
@@ -537,6 +561,184 @@ def mlcq_numbers(mlcq_dir: str, b: dict) -> None:
     num("mlcqApacheShare", pct(top[0][1] / d["n_usable"]))
 
 
+def dist_items(data: dict, key: str, cut: float) -> list:
+    """Per confirm repository carrying PMD GodClass: the relative rule's and the cutoff's
+    confusions from the per-unit dist (data/main.json `class`, data/mlcq.json `pmd_dist`)."""
+    rows = {r["repo"]: r for r in data["rows"]}
+    items = []
+    for repo, rec in data[key].items():
+        d = rec.get("dist") if key == "class" else rec
+        if not d or rows[repo]["half"] != "confirm" or not d.get("raw"):
+            continue
+        god = set(d["god"])
+        n = len(d["raw"])
+
+        def conf(flags):
+            tp = sum(1 for k in range(n) if flags[k] and k in god)
+            fp = sum(flags) - tp
+            fn = len(god) - tp
+            return {"tp": tp, "fp": fp, "fn": fn, "tn": n - tp - fp - fn}
+        items.append({"n_pos": len(god), "rel": conf([z >= 3.5 for z in d["z"]]), "abs": conf([x >= cut for x in d["raw"]])})
+    return items
+
+
+def macro_over_positives(data: dict, key: str, cut: float, prefix: str, expect_n=None) -> None:
+    """The macro MCC over the confirm repositories with at least one positive, the population
+    the decision's macro arm and the explore level use, beside the confirm table's macro over
+    every carrying repository (god-free ones at MCC 0)."""
+    items = [it for it in dist_items(data, key, cut) if it["n_pos"] >= 1]
+    rel = [common.stats.mcc(**it["rel"]) for it in items]
+    ab = [common.stats.mcc(**it["abs"]) for it in items]
+    if expect_n is not None and len(items) != expect_n:
+        print(f"WARNING: {prefix}: {len(items)} repositories with a positive from the dist, analysis.json says {expect_n}", file=sys.stderr)
+    num(prefix + "RelMacroMccPos", f(sum(rel) / len(rel)) if rel else "--")
+    num(prefix + "AbsMacroMccPos", f(sum(ab) / len(ab)) if ab else "--")
+    num(prefix + "MacroMccPosN", str(len(items)))
+
+
+def size_confound_numbers(main_data: dict) -> None:
+    """Macro mean Spearman of cognitive_max with each size signal over the confirm Java
+    repositories, with a repository bootstrap."""
+    rows = {r["repo"]: r for r in main_data["rows"]}
+    by: dict = defaultdict(list)
+    for repo, rec in main_data["class"].items():
+        if rows[repo]["half"] != "confirm":
+            continue
+        for sig, rho in (rec.get("size_confound") or {}).items():
+            if rho is not None:
+                by[sig].append(rho)
+    for sig, vals in by.items():
+        b = common.stats.bootstrap_mean(vals, **BOOT_KW)
+        num("sizeRho" + camel(sig), f(b["mean"], 2))
+        num("sizeRho" + camel(sig) + "CI", ci(b, 2))
+        num("sizeRho" + camel(sig) + "N", str(b["n"]))
+
+
+def sample_extra_numbers(main_dir: str, main_data: dict) -> None:
+    """The two draws' overlap, the clone failure, the candidates usable under another language
+    than their stratum, and CK's classes-per-file count."""
+    main_p = os.path.join(common.ROOT, "sample", "open-source-repository-sample.csv")
+    supp_p = os.path.join(common.ROOT, "sample", "open-source-repository-sample.java-supplement.csv")
+    if os.path.exists(main_p) and os.path.exists(supp_p):
+        mu = {r["url"] for r in csv.DictReader(open(main_p)) if r["status"] == "usable"}
+        su = {r["url"] for r in csv.DictReader(open(supp_p)) if r["status"] == "usable"}
+        num("sampleOverlap", str(len(mu & su)))
+        num("sampleUnionUsable", str(len(mu | su)))
+    failed = sorted({json.loads(l).get("full_name") or "" for l in open(os.path.join(main_dir, "run-log.jsonl"))
+                     if json.loads(l).get("status") == "failed"})
+    num("sampleFailedRepos", tex(", ".join(failed)) if failed else "none")
+    num("sampleFailedN", str(len(failed)))
+    cross = [r for r in main_data["rows"] if "supplement" not in (r.get("sample") or "") and r.get("lang") != r.get("stratum_lang")]
+    num("sampleCrossStratumN", str(len(cross)))
+    c = Counter(r["lang"] for r in cross)
+    names = {"c#": "C\\#", "c++": "C++", "c": "C", "php": "PHP", "go": "Go", "javascript": "JavaScript", "typescript": "TypeScript"}
+    num("sampleCrossStratumLangs", ", ".join(f"{n} to {names.get(l, l.capitalize())}" for l, n in sorted(c.items(), key=lambda kv: -kv[1])) or "none")
+    java = [r for r in main_data["rows"] if r.get("lang") == "java"]
+    ck = sum(r.get("java_files_ck") or 0 for r in java)
+    multi = sum(r.get("java_files_multi_class") or 0 for r in java)
+    num("javaFilesCk", thousands(ck))
+    num("javaFilesMulti", thousands(multi))
+    num("javaFilesMultiPct", pct(multi / ck, 0) if ck else "--")
+
+
+def table_transfer(t: dict, out: str) -> None:
+    body = ["\\begin{tabular}{llrrrrrr}", "\\toprule",
+            "Read on & Rule & Cut & Micro MCC & Macro MCC & Macro FPR & Precision & Recall \\\\", "\\midrule"]
+    labels = {"main": ("main run, confirm half", "MLCQ"), "mlcq": ("MLCQ, confirm half", "main run")}
+    for run in ("main", "mlcq"):
+        R = t["runs"][run]
+        where, other = labels[run]
+        pre = "transfer" + run.capitalize()
+        num(pre + "OwnCut", f"{R['own_cut']:g}")
+        num(pre + "OtherCut", f"{R['other_cut']:g}")
+        num(pre + "N", str(R["n_confirm_repos"]))
+        num(pre + "NPos", str(R["n_confirm_repos_with_positive"]))
+        for key, name in (("rel", "relative, modified $z \\geq 3.5$"),
+                          ("abs_own", "absolute, tuned on this population"),
+                          ("abs_other", f"absolute, tuned on the {other}")):
+            m = R["rules"][key]
+            cut = {"rel": "--", "abs_own": f"{R['own_cut']:g}", "abs_other": f"{R['other_cut']:g}"}[key]
+            body.append(f"{where if key == 'rel' else ''} & {name} & {cut} & {f(m['micro_mcc'])} & {f(m['macro_mcc'])} & "
+                        f"{f(m['macro_fpr'])} & {f(m['precision'], 2)} & {f(m['recall'], 2)} \\\\")
+            for stat in ("micro_mcc", "macro_mcc", "macro_fpr", "precision", "recall", "flagged"):
+                v = m[stat]
+                num(pre + camel(key) + camel(stat), (thousands(v) if stat == "flagged" else f(v, 2 if stat in ("precision", "recall") else 3)))
+            num(pre + camel(key) + "MacroFprPct", pct(m["macro_fpr"]))
+        for lab, pre2 in (("rel_minus_abs_other", "RelMinusOther"), ("abs_other_minus_abs_own", "OtherMinusOwn")):
+            for arm, b in R[lab].items():
+                num(pre + pre2 + camel(arm), f(b["value"], 3, True) if b else "--")
+                num(pre + pre2 + camel(arm) + "CI", ci(b, 3, True))
+        for lab, pre2 in (("per_repo_optimal_cut", "OptCut"), ("implied_cut_of_z35", "ZCut")):
+            q = R[lab]
+            if q:
+                for k in ("n", "min", "q1", "median", "q3", "max"):
+                    v = q[k]
+                    num(pre + pre2 + camel(k), str(v) if k == "n" else f"{v:g}" if isinstance(v, int) or float(v).is_integer() else f(v, 1))
+        body.append("\\addlinespace")
+    body += ["\\bottomrule", "\\end{tabular}"]
+    write(out, "tab_transfer.tex", "\n".join(body) + "\n")
+    num("transferComputedUtc", t["computed_utc"].replace("T", " ").replace("Z", " UTC"))
+
+
+def table_fp(fp: dict, out: str) -> None:
+    labels = {"tp": "flagged by the rule and marked by PMD", "fp": "flagged by the rule, not marked by PMD",
+              "fn": "marked by PMD, not flagged by the rule", "neither": "neither",
+              "abs_fp": "flagged by the absolute cutoff, not marked by PMD"}
+    body = ["\\begin{tabular}{lrrrrrrrr}", "\\toprule",
+            "Group & Units & Repos. & WMC $\\geq 47$ & Coupled & Low cohesion & Median \\texttt{cognitive\\_max} & Median lines & Median methods \\\\", "\\midrule"]
+    for g in ("tp", "fp", "fn", "neither", "abs_fp"):
+        r = fp["breakdown"][g]
+        sh = r["shares"]
+        body.append(f"{labels[g]} & {thousands(r['n'])} & {r['n_repos']} & {pct(sh['wmc47']['rate'])} & {pct(sh['coupled']['rate'])} & "
+                    f"{pct(sh['low_cohesion']['rate'])} & "
+                    f"{r['median_raw']:g} & {r['median_nloc']:g} & {r['median_nom']:g} \\\\")
+        pre = "fp" + camel(g)
+        num(pre + "N", thousands(r["n"]))
+        num(pre + "Repos", str(r["n_repos"]))
+        num(pre + "MedianRaw", f"{r['median_raw']:g}")
+        num(pre + "MedianNloc", f"{r['median_nloc']:g}")
+        num(pre + "MedianNom", f"{r['median_nom']:g}")
+        for k, v in sh.items():
+            num(pre + camel(k) + "Pct", pct(v["rate"]))
+            num(pre + camel(k) + "N", str(v["count"]))
+            if v.get("ci"):
+                num(pre + camel(k) + "PctCI", f"[{pct(v['ci']['lo'])}, {pct(v['ci']['hi'])}]")
+    body += ["\\bottomrule", "\\end{tabular}"]
+    write(out, "tab_fp_breakdown.tex", "\n".join(body) + "\n")
+    num("fpUnits", thousands(fp["n_units"]))
+    num("fpRepos", str(fp["n_repos"]))
+    num("fpSampleFp", str(fp["sample"]["n_fp"]))
+    num("fpSampleTp", str(fp["sample"]["n_tp"]))
+    num("fpSamplePerRepo", str(fp["sample"]["per_repo"]))
+    num("fpSampleN", str(fp["sample"]["n"]))
+    num("fpComputedUtc", fp["computed_utc"].replace("T", " ").replace("Z", " UTC"))
+    rd = fp.get("readings")
+    if rd and rd["readers"]:
+        cats = ("LEAF", "GATHERER", "TABLE", "OTHER")
+        body = ["\\begin{tabular}{llrrrrr}", "\\toprule", "Reader & Group & $n$ & " + " & ".join(c.capitalize() for c in cats) + " \\\\", "\\midrule"]
+        for r in rd["readers"]:
+            tab = rd["by_reader"][r]
+            for g in ("fp", "tp"):
+                cs = tab.get(g, {})
+                n = sum(cs.values())
+                body.append(f"{tex(r)} & {labels[g]} & {n} & " + " & ".join(f"{cs.get(c, 0)} ({pct(cs.get(c, 0) / n, 0) if n else '--'})" for c in cats) + " \\\\")
+                for c in cats:
+                    num("fpRead" + camel(r) + camel(g) + c.capitalize() + "N", str(cs.get(c, 0)))
+                    num("fpRead" + camel(r) + camel(g) + c.capitalize() + "Pct", pct(cs.get(c, 0) / n, 0) if n else "--")
+                num("fpRead" + camel(r) + camel(g) + "N", str(n))
+        for pair, a in rd["agreement"].items():
+            x, y = pair.split("|")
+            body.append(f"\\multicolumn{{7}}{{l}}{{agreement {tex(x)} with {tex(y)}: {a['agree']} of {a['n']} units, Cohen's $\\kappa = {f(a['kappa'], 2) if a['kappa'] is not None else '--'}$}} \\\\")
+            num("fpKappa" + camel(x) + camel(y), f(a["kappa"], 2) if a["kappa"] is not None else "--")
+            num("fpKappa" + camel(x) + camel(y) + "N", str(a["n"]))
+            num("fpKappa" + camel(x) + camel(y) + "Agree", str(a["agree"]))
+        body += ["\\bottomrule", "\\end{tabular}"]
+        write(out, "tab_fp_readings.tex", "\n".join(body) + "\n")
+
+
+BOOT_KW = {"b": common.BOOT["b"], "seed": common.BOOT["seed"]}
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--main", default=common.MAIN_RESULTS)
@@ -602,8 +804,10 @@ def main(argv=None) -> int:
     table_rules(registry, out)
     table_calibration(a, b, out)
     sample_numbers(args.main)
+    sample_extra_numbers(args.main, main_data)
     mlcq_numbers(args.mlcq, b)
     flag_rate_numbers(main_data["rows"])
+    size_confound_numbers(main_data)
 
     # --- primary
     P = a["primary"]["pmd_GodClass"]
@@ -625,6 +829,7 @@ def main(argv=None) -> int:
     table_explore(P, "class", out, "tab_explore_primary.tex")
     table_confirm(P, out, "tab_confirm_primary.tex", "prim")
     D = P["decision"]
+    macro_over_positives(main_data, "class", P["confirm"]["absolute_cutoff"]["cut"], "prim", D["paired"]["macro_mcc"]["n"])
     for k in ("macro_mcc", "micro_mcc", "macro_fpr"):
         kk = "".join(p.capitalize() for p in k.split("_"))
         bb = D["paired"][k]
@@ -667,13 +872,18 @@ def main(argv=None) -> int:
             num(pre + kk + "Verdict", dd["verdicts"][k])
     table_friedman(a, b, out)
     table_classpath(args.main, out)
-    table_exploratory(a, out)
+    table_exploratory(a, registry["oracles"], out)
 
     # --- the MLCQ run's PMD read-out (the main plan re-read on MLCQ's population)
     Q = b["primary"]["pmd_GodClass"]
     table_confirm(Q, out, "tab_confirm_mlcq_pmd.tex", "mlcqPmd")
     table_explore(Q, "class", out, "tab_explore_mlcq_pmd.tex")
     DQ = Q["decision"]
+    mlcq_path = os.path.join(args.data, "mlcq.json")
+    if os.path.exists(mlcq_path):
+        mq = common.load_json(mlcq_path)
+        if "pmd_dist" in mq:
+            macro_over_positives(mq, "pmd_dist", Q["confirm"]["absolute_cutoff"]["cut"], "mlcqPmd", DQ["paired"]["macro_mcc"]["n"])
     num("mlcqPmdVerdict", DQ["overall"])
     num("mlcqPmdMargin", f(DQ["margin"], 2))
     num("mlcqPmdCarryCo", str(Q["repos_with_definition"]["confirm"]))
@@ -711,6 +921,12 @@ def main(argv=None) -> int:
     gp = os.path.join(args.data, "agreement.json")
     if os.path.exists(gp):
         table_agreement(common.load_json(gp), out)
+    tp = os.path.join(args.data, "transfer.json")
+    if os.path.exists(tp):
+        table_transfer(common.load_json(tp), out)
+    fpp = os.path.join(args.data, "false_positives.json")
+    if os.path.exists(fpp):
+        table_fp(common.load_json(fpp), out)
 
     # --- numbers.tex
     lines = ["% generated by paper/scripts/tables.py; do not edit"]
