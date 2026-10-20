@@ -1,0 +1,9 @@
+# sha256 of the MLCQ sub-study (step 5) and its exploratory agreement (step 5a). Written by
+# ./step5a_human_agreement.sh; never edited by hand. analysis.json is the planned MLCQ
+# analysis (PLAN.md, The MLCQ sub-study); agreement.exploratory.*.json is not in the plan.
+8e05db55150a984f0b08ab211f5f612374790ea918ba08afc290cf122b63551b  labels/MLCQCodeSmellSamples.csv
+b7f3e3beb32a6fd9c4aa1be6944fa42f34a06d8870cc3e222a81cc5cd8222bb9  labels/mlcq-labels.csv
+8191556678253be8216d76278f65bd066f6a0f041a5c4f981276f400c51b13dd  labels/mlcq-repos.csv
+ad45fdea65606d06afa65307c30533a9e1afef93f09135ce3f248b0f2f45317c  labels/mlcq-summary.json
+85d81808c123adabb4ae41c6d1bf15a3ddedae114574a3a4789cb829dcc95cd2  results/mlcq/analysis.json
+b35b147686fa1ac1970cae8ff1f7c52ad592244800a76b940af7ce0206369466  results/mlcq/agreement.exploratory.20261020T014120Z.json
