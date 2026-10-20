@@ -1,0 +1,4 @@
+# The paper's figure toolchain only (paper/scripts/figures.py). Every analysis script runs on the
+# harness's own virtualenv (../.venv), which is standard library plus the pinned lizard.
+matplotlib==3.11.2
+numpy==2.5.4
