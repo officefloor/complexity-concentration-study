@@ -58,31 +58,30 @@ definitions and human labels}
 Textbook god-class and god-method detectors mark concentrated complexity with
 an absolute threshold on a raw scale, a weighted method count of 47 or a
 cyclomatic complexity of 14. Each constant stands in for a reader's budget and
-must be re-fitted when the population moves. A companion study
-found that complexity is conserved under change, which makes \emph{concentration}
-rather than level the natural mark of a god unit and suggests a rule with no
-raw-scale constant: a unit is a god unit when its complexity is a robust outlier
-for its own codebase, a modified z-score of 3.5 or more. This paper pre-registers
-that rule and tests it. On \nUsable{} repositories in ten languages from an
-independent seeded sampler and the \mlcqUsable{} Java repositories of the MLCQ
-data set, every unit's complexity is
-measured ten ways, seven outlier rules are fitted per repository, and the
-flagged sets are scored against PMD's GodClass, DECOR's Blob, PMD's NPath rule
-and MLCQ's reviewers, the signal and the competing absolute cutoff chosen on
+must be re-fitted when the population moves, as AI agents writing and
+maintaining code may now be moving it. A companion study found that complexity
+is conserved under change, which makes \emph{concentration}, not level, the
+mark of a god unit and suggests a rule with no raw-scale constant: a unit is a
+god unit when its complexity is a robust outlier for its own codebase, a
+modified z-score of 3.5 or more. This paper pre-registers that rule and tests
+it. On \nUsable{} repositories in ten languages from an independent seeded
+sampler and the \mlcqUsable{} Java repositories of MLCQ, every unit's
+complexity is measured ten ways, seven outlier rules are fitted per repository,
+and the flagged sets are scored against PMD's GodClass, DECOR's Blob, PMD's
+NPath rule and MLCQ's reviewers, the signal and the competing cutoff chosen on
 one half of the repositories and read on the other.
 
 The pre-registered verdict is inconclusive. Against PMD GodClass the rule at its
 literature default is non-inferior on both MCC arms to a cutoff tuned on the
-explore half, but it flags about twice as many non-god classes, a false-positive
+explore half, but flags about twice as many non-god classes, a false-positive
 rate \primMacroFpr{} points higher, interval \primMacroFprCI{}, and ranks
 slightly worse standardised than raw. At method level it is inferior. On
 human labels the planned read-out is underpowered and inferior on the signals it
 chose; an exploratory comparison finds the relative rule on cyclomatic
 complexity agreeing with the reviewers' Long Method verdicts better than any
-fixed threshold tried, and every detector weak on their Blob verdicts.
-Complexity concentration finds where the god units are. It does not itself
-tell a god unit from a complex algorithm, which a registered follow-on study
-takes up with coupling.
+fixed threshold, and every detector weak on Blob. Complexity concentration
+finds where the god units are. It does not tell a god unit from a complex
+algorithm, which a registered follow-on study takes up with coupling.
 \end{abstract}
 
 \section{Introduction}
