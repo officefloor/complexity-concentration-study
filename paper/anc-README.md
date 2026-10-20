@@ -3,11 +3,12 @@
 *Complexity concentration as a god-class and god-method detector. A pre-registered test of a
 scale-free outlier rule against tool definitions and human labels.* Daniel Sagenschneider, 2026.
 
-This directory holds the data the paper is computed from, the paper's own analysis scripts, and
-the key to every public repository involved. The raw per-unit data (the harness's
-`study.json` and `study.units.jsonl`, several gigabytes per run) is **not** included: it
-regenerates by running the harness on the sample files below, which pin every repository to its
-commit. `REGENERATION.txt` maps every table, figure and inline number to the command that
+This directory holds the data the paper is computed from and the key to every public repository
+involved. The paper's own analysis scripts are not here: they are committed in the harness
+repository below under `paper/scripts/`, with the paper's source. The raw per-unit data (the
+harness's `study.json` and `study.units.jsonl`, several gigabytes per run) is **not** included:
+it regenerates by running the harness on the sample files below, which pin every repository to
+its commit. `REGENERATION.txt` maps every table, figure and inline number to the command that
 produces it.
 
 ## The repositories
@@ -53,13 +54,18 @@ Everything is public and Apache-2.0 licensed unless stated.
 | `mlcq-labels.csv`, `mlcq-repos.csv`, `mlcq-summary.json` | MLCQ converted by the harness (`mlcq --rule majority`): the labels (`blob`, `blob_reviewed`, `long_method`, `long_method_reviewed`, with lines), the repositories at their labelled commits as a sampler CSV, and the counts with the input's sha256. Derived from MLCQ 1.1 (CC BY 4.0). |
 | `mlcq-hashes.txt` | The committed digests. |
 
-### `paper/` : the paper's own read-outs and scripts
+### `paper/` : the paper's own read-outs
 
 | File | What it is |
 |---|---|
-| `human.json`, `human_readout.log` | The pre-registered human-label read-out (Blob and Long Method, both populations: every repository with a reviewed unit, and only those with a positive), computed by `scripts/human_readout.py` from the reviewed units. |
-| `agreement.json`, `agreement.log` | The exploratory agreement of tool definitions and the main run's rules with MLCQ's reviewers, on the reviewed units, by `scripts/agreement.py`. |
-| `scripts/` | The paper's scripts: `extract_main.py`, `extract_mlcq.py` (stream the per-unit sidecars into `paper/data/*.json`), `check_extract.py` (checks the reduction against `analysis.json`), `human_readout.py`, `agreement.py`, `tables.py` (every table and inline number), `figures.py` (every figure), `common.py`. |
+| `human.json`, `human_readout.log` | The pre-registered human-label read-out (Blob and Long Method, both populations: every repository with a reviewed unit, and only those with a positive), computed by `paper/scripts/human_readout.py` (in the harness repository) from the reviewed units. |
+| `agreement.json`, `agreement.log` | The exploratory agreement of tool definitions and the main run's rules with MLCQ's reviewers, on the reviewed units, by `paper/scripts/agreement.py` (in the harness repository). |
+
+The scripts that produce these and every table, figure and inline number are `paper/scripts/` in
+the harness repository: `extract_main.py`, `extract_mlcq.py` (stream the per-unit sidecars into
+`paper/data/*.json`), `check_extract.py` (checks the reduction against `analysis.json`),
+`human_readout.py`, `agreement.py`, `tables.py` (every table and inline number), `figures.py`
+(every figure), `common.py`.
 
 ## Reproducing
 

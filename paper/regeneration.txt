@@ -1,10 +1,11 @@
 How to regenerate every number in the paper
   "Complexity concentration as a god-class and god-method detector"
 
-Every number the paper prints is produced by a script under paper/scripts/ from the harness's
-analysis files (anc/main-run/analysis.json, anc/mlcq-run/analysis.json, the exploratory
-re-analysis and the classpath reports) and from the paper's own reductions of the per-unit
-sidecars (anc/paper/human.json, anc/paper/agreement.json). No number is typed by hand: main.tex
+Every number the paper prints is produced by a script under paper/scripts/ (in the harness
+repository, https://github.com/officefloor/complexity-concentration-study; the scripts are not
+part of this ancillary bundle) from the harness's analysis files (anc/main-run/analysis.json,
+anc/mlcq-run/analysis.json, the exploratory re-analysis and the classpath reports) and from the
+paper's own reductions of the per-unit sidecars (anc/paper/human.json, anc/paper/agreement.json). No number is typed by hand: main.tex
 quotes macros from generated/numbers.tex and includes tables from generated/tab_*.tex, both
 written by scripts/tables.py; the figures are written by scripts/figures.py. If a script's
 output ever disagrees with the prose, the script is the authority.

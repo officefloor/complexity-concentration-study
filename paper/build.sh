@@ -12,7 +12,8 @@
 # Writes: main.pdf, abstract.txt (the abstract as plain text, one paragraph per line, for the
 # arXiv and Zenodo forms, with a warning past arXiv's 1920 characters), and arxiv.tar.gz, the
 # submission bundle: main.tex, generated/, figures/ at the root and, under anc/ where arXiv lists
-# them as ancillary files, the data the paper rests on (see pack() and anc-README.md).
+# them as ancillary files, the data the paper rests on (see pack() and anc-README.md). The
+# paper's scripts are not packed; they live in the public repository under paper/scripts/.
 set -euo pipefail
 cd "$(dirname "$0")"
 ROOT="$(cd .. && pwd)"
@@ -78,8 +79,8 @@ pack() {
   # the paper's own reductions and read-outs (never the per-unit sidecars)
   d="$stage/anc/paper"; mkdir -p "$d"
   cp data/human.json data/agreement.json data/human_readout.log data/agreement.log "$d/" 2>/dev/null || echo "   ! paper/data read-outs missing: run ./regenerate.sh" >&2
-  cp -r scripts "$d/scripts"
-  rm -rf "$d/scripts/__pycache__"
+  # the scripts themselves are not packed: they are committed under paper/scripts/ in the public
+  # repository, which anc-README.md names, so the bundle carries data and read-outs only
   tar czf arxiv.tar.gz main.tex generated figures -C "$stage" anc
   echo "Packed arxiv.tar.gz ($(tar tzf arxiv.tar.gz | grep -c .) entries, $(du -h arxiv.tar.gz | cut -f1))"
 }
