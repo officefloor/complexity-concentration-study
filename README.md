@@ -207,7 +207,7 @@ correctly.
 
 ## Running it
 
-Four numbered scripts, each printing the next. Prerequisites the scripts do **not** install:
+Numbered scripts, each printing the next. Prerequisites the scripts do **not** install:
 `python3`, `git`, **Java (JRE 17+)**, and the **`gh` CLI authenticated** for step 2.
 
     ./step1_setup.sh                       # venv + pinned deps (incl. the sampler) + PMD/CK into ./lib
@@ -217,6 +217,11 @@ Four numbered scripts, each printing the next. Prerequisites the scripts do **no
     ./step3_run.sh                         # measure both samples -> results/<date>/
     ./step4_analyse.sh --results results/<date>
     ./step5_mlcq.sh                        # optional: the MLCQ human-label sub-study -> results/mlcq/
+    ./step6_paper_readouts.sh              # the paper's read-outs and the blinded false-positive sample
+    ./step6a_fp_prepare.sh                 # fetch the sample, prepare the author's reading
+    ./step6b_fp_author_reading.sh          # the author's reading, by hand; checks it is complete
+    ./step6c_fp_model_reading.sh           # the model's blind reading (claude -p), recorded
+    ./step6d_paper_build.sh                # merge the readings, build the paper and the arXiv bundle
 
 `pip` pins **lizard 1.23.0** (1.24.x returns no functions for annotated Java classes), and
 `study.py` pins **PMD 7.27.0** and the **CK 0.7.0** jar by sha256.
