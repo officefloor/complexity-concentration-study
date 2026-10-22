@@ -77,6 +77,22 @@ Q3 Foreign data. Does the class mostly work on other objects' data: chains of ge
 Q4 Dispatch table. Is the complexity mainly one large switch or if-else chain over cases
    (opcodes, token kinds, message types, enum values), each case short?
 
+Reading conventions (added 2026-10-21, after the author had read 13 units, before any model
+reading; they settle what the questions leave open and change no question or mapping row):
+   Q1 Yes if the method uses the values it holds or receives to compute and return a value (or
+      its own state); no if it mainly forwards values to other objects' method calls, deciding
+      which to call and in what order.
+   Q2 Judge the class's cohesion: yes if all its methods contribute to one cohesive, related
+      concept; no if they serve two or more unrelated concepts.
+   Q3 Yes if the class mainly holds behaviour that should live in the classes it references:
+      getter chains of depth 2 or more, copying fields between objects, deciding on another
+      behaviour-bearing object's fields. Plain data holders (DTOs, value objects, syntax trees)
+      have no behaviour to move, so using them is not foreign data.
+   Q4 Yes if the complexity is mainly one switch or if-else chain that separates behaviour by
+      the kinds of one controlling value (enum, opcode, message type, instanceof over one
+      variable), each case short. Separate conditions guarding calls or early returns are not a
+      table.
+
 Mapping:
    LEAF       Q1 yes, Q2 yes, Q3 no          complexity that belongs to the algorithm the class computes
    GATHERER   Q2 no, or Q3 yes               a class that gathers responsibilities or others' data
