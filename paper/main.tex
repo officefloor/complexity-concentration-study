@@ -783,7 +783,12 @@ judgement of a god unit as well as a constant does is left open.
 \paragraph{The steps, and which one this is.} The case for a scale-free
 detector is that agent-written code may concentrate complexity differently
 from the corpora the constants were fitted on \cite{he2026cursor,
-zhang2026llm}. That case cannot be tested until populations of agent-written
+zhang2026llm}; in a lab setting, agents building whole applications have been
+seen to centralise logic into single ``manager'' classes \cite{zhu2026smells}.
+The evidence from the wild is more cautious: on files with explicit LLM
+attribution in real repositories, class-level metrics sit at near parity with
+human-written code \cite{mao2026measurement}, so the shift, if there is one,
+may be small. That case cannot be tested until populations of agent-written
 code exist at scale, and a detector that fails on human-written code would
 have nothing to offer them. This study is the first step: on two populations
 of human-written code that share one scale, the rule matches a constant tuned
@@ -1018,6 +1023,10 @@ author.
   ``Detecting code smells using industry-relevant data,''
   \emph{Information and Software Technology}, vol.~155, 107112, 2023.
 
+\bibitem{mao2026measurement} T.~Mao, D.~Zhao, H.~Tang, X.~Wang and H.~Zhang,
+  ``A large-scale comprehensive measurement of AI-generated code in real-world
+  repositories,'' arXiv:2603.27130, 2026.
+
 \bibitem{marinescu2004} R.~Marinescu,
   ``Detection strategies: metrics-based rules for detecting design flaws,''
   in \emph{Proc. 20th IEEE International Conference on Software Maintenance
@@ -1067,6 +1076,10 @@ author.
 \bibitem{zhang2026llm} Z.~Zhang, E.~Wen and E.~Tempero,
   ``Can LLMs produce better object-oriented designs than human-involved
   development?'' arXiv:2605.19901, 2026.
+
+\bibitem{zhu2026smells} Y.~Zhu, N.~Tsantalis and P.~C. Rigby,
+  ``AI-generated smells: An analysis of code and architecture in LLM- and
+  agent-driven development,'' arXiv:2605.02741, 2026.
 
 \end{thebibliography}
 
