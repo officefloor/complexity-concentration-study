@@ -41,7 +41,7 @@ def f(x, nd=3, plus=False):
     if x is None:
         return "--"
     s = f"{x:+.{nd}f}" if plus else f"{x:.{nd}f}"
-    return s
+    return "$-$" + s[1:] if s.startswith("-") else s  # a minus sign, not a hyphen, in text and tables
 
 
 def pct(x, nd=1):
@@ -338,6 +338,12 @@ def table_classpath(main_dir: str, out: str) -> None:
         top = max(reps, key=lambda r: r[3] + r[4])
         num("cpMaxFlips", str(top[3] + top[4]))
         num("cpMaxFlipsRepo", tex(top[0]))
+        top_flips, top_union = top[3] + top[4], (top[1] or 0) + top[4]
+        num("cpMaxFlipsRepoUnion", str(top_union))
+        num("cpMaxFlipsRepoRate", pct(top_flips / top_union) if top_union else "--")
+        num("cpFlipsExclMax", str(tf - top_flips))
+        num("cpUnionExclMax", str(tu - top_union))
+        num("cpRateExclMax", pct((tf - top_flips) / (tu - top_union)) if tu > top_union else "--")
     # the log: how many candidates were tried
     log = os.path.join(common.ROOT, "classpath-log.tsv")
     if os.path.exists(log):
@@ -401,6 +407,21 @@ def table_human(h: dict, out: str) -> None:
                         f"{f(c['mad_z_precision'], 2)} & {f(c['mad_z_recall'], 2)} & {cut_s} & {f(c['abs_micro_mcc'])} \\\\")
         body += ["\\bottomrule", "\\end{tabular}"]
         write(out, f"tab_human_candidates_{level}.tex", "\n".join(body) + "\n")
+        if allc:
+            top = max(allc.values(), key=lambda c: c["pooled_auc_standardised"] or 0)
+            num(f"humCand{defn}TopPooledAuc", f(top["pooled_auc_standardised"]))
+            best_rel = max(allc.items(), key=lambda kv: kv[1]["mad_z_micro_mcc"] if kv[1]["mad_z_micro_mcc"] is not None else -9)
+            num(f"humCand{defn}BestRelMicroMcc", f(best_rel[1]["mad_z_micro_mcc"]))
+            num(f"humCand{defn}BestRelSignal", sig_tex(best_rel[0]))
+            best_abs = max(allc.items(), key=lambda kv: kv[1]["abs_micro_mcc"] if kv[1]["abs_micro_mcc"] is not None else -9)
+            num(f"humCand{defn}BestAbsMicroMcc", f(best_abs[1]["abs_micro_mcc"]))
+            num(f"humCand{defn}BestAbsSignal", sig_tex(best_abs[0]))
+            for sg in ("cc", "cognitive"):
+                if sg in allc:
+                    num(f"humCand{defn}{camel(sg)}RelMicroMcc", f(allc[sg]["mad_z_micro_mcc"]))
+                    num(f"humCand{defn}{camel(sg)}AbsMicroMcc", f(allc[sg]["abs_micro_mcc"]))
+            if "cc" in allc and "cognitive" in allc:
+                num(f"humCand{defn}MaxGap", f(max(allc[sg]["abs_micro_mcc"] - allc[sg]["mad_z_micro_mcc"] for sg in ("cc", "cognitive")), 2))
     lm = h["label_match"]
     num("humBlobLabelled", str(lm["blob"]["labelled"]))
     num("humBlobMeasured", str(lm["blob"]["measured"]))
@@ -444,6 +465,7 @@ def table_agreement(g: dict, out: str) -> None:
             num(pre + kk + "Precision", f(m["precision"], 2))
             num(pre + kk + "Recall", f(m["recall"], 2))
             num(pre + kk + "Flagged", str(m["tp"] + m["fp"]))
+        num(pre + "MaxMcc", f(max(m["mcc"] for m in res["predictors"].values()), 2))
         for k, d in (res.get("rel_minus") or {}).items():
             b = d["paired"]
             num(pre + "RelMinus" + camel(k), f(b["value"], 3, True) if b else "--")
@@ -641,7 +663,20 @@ def sample_extra_numbers(main_dir: str, main_data: dict) -> None:
     num("javaFilesMultiPct", pct(multi / ck, 0) if ck else "--")
 
 
-def table_transfer(t: dict, out: str) -> None:
+VERDICT_ORDER = {"superior": 0, "non-inferior": 1, "inconclusive": 2, "inferior": 3, "not estimable": 4}
+
+
+def verdict_of(b, arm: str, margin: float, fpr_margin: float) -> str:
+    """The plan's reading of one paired arm (PLAN.md, Decision rule), applied to a bootstrap."""
+    if not b:
+        return "not estimable"
+    lo, hi = b["lo"], b["hi"]
+    if arm == "macro_fpr":
+        return "superior" if hi < 0 else "non-inferior" if hi < fpr_margin else "inferior" if lo > fpr_margin else "inconclusive"
+    return "superior" if lo > 0 else "non-inferior" if lo > -margin else "inferior" if hi < -margin else "inconclusive"
+
+
+def table_transfer(t: dict, out: str, margins: dict) -> None:
     body = ["\\begin{tabular}{llrrrrrr}", "\\toprule",
             "Read on & Rule & Cut & Micro MCC & Macro MCC & Macro FPR & Precision & Recall \\\\", "\\midrule"]
     labels = {"main": ("main run, confirm half", "MLCQ"), "mlcq": ("MLCQ, confirm half", "main run")}
@@ -651,23 +686,31 @@ def table_transfer(t: dict, out: str) -> None:
         pre = "transfer" + run.capitalize()
         num(pre + "OwnCut", f"{R['own_cut']:g}")
         num(pre + "OtherCut", f"{R['other_cut']:g}")
+        num(pre + "OwnZCut", f"{R['own_z_cut']:.2f}")
         num(pre + "N", str(R["n_confirm_repos"]))
         num(pre + "NPos", str(R["n_confirm_repos_with_positive"]))
         for key, name in (("rel", "relative, modified $z \\geq 3.5$"),
+                          ("rel_tuned", "relative, $z$ tuned on this population"),
                           ("abs_own", "absolute, tuned on this population"),
                           ("abs_other", f"absolute, tuned on the {other}")):
             m = R["rules"][key]
-            cut = {"rel": "--", "abs_own": f"{R['own_cut']:g}", "abs_other": f"{R['other_cut']:g}"}[key]
+            cut = {"rel": "--", "rel_tuned": f"$z \\geq {R['own_z_cut']:.2f}$", "abs_own": f"{R['own_cut']:g}", "abs_other": f"{R['other_cut']:g}"}[key]
             body.append(f"{where if key == 'rel' else ''} & {name} & {cut} & {f(m['micro_mcc'])} & {f(m['macro_mcc'])} & "
                         f"{f(m['macro_fpr'])} & {f(m['precision'], 2)} & {f(m['recall'], 2)} \\\\")
             for stat in ("micro_mcc", "macro_mcc", "macro_fpr", "precision", "recall", "flagged"):
                 v = m[stat]
                 num(pre + camel(key) + camel(stat), (thousands(v) if stat == "flagged" else f(v, 2 if stat in ("precision", "recall") else 3)))
             num(pre + camel(key) + "MacroFprPct", pct(m["macro_fpr"]))
-        for lab, pre2 in (("rel_minus_abs_other", "RelMinusOther"), ("abs_other_minus_abs_own", "OtherMinusOwn")):
+        margin, fpr_margin = margins[run]
+        for lab, pre2 in (("rel_minus_abs_other", "RelMinusOther"), ("abs_other_minus_abs_own", "OtherMinusOwn"),
+                          ("rel_tuned_minus_abs_own", "TunedMinusOwn")):
+            verdicts = []
             for arm, b in R[lab].items():
                 num(pre + pre2 + camel(arm), f(b["value"], 3, True) if b else "--")
                 num(pre + pre2 + camel(arm) + "CI", ci(b, 3, True))
+                verdicts.append(verdict_of(b, arm, margin, fpr_margin))
+                num(pre + pre2 + camel(arm) + "Verdict", verdicts[-1])
+            num(pre + pre2 + "Verdict", max(verdicts, key=VERDICT_ORDER.get))
         for lab, pre2 in (("per_repo_optimal_cut", "OptCut"), ("implied_cut_of_z35", "ZCut")):
             q = R[lab]
             if q:
@@ -684,13 +727,13 @@ def table_fp(fp: dict, out: str) -> None:
     labels = {"tp": "flagged by the rule and marked by PMD", "fp": "flagged by the rule, not marked by PMD",
               "fn": "marked by PMD, not flagged by the rule", "neither": "neither",
               "abs_fp": "flagged by the absolute cutoff, not marked by PMD"}
-    body = ["\\begin{tabular}{lrrrrrrrr}", "\\toprule",
-            "Group & Units & Repos. & WMC $\\geq 47$ & Coupled & Low cohesion & Median \\texttt{cognitive\\_max} & Median lines & Median methods \\\\", "\\midrule"]
+    body = ["\\begin{tabular}{lrrrrrrrrr}", "\\toprule",
+            "Group & Units & Repos. & WMC $\\geq 47$ & Coupled & Low cohesion & Cog.\\ $\\geq 15$ & Median \\texttt{cognitive\\_max} & Median lines & Median methods \\\\", "\\midrule"]
     for g in ("tp", "fp", "fn", "neither", "abs_fp"):
         r = fp["breakdown"][g]
         sh = r["shares"]
         body.append(f"{labels[g]} & {thousands(r['n'])} & {r['n_repos']} & {pct(sh['wmc47']['rate'])} & {pct(sh['coupled']['rate'])} & "
-                    f"{pct(sh['low_cohesion']['rate'])} & "
+                    f"{pct(sh['low_cohesion']['rate'])} & {pct(sh['cognitive15']['rate'])} & "
                     f"{r['median_raw']:g} & {r['median_nloc']:g} & {r['median_nom']:g} \\\\")
         pre = "fp" + camel(g)
         num(pre + "N", thousands(r["n"]))
@@ -712,6 +755,10 @@ def table_fp(fp: dict, out: str) -> None:
     num("fpSamplePerRepo", str(fp["sample"]["per_repo"]))
     num("fpSampleN", str(fp["sample"]["n"]))
     num("fpComputedUtc", fp["computed_utc"].replace("T", " ").replace("Z", " UTC"))
+    runs = sorted(glob.glob(os.path.join(common.PAPER, "readings", "fp_model_runs", "batch_*.json")))
+    if runs:
+        starts = sorted(json.load(open(r))["started_utc"][:10] for r in runs)
+        num("fpModelReadDate", starts[0] if starts[0] == starts[-1] else f"{starts[0]} to {starts[-1]}")
     rd = fp.get("readings")
     if rd and rd["readers"]:
         cats = ("LEAF", "GATHERER", "TABLE", "OTHER")
@@ -932,7 +979,9 @@ def main(argv=None) -> int:
         table_agreement(common.load_json(gp), out)
     tp = os.path.join(args.data, "transfer.json")
     if os.path.exists(tp):
-        table_transfer(common.load_json(tp), out)
+        margins = {run: (x["primary"]["pmd_GodClass"]["decision"]["margin"], x["primary"]["pmd_GodClass"]["decision"]["fpr_margin"])
+                   for run, x in (("main", a), ("mlcq", b))}
+        table_transfer(common.load_json(tp), out, margins)
     fpp = os.path.join(args.data, "false_positives.json")
     if os.path.exists(fpp):
         table_fp(common.load_json(fpp), out)

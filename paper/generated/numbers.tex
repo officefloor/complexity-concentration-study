@@ -34,6 +34,7 @@
 \newcommand{\agrBlobGrpToolN}{236}
 \newcommand{\agrBlobGrpToolPos}{73}
 \newcommand{\agrBlobGrpToolRate}{30.9\%}
+\newcommand{\agrBlobMaxMcc}{0.24}
 \newcommand{\agrBlobPmdGodclassFlagged}{236}
 \newcommand{\agrBlobPmdGodclassMcc}{+0.242}
 \newcommand{\agrBlobPmdGodclassMccCI}{[+0.186, +0.301]}
@@ -46,17 +47,17 @@
 \newcommand{\agrBlobRelFlagged}{326}
 \newcommand{\agrBlobRelMcc}{+0.202}
 \newcommand{\agrBlobRelMccCI}{[+0.153, +0.254]}
-\newcommand{\agrBlobRelMinusAbs}{-0.018}
-\newcommand{\agrBlobRelMinusAbsCI}{[-0.058, +0.023]}
+\newcommand{\agrBlobRelMinusAbs}{$-$0.018}
+\newcommand{\agrBlobRelMinusAbsCI}{[$-$0.058, +0.023]}
 \newcommand{\agrBlobRelMinusAbsReading}{no difference resolved}
 \newcommand{\agrBlobRelMinusDecorBlob}{+0.007}
-\newcommand{\agrBlobRelMinusDecorBlobCI}{[-0.055, +0.071]}
+\newcommand{\agrBlobRelMinusDecorBlobCI}{[$-$0.055, +0.071]}
 \newcommand{\agrBlobRelMinusDecorBlobReading}{no difference resolved}
-\newcommand{\agrBlobRelMinusPmdGodclass}{-0.039}
-\newcommand{\agrBlobRelMinusPmdGodclassCI}{[-0.098, +0.020]}
+\newcommand{\agrBlobRelMinusPmdGodclass}{$-$0.039}
+\newcommand{\agrBlobRelMinusPmdGodclassCI}{[$-$0.098, +0.020]}
 \newcommand{\agrBlobRelMinusPmdGodclassReading}{no difference resolved}
-\newcommand{\agrBlobRelMinusWmcFourSeven}{-0.023}
-\newcommand{\agrBlobRelMinusWmcFourSevenCI}{[-0.079, +0.032]}
+\newcommand{\agrBlobRelMinusWmcFourSeven}{$-$0.023}
+\newcommand{\agrBlobRelMinusWmcFourSevenCI}{[$-$0.079, +0.032]}
 \newcommand{\agrBlobRelMinusWmcFourSevenReading}{no difference resolved}
 \newcommand{\agrBlobRelPrecision}{0.25}
 \newcommand{\agrBlobRelRecall}{0.40}
@@ -118,6 +119,7 @@
 \newcommand{\agrLmLocFiveZeroMccCI}{[+0.412, +0.542]}
 \newcommand{\agrLmLocFiveZeroPrecision}{0.91}
 \newcommand{\agrLmLocFiveZeroRecall}{0.28}
+\newcommand{\agrLmMaxMcc}{0.58}
 \newcommand{\agrLmPmdMethodNpathTwoZeroZeroFlagged}{28}
 \newcommand{\agrLmPmdMethodNpathTwoZeroZeroMcc}{+0.312}
 \newcommand{\agrLmPmdMethodNpathTwoZeroZeroMccCI}{[+0.244, +0.371]}
@@ -140,7 +142,7 @@
 \newcommand{\agrLmRelMinusCcOneFourCI}{[+0.085, +0.238]}
 \newcommand{\agrLmRelMinusCcOneFourReading}{relative rule higher}
 \newcommand{\agrLmRelMinusCognitiveOneFive}{+0.017}
-\newcommand{\agrLmRelMinusCognitiveOneFiveCI}{[-0.050, +0.085]}
+\newcommand{\agrLmRelMinusCognitiveOneFiveCI}{[$-$0.050, +0.085]}
 \newcommand{\agrLmRelMinusCognitiveOneFiveReading}{no difference resolved}
 \newcommand{\agrLmRelMinusLocFiveZero}{+0.101}
 \newcommand{\agrLmRelMinusLocFiveZeroCI}{[+0.025, +0.178]}
@@ -176,19 +178,19 @@
 \newcommand{\brainMacroFpr}{+0.087}
 \newcommand{\brainMacroFprCI}{[+0.078, +0.096]}
 \newcommand{\brainMacroFprVerdict}{inferior}
-\newcommand{\brainMacroMcc}{-0.322}
-\newcommand{\brainMacroMccCI}{[-0.355, -0.290]}
+\newcommand{\brainMacroMcc}{$-$0.322}
+\newcommand{\brainMacroMccCI}{[$-$0.355, $-$0.290]}
 \newcommand{\brainMacroMccVerdict}{inferior}
 \newcommand{\brainMargin}{0.066}
-\newcommand{\brainMicroMcc}{-0.172}
-\newcommand{\brainMicroMccCI}{[-0.292, -0.095]}
+\newcommand{\brainMicroMcc}{$-$0.172}
+\newcommand{\brainMicroMccCI}{[$-$0.292, $-$0.095]}
 \newcommand{\brainMicroMccVerdict}{inferior}
 \newcommand{\brainMinPosCo}{79}
 \newcommand{\brainNGodFree}{39}
 \newcommand{\brainNNeg}{814{,}203}
 \newcommand{\brainNPos}{3{,}733}
-\newcommand{\brainPooledAucDiff}{-0.003}
-\newcommand{\brainPooledAucDiffCI}{[-0.010, +0.010]}
+\newcommand{\brainPooledAucDiff}{$-$0.003}
+\newcommand{\brainPooledAucDiffCI}{[$-$0.010, +0.010]}
 \newcommand{\brainPooledAucRaw}{0.984}
 \newcommand{\brainPooledAucReading}{no difference resolved}
 \newcommand{\brainPooledAucStd}{0.981}
@@ -216,13 +218,18 @@
 \newcommand{\calibNlocRho}{0.92}
 \newcommand{\cpFailed}{12}
 \newcommand{\cpFlips}{26}
+\newcommand{\cpFlipsExclMax}{3}
 \newcommand{\cpMaxFlips}{23}
 \newcommand{\cpMaxFlipsRepo}{Anuken/Mindustry}
+\newcommand{\cpMaxFlipsRepoRate}{16.3\%}
+\newcommand{\cpMaxFlipsRepoUnion}{141}
 \newcommand{\cpRate}{6.7\%}
+\newcommand{\cpRateExclMax}{1.2\%}
 \newcommand{\cpRepos}{10}
 \newcommand{\cpSkipped}{7}
 \newcommand{\cpTried}{29}
 \newcommand{\cpUnion}{390}
+\newcommand{\cpUnionExclMax}{249}
 \newcommand{\cpWithinBound}{within}
 \newcommand{\decorAbsFlagged}{7{,}561}
 \newcommand{\decorAbsFp}{5{,}156}
@@ -243,22 +250,22 @@
 \newcommand{\decorAucMacroN}{69}
 \newcommand{\decorCarryCo}{85}
 \newcommand{\decorCut}{12}
-\newcommand{\decorMacroFpr}{-0.033}
-\newcommand{\decorMacroFprCI}{[-0.058, -0.011]}
+\newcommand{\decorMacroFpr}{$-$0.033}
+\newcommand{\decorMacroFprCI}{[$-$0.058, $-$0.011]}
 \newcommand{\decorMacroFprVerdict}{superior}
-\newcommand{\decorMacroMcc}{-0.023}
-\newcommand{\decorMacroMccCI}{[-0.055, +0.006]}
+\newcommand{\decorMacroMcc}{$-$0.023}
+\newcommand{\decorMacroMccCI}{[$-$0.055, +0.006]}
 \newcommand{\decorMacroMccVerdict}{non-inferior}
 \newcommand{\decorMargin}{0.072}
-\newcommand{\decorMicroMcc}{-0.032}
-\newcommand{\decorMicroMccCI}{[-0.063, +0.001]}
+\newcommand{\decorMicroMcc}{$-$0.032}
+\newcommand{\decorMicroMccCI}{[$-$0.063, +0.001]}
 \newcommand{\decorMicroMccVerdict}{non-inferior}
 \newcommand{\decorMinPosCo}{69}
 \newcommand{\decorNGodFree}{11}
 \newcommand{\decorNNeg}{54{,}046}
 \newcommand{\decorNPos}{6{,}382}
 \newcommand{\decorPooledAucDiff}{+0.025}
-\newcommand{\decorPooledAucDiffCI}{[-0.023, +0.065]}
+\newcommand{\decorPooledAucDiffCI}{[$-$0.023, +0.065]}
 \newcommand{\decorPooledAucRaw}{0.722}
 \newcommand{\decorPooledAucReading}{no difference resolved}
 \newcommand{\decorPooledAucStd}{0.747}
@@ -286,6 +293,9 @@
 \newcommand{\flagClassMadMinLang}{go}
 \newcommand{\flagMethodMadMax}{12.7\%}
 \newcommand{\flagMethodMadMin}{7.7\%}
+\newcommand{\fpAbsFpCognitiveOneFiveN}{1753}
+\newcommand{\fpAbsFpCognitiveOneFivePct}{100.0\%}
+\newcommand{\fpAbsFpCognitiveOneFivePctCI}{[100.0\%, 100.0\%]}
 \newcommand{\fpAbsFpCoupledN}{791}
 \newcommand{\fpAbsFpCoupledPct}{45.1\%}
 \newcommand{\fpAbsFpCoupledPctCI}{[34.9\%, 54.8\%]}
@@ -315,7 +325,10 @@
 \newcommand{\fpAbsFpWmcFourSevenN}{712}
 \newcommand{\fpAbsFpWmcFourSevenPct}{40.6\%}
 \newcommand{\fpAbsFpWmcFourSevenPctCI}{[35.4\%, 44.5\%]}
-\newcommand{\fpComputedUtc}{2026-10-22 10:13:36 UTC}
+\newcommand{\fpComputedUtc}{2026-10-22 16:54:42 UTC}
+\newcommand{\fpFnCognitiveOneFiveN}{337}
+\newcommand{\fpFnCognitiveOneFivePct}{26.5\%}
+\newcommand{\fpFnCognitiveOneFivePctCI}{[19.4\%, 35.4\%]}
 \newcommand{\fpFnCoupledN}{851}
 \newcommand{\fpFnCoupledPct}{66.8\%}
 \newcommand{\fpFnCoupledPctCI}{[55.7\%, 74.1\%]}
@@ -345,6 +358,9 @@
 \newcommand{\fpFnWmcFourSevenN}{1171}
 \newcommand{\fpFnWmcFourSevenPct}{91.9\%}
 \newcommand{\fpFnWmcFourSevenPctCI}{[85.6\%, 96.3\%]}
+\newcommand{\fpFpCognitiveOneFiveN}{2416}
+\newcommand{\fpFpCognitiveOneFivePct}{56.3\%}
+\newcommand{\fpFpCognitiveOneFivePctCI}{[41.5\%, 76.8\%]}
 \newcommand{\fpFpCoupledN}{1650}
 \newcommand{\fpFpCoupledPct}{38.5\%}
 \newcommand{\fpFpCoupledPctCI}{[30.9\%, 46.9\%]}
@@ -385,6 +401,10 @@
 \newcommand{\fpKappaAuthorModelQThreeAgree}{32}
 \newcommand{\fpKappaAuthorModelQTwo}{0.07}
 \newcommand{\fpKappaAuthorModelQTwoAgree}{13}
+\newcommand{\fpModelReadDate}{2026-10-22}
+\newcommand{\fpNeitherCognitiveOneFiveN}{1245}
+\newcommand{\fpNeitherCognitiveOneFivePct}{2.4\%}
+\newcommand{\fpNeitherCognitiveOneFivePctCI}{[1.2\%, 4.0\%]}
 \newcommand{\fpNeitherCoupledN}{4356}
 \newcommand{\fpNeitherCoupledPct}{8.2\%}
 \newcommand{\fpNeitherCoupledPctCI}{[5.9\%, 11.1\%]}
@@ -487,6 +507,9 @@
 \newcommand{\fpSampleN}{200}
 \newcommand{\fpSamplePerRepo}{3}
 \newcommand{\fpSampleTp}{100}
+\newcommand{\fpTpCognitiveOneFiveN}{1618}
+\newcommand{\fpTpCognitiveOneFivePct}{87.9\%}
+\newcommand{\fpTpCognitiveOneFivePctCI}{[76.9\%, 96.4\%]}
 \newcommand{\fpTpCoupledN}{1367}
 \newcommand{\fpTpCoupledPct}{74.3\%}
 \newcommand{\fpTpCoupledPctCI}{[59.0\%, 84.2\%]}
@@ -551,15 +574,15 @@
 \newcommand{\humBlobAllAucMacroN}{9}
 \newcommand{\humBlobAllCut}{52.93}
 \newcommand{\humBlobAllExploreLevel}{0.047}
-\newcommand{\humBlobAllMacroFpr}{-0.271}
-\newcommand{\humBlobAllMacroFprCI}{[-0.321, -0.225]}
+\newcommand{\humBlobAllMacroFpr}{$-$0.271}
+\newcommand{\humBlobAllMacroFprCI}{[$-$0.321, $-$0.225]}
 \newcommand{\humBlobAllMacroFprVerdict}{superior}
-\newcommand{\humBlobAllMacroMcc}{-0.284}
-\newcommand{\humBlobAllMacroMccCI}{[-0.389, -0.186]}
+\newcommand{\humBlobAllMacroMcc}{$-$0.284}
+\newcommand{\humBlobAllMacroMccCI}{[$-$0.389, $-$0.186]}
 \newcommand{\humBlobAllMacroMccVerdict}{inferior}
 \newcommand{\humBlobAllMargin}{0.014}
-\newcommand{\humBlobAllMicroMcc}{-0.228}
-\newcommand{\humBlobAllMicroMccCI}{[-0.324, -0.115]}
+\newcommand{\humBlobAllMicroMcc}{$-$0.228}
+\newcommand{\humBlobAllMicroMccCI}{[$-$0.324, $-$0.115]}
 \newcommand{\humBlobAllMicroMccVerdict}{inferior}
 \newcommand{\humBlobAllMinPosCo}{9}
 \newcommand{\humBlobAllMinPosEx}{9}
@@ -569,8 +592,8 @@
 \newcommand{\humBlobAllNPaired}{198}
 \newcommand{\humBlobAllNPairedMacro}{60}
 \newcommand{\humBlobAllNPos}{90}
-\newcommand{\humBlobAllPooledAucDiff}{-0.022}
-\newcommand{\humBlobAllPooledAucDiffCI}{[-0.042, -0.003]}
+\newcommand{\humBlobAllPooledAucDiff}{$-$0.022}
+\newcommand{\humBlobAllPooledAucDiffCI}{[$-$0.042, $-$0.003]}
 \newcommand{\humBlobAllPooledAucRaw}{0.787}
 \newcommand{\humBlobAllPooledAucReading}{absolute ranking better}
 \newcommand{\humBlobAllPooledAucStd}{0.765}
@@ -615,15 +638,15 @@
 \newcommand{\humBlobPosAucMacroN}{9}
 \newcommand{\humBlobPosCut}{52.93}
 \newcommand{\humBlobPosExploreLevel}{0.047}
-\newcommand{\humBlobPosMacroFpr}{-0.292}
-\newcommand{\humBlobPosMacroFprCI}{[-0.367, -0.217]}
+\newcommand{\humBlobPosMacroFpr}{$-$0.292}
+\newcommand{\humBlobPosMacroFprCI}{[$-$0.367, $-$0.217]}
 \newcommand{\humBlobPosMacroFprVerdict}{superior}
-\newcommand{\humBlobPosMacroMcc}{-0.284}
-\newcommand{\humBlobPosMacroMccCI}{[-0.389, -0.186]}
+\newcommand{\humBlobPosMacroMcc}{$-$0.284}
+\newcommand{\humBlobPosMacroMccCI}{[$-$0.389, $-$0.186]}
 \newcommand{\humBlobPosMacroMccVerdict}{inferior}
 \newcommand{\humBlobPosMargin}{0.014}
-\newcommand{\humBlobPosMicroMcc}{-0.266}
-\newcommand{\humBlobPosMicroMccCI}{[-0.398, -0.134]}
+\newcommand{\humBlobPosMicroMcc}{$-$0.266}
+\newcommand{\humBlobPosMicroMccCI}{[$-$0.398, $-$0.134]}
 \newcommand{\humBlobPosMicroMccVerdict}{inferior}
 \newcommand{\humBlobPosMinPosCo}{9}
 \newcommand{\humBlobPosMinPosEx}{9}
@@ -633,8 +656,8 @@
 \newcommand{\humBlobPosNPaired}{60}
 \newcommand{\humBlobPosNPairedMacro}{60}
 \newcommand{\humBlobPosNPos}{90}
-\newcommand{\humBlobPosPooledAucDiff}{-0.008}
-\newcommand{\humBlobPosPooledAucDiffCI}{[-0.030, +0.011]}
+\newcommand{\humBlobPosPooledAucDiff}{$-$0.008}
+\newcommand{\humBlobPosPooledAucDiffCI}{[$-$0.030, +0.011]}
 \newcommand{\humBlobPosPooledAucRaw}{0.770}
 \newcommand{\humBlobPosPooledAucReading}{no difference resolved}
 \newcommand{\humBlobPosPooledAucStd}{0.762}
@@ -663,6 +686,21 @@
 \newcommand{\humBlobRevLabelled}{2085}
 \newcommand{\humBlobRevMeasured}{1853}
 \newcommand{\humBlobRevRate}{88.9\%}
+\newcommand{\humCandBlobBestAbsMicroMcc}{0.265}
+\newcommand{\humCandBlobBestAbsSignal}{\texttt{cc\_max}}
+\newcommand{\humCandBlobBestRelMicroMcc}{0.219}
+\newcommand{\humCandBlobBestRelSignal}{\texttt{tokens\_max}}
+\newcommand{\humCandBlobTopPooledAuc}{0.769}
+\newcommand{\humCandLongMethodBestAbsMicroMcc}{0.785}
+\newcommand{\humCandLongMethodBestAbsSignal}{\texttt{mi}}
+\newcommand{\humCandLongMethodBestRelMicroMcc}{0.617}
+\newcommand{\humCandLongMethodBestRelSignal}{\texttt{cc}}
+\newcommand{\humCandLongMethodCcAbsMicroMcc}{0.674}
+\newcommand{\humCandLongMethodCcRelMicroMcc}{0.617}
+\newcommand{\humCandLongMethodCognitiveAbsMicroMcc}{0.681}
+\newcommand{\humCandLongMethodCognitiveRelMicroMcc}{0.601}
+\newcommand{\humCandLongMethodMaxGap}{0.08}
+\newcommand{\humCandLongMethodTopPooledAuc}{0.933}
 \newcommand{\humComputedUtc}{2026-10-22 10:03:52 UTC}
 \newcommand{\humLmLabelled}{239}
 \newcommand{\humLmMeasured}{228}
@@ -689,12 +727,12 @@
 \newcommand{\humLongMethodAllMacroFpr}{+0.032}
 \newcommand{\humLongMethodAllMacroFprCI}{[+0.000, +0.069]}
 \newcommand{\humLongMethodAllMacroFprVerdict}{inconclusive}
-\newcommand{\humLongMethodAllMacroMcc}{-0.358}
-\newcommand{\humLongMethodAllMacroMccCI}{[-0.473, -0.242]}
+\newcommand{\humLongMethodAllMacroMcc}{$-$0.358}
+\newcommand{\humLongMethodAllMacroMccCI}{[$-$0.473, $-$0.242]}
 \newcommand{\humLongMethodAllMacroMccVerdict}{inferior}
 \newcommand{\humLongMethodAllMargin}{0.100}
-\newcommand{\humLongMethodAllMicroMcc}{-0.362}
-\newcommand{\humLongMethodAllMicroMccCI}{[-0.492, -0.242]}
+\newcommand{\humLongMethodAllMicroMcc}{$-$0.362}
+\newcommand{\humLongMethodAllMicroMccCI}{[$-$0.492, $-$0.242]}
 \newcommand{\humLongMethodAllMicroMccVerdict}{inferior}
 \newcommand{\humLongMethodAllMinPosCo}{8}
 \newcommand{\humLongMethodAllMinPosEx}{13}
@@ -704,8 +742,8 @@
 \newcommand{\humLongMethodAllNPaired}{192}
 \newcommand{\humLongMethodAllNPairedMacro}{69}
 \newcommand{\humLongMethodAllNPos}{113}
-\newcommand{\humLongMethodAllPooledAucDiff}{-0.069}
-\newcommand{\humLongMethodAllPooledAucDiffCI}{[-0.098, -0.046]}
+\newcommand{\humLongMethodAllPooledAucDiff}{$-$0.069}
+\newcommand{\humLongMethodAllPooledAucDiffCI}{[$-$0.098, $-$0.046]}
 \newcommand{\humLongMethodAllPooledAucRaw}{0.986}
 \newcommand{\humLongMethodAllPooledAucReading}{absolute ranking better}
 \newcommand{\humLongMethodAllPooledAucStd}{0.917}
@@ -749,14 +787,14 @@
 \newcommand{\humLongMethodPosCut}{50.63}
 \newcommand{\humLongMethodPosExploreLevel}{0.388}
 \newcommand{\humLongMethodPosMacroFpr}{+0.010}
-\newcommand{\humLongMethodPosMacroFprCI}{[-0.019, +0.041]}
+\newcommand{\humLongMethodPosMacroFprCI}{[$-$0.019, +0.041]}
 \newcommand{\humLongMethodPosMacroFprVerdict}{non-inferior}
-\newcommand{\humLongMethodPosMacroMcc}{-0.358}
-\newcommand{\humLongMethodPosMacroMccCI}{[-0.473, -0.242]}
+\newcommand{\humLongMethodPosMacroMcc}{$-$0.358}
+\newcommand{\humLongMethodPosMacroMccCI}{[$-$0.473, $-$0.242]}
 \newcommand{\humLongMethodPosMacroMccVerdict}{inferior}
 \newcommand{\humLongMethodPosMargin}{0.100}
-\newcommand{\humLongMethodPosMicroMcc}{-0.325}
-\newcommand{\humLongMethodPosMicroMccCI}{[-0.465, -0.185]}
+\newcommand{\humLongMethodPosMicroMcc}{$-$0.325}
+\newcommand{\humLongMethodPosMicroMccCI}{[$-$0.465, $-$0.185]}
 \newcommand{\humLongMethodPosMicroMccVerdict}{inferior}
 \newcommand{\humLongMethodPosMinPosCo}{8}
 \newcommand{\humLongMethodPosMinPosEx}{13}
@@ -766,8 +804,8 @@
 \newcommand{\humLongMethodPosNPaired}{69}
 \newcommand{\humLongMethodPosNPairedMacro}{69}
 \newcommand{\humLongMethodPosNPos}{113}
-\newcommand{\humLongMethodPosPooledAucDiff}{-0.057}
-\newcommand{\humLongMethodPosPooledAucDiffCI}{[-0.098, -0.026]}
+\newcommand{\humLongMethodPosPooledAucDiff}{$-$0.057}
+\newcommand{\humLongMethodPosPooledAucDiffCI}{[$-$0.098, $-$0.026]}
 \newcommand{\humLongMethodPosPooledAucRaw}{0.987}
 \newcommand{\humLongMethodPosPooledAucReading}{absolute ranking better}
 \newcommand{\humLongMethodPosPooledAucStd}{0.929}
@@ -800,12 +838,12 @@
 \newcommand{\mlcqApacheShare}{50.2\%}
 \newcommand{\mlcqBlob}{254}
 \newcommand{\mlcqBlobReviewed}{2{,}334}
-\newcommand{\mlcqBrainMicroMcc}{-0.166}
-\newcommand{\mlcqBrainMicroMccCI}{[-0.333, -0.080]}
+\newcommand{\mlcqBrainMicroMcc}{$-$0.166}
+\newcommand{\mlcqBrainMicroMccCI}{[$-$0.333, $-$0.080]}
 \newcommand{\mlcqBrainSignal}{\texttt{cognitive}}
 \newcommand{\mlcqBrainVerdict}{inferior}
-\newcommand{\mlcqDecorMicroMcc}{-0.082}
-\newcommand{\mlcqDecorMicroMccCI}{[-0.115, -0.052]}
+\newcommand{\mlcqDecorMicroMcc}{$-$0.082}
+\newcommand{\mlcqDecorMicroMccCI}{[$-$0.115, $-$0.052]}
 \newcommand{\mlcqDecorSignal}{\texttt{nloc\_max}}
 \newcommand{\mlcqDecorVerdict}{inconclusive}
 \newcommand{\mlcqErrors}{2}
@@ -813,8 +851,8 @@
 \newcommand{\mlcqHarnessCommit}{7b52774}
 \newcommand{\mlcqLm}{276}
 \newcommand{\mlcqLmReviewed}{2{,}430}
-\newcommand{\mlcqNpathMicroMcc}{-0.262}
-\newcommand{\mlcqNpathMicroMccCI}{[-0.290, -0.232]}
+\newcommand{\mlcqNpathMicroMcc}{$-$0.262}
+\newcommand{\mlcqNpathMicroMccCI}{[$-$0.290, $-$0.232]}
 \newcommand{\mlcqNpathSignal}{\texttt{cc}}
 \newcommand{\mlcqNpathVerdict}{inferior}
 \newcommand{\mlcqOwners}{28}
@@ -839,22 +877,22 @@
 \newcommand{\mlcqPmdCarryCo}{244}
 \newcommand{\mlcqPmdCut}{17}
 \newcommand{\mlcqPmdMacroFpr}{+0.007}
-\newcommand{\mlcqPmdMacroFprCI}{[-0.005, +0.018]}
+\newcommand{\mlcqPmdMacroFprCI}{[$-$0.005, +0.018]}
 \newcommand{\mlcqPmdMacroFprVerdict}{non-inferior}
-\newcommand{\mlcqPmdMacroMcc}{-0.020}
-\newcommand{\mlcqPmdMacroMccCI}{[-0.039, -0.003]}
+\newcommand{\mlcqPmdMacroMcc}{$-$0.020}
+\newcommand{\mlcqPmdMacroMccCI}{[$-$0.039, $-$0.003]}
 \newcommand{\mlcqPmdMacroMccPosN}{222}
 \newcommand{\mlcqPmdMacroMccVerdict}{non-inferior}
 \newcommand{\mlcqPmdMargin}{0.10}
-\newcommand{\mlcqPmdMicroMcc}{-0.098}
-\newcommand{\mlcqPmdMicroMccCI}{[-0.151, -0.063]}
+\newcommand{\mlcqPmdMicroMcc}{$-$0.098}
+\newcommand{\mlcqPmdMicroMccCI}{[$-$0.151, $-$0.063]}
 \newcommand{\mlcqPmdMicroMccVerdict}{inconclusive}
 \newcommand{\mlcqPmdMinPosCo}{198}
 \newcommand{\mlcqPmdNGodFree}{22}
 \newcommand{\mlcqPmdNNeg}{150{,}049}
 \newcommand{\mlcqPmdNPos}{12{,}465}
-\newcommand{\mlcqPmdPooledAucDiff}{-0.045}
-\newcommand{\mlcqPmdPooledAucDiffCI}{[-0.080, -0.024]}
+\newcommand{\mlcqPmdPooledAucDiff}{$-$0.045}
+\newcommand{\mlcqPmdPooledAucDiffCI}{[$-$0.080, $-$0.024]}
 \newcommand{\mlcqPmdPooledAucRaw}{0.925}
 \newcommand{\mlcqPmdPooledAucReading}{absolute ranking better}
 \newcommand{\mlcqPmdPooledAucStd}{0.880}
@@ -913,19 +951,19 @@
 \newcommand{\npathMacroFpr}{+0.052}
 \newcommand{\npathMacroFprCI}{[+0.047, +0.057]}
 \newcommand{\npathMacroFprVerdict}{inconclusive}
-\newcommand{\npathMacroMcc}{-0.256}
-\newcommand{\npathMacroMccCI}{[-0.308, -0.204]}
+\newcommand{\npathMacroMcc}{$-$0.256}
+\newcommand{\npathMacroMccCI}{[$-$0.308, $-$0.204]}
 \newcommand{\npathMacroMccVerdict}{inferior}
 \newcommand{\npathMargin}{0.098}
-\newcommand{\npathMicroMcc}{-0.331}
-\newcommand{\npathMicroMccCI}{[-0.380, -0.284]}
+\newcommand{\npathMicroMcc}{$-$0.331}
+\newcommand{\npathMicroMccCI}{[$-$0.380, $-$0.284]}
 \newcommand{\npathMicroMccVerdict}{inferior}
 \newcommand{\npathMinPosCo}{51}
 \newcommand{\npathNGodFree}{21}
 \newcommand{\npathNNeg}{587{,}282}
 \newcommand{\npathNPos}{2{,}610}
-\newcommand{\npathPooledAucDiff}{-0.004}
-\newcommand{\npathPooledAucDiffCI}{[-0.007, -0.002]}
+\newcommand{\npathPooledAucDiff}{$-$0.004}
+\newcommand{\npathPooledAucDiffCI}{[$-$0.007, $-$0.002]}
 \newcommand{\npathPooledAucRaw}{0.997}
 \newcommand{\npathPooledAucReading}{absolute ranking better}
 \newcommand{\npathPooledAucStd}{0.993}
@@ -1004,14 +1042,14 @@
 \newcommand{\primMacroFprCI}{[+0.027, +0.056]}
 \newcommand{\primMacroFprN}{84}
 \newcommand{\primMacroFprVerdict}{inconclusive}
-\newcommand{\primMacroMcc}{-0.009}
-\newcommand{\primMacroMccCI}{[-0.057, +0.040]}
+\newcommand{\primMacroMcc}{$-$0.009}
+\newcommand{\primMacroMccCI}{[$-$0.057, +0.040]}
 \newcommand{\primMacroMccN}{63}
 \newcommand{\primMacroMccPosN}{63}
 \newcommand{\primMacroMccVerdict}{non-inferior}
 \newcommand{\primMargin}{0.10}
-\newcommand{\primMicroMcc}{-0.028}
-\newcommand{\primMicroMccCI}{[-0.068, +0.005]}
+\newcommand{\primMicroMcc}{$-$0.028}
+\newcommand{\primMicroMccCI}{[$-$0.068, +0.005]}
 \newcommand{\primMicroMccN}{84}
 \newcommand{\primMicroMccVerdict}{non-inferior}
 \newcommand{\primMinPosCo}{51}
@@ -1019,8 +1057,8 @@
 \newcommand{\primNGodFree}{21}
 \newcommand{\primNNeg}{57{,}248}
 \newcommand{\primNPos}{3{,}115}
-\newcommand{\primPooledAucDiff}{-0.020}
-\newcommand{\primPooledAucDiffCI}{[-0.033, -0.008]}
+\newcommand{\primPooledAucDiff}{$-$0.020}
+\newcommand{\primPooledAucDiffCI}{[$-$0.033, $-$0.008]}
 \newcommand{\primPooledAucRaw}{0.923}
 \newcommand{\primPooledAucReading}{absolute ranking better}
 \newcommand{\primPooledAucStd}{0.903}
@@ -1085,7 +1123,7 @@
 \newcommand{\studySha}{3eaee366f33f}
 \newcommand{\totalFiles}{260{,}216}
 \newcommand{\totalFunctions}{2{,}699{,}093}
-\newcommand{\transferComputedUtc}{2026-10-22 10:04:27 UTC}
+\newcommand{\transferComputedUtc}{2026-10-22 16:59:08 UTC}
 \newcommand{\transferMainAbsOtherFlagged}{4{,}659}
 \newcommand{\transferMainAbsOtherMacroFpr}{0.063}
 \newcommand{\transferMainAbsOtherMacroFprPct}{6.3\%}
@@ -1111,24 +1149,50 @@
 \newcommand{\transferMainOtherCut}{17}
 \newcommand{\transferMainOtherMinusOwnMacroFpr}{+0.026}
 \newcommand{\transferMainOtherMinusOwnMacroFprCI}{[+0.020, +0.032]}
+\newcommand{\transferMainOtherMinusOwnMacroFprVerdict}{non-inferior}
 \newcommand{\transferMainOtherMinusOwnMacroMcc}{+0.022}
-\newcommand{\transferMainOtherMinusOwnMacroMccCI}{[-0.012, +0.058]}
+\newcommand{\transferMainOtherMinusOwnMacroMccCI}{[$-$0.012, +0.058]}
+\newcommand{\transferMainOtherMinusOwnMacroMccVerdict}{non-inferior}
 \newcommand{\transferMainOtherMinusOwnMicroMcc}{+0.015}
-\newcommand{\transferMainOtherMinusOwnMicroMccCI}{[-0.003, +0.034]}
+\newcommand{\transferMainOtherMinusOwnMicroMccCI}{[$-$0.003, +0.034]}
+\newcommand{\transferMainOtherMinusOwnMicroMccVerdict}{non-inferior}
+\newcommand{\transferMainOtherMinusOwnVerdict}{non-inferior}
 \newcommand{\transferMainOwnCut}{22}
+\newcommand{\transferMainOwnZCut}{2.75}
 \newcommand{\transferMainRelFlagged}{6{,}129}
 \newcommand{\transferMainRelMacroFpr}{0.079}
 \newcommand{\transferMainRelMacroFprPct}{7.9\%}
 \newcommand{\transferMainRelMacroMcc}{0.371}
 \newcommand{\transferMainRelMicroMcc}{0.378}
 \newcommand{\transferMainRelMinusOtherMacroFpr}{+0.016}
-\newcommand{\transferMainRelMinusOtherMacroFprCI}{[-0.003, +0.033]}
-\newcommand{\transferMainRelMinusOtherMacroMcc}{-0.030}
-\newcommand{\transferMainRelMinusOtherMacroMccCI}{[-0.062, +0.002]}
-\newcommand{\transferMainRelMinusOtherMicroMcc}{-0.043}
-\newcommand{\transferMainRelMinusOtherMicroMccCI}{[-0.080, -0.008]}
+\newcommand{\transferMainRelMinusOtherMacroFprCI}{[$-$0.003, +0.033]}
+\newcommand{\transferMainRelMinusOtherMacroFprVerdict}{non-inferior}
+\newcommand{\transferMainRelMinusOtherMacroMcc}{$-$0.030}
+\newcommand{\transferMainRelMinusOtherMacroMccCI}{[$-$0.062, +0.002]}
+\newcommand{\transferMainRelMinusOtherMacroMccVerdict}{non-inferior}
+\newcommand{\transferMainRelMinusOtherMicroMcc}{$-$0.043}
+\newcommand{\transferMainRelMinusOtherMicroMccCI}{[$-$0.080, $-$0.008]}
+\newcommand{\transferMainRelMinusOtherMicroMccVerdict}{non-inferior}
+\newcommand{\transferMainRelMinusOtherVerdict}{non-inferior}
 \newcommand{\transferMainRelPrecision}{0.30}
 \newcommand{\transferMainRelRecall}{0.59}
+\newcommand{\transferMainRelTunedFlagged}{7{,}665}
+\newcommand{\transferMainRelTunedMacroFpr}{0.102}
+\newcommand{\transferMainRelTunedMacroFprPct}{10.2\%}
+\newcommand{\transferMainRelTunedMacroMcc}{0.396}
+\newcommand{\transferMainRelTunedMicroMcc}{0.380}
+\newcommand{\transferMainRelTunedPrecision}{0.27}
+\newcommand{\transferMainRelTunedRecall}{0.67}
+\newcommand{\transferMainTunedMinusOwnMacroFpr}{+0.064}
+\newcommand{\transferMainTunedMinusOwnMacroFprCI}{[+0.049, +0.079]}
+\newcommand{\transferMainTunedMinusOwnMacroFprVerdict}{inconclusive}
+\newcommand{\transferMainTunedMinusOwnMacroMcc}{+0.017}
+\newcommand{\transferMainTunedMinusOwnMacroMccCI}{[$-$0.038, +0.071]}
+\newcommand{\transferMainTunedMinusOwnMacroMccVerdict}{non-inferior}
+\newcommand{\transferMainTunedMinusOwnMicroMcc}{$-$0.026}
+\newcommand{\transferMainTunedMinusOwnMicroMccCI}{[$-$0.063, +0.004]}
+\newcommand{\transferMainTunedMinusOwnMicroMccVerdict}{non-inferior}
+\newcommand{\transferMainTunedMinusOwnVerdict}{inconclusive}
 \newcommand{\transferMainZCutMax}{48.4}
 \newcommand{\transferMainZCutMedian}{14.1}
 \newcommand{\transferMainZCutMin}{0.3}
@@ -1158,13 +1222,18 @@
 \newcommand{\transferMlcqOptCutQOne}{14}
 \newcommand{\transferMlcqOptCutQThree}{27}
 \newcommand{\transferMlcqOtherCut}{22}
-\newcommand{\transferMlcqOtherMinusOwnMacroFpr}{-0.028}
-\newcommand{\transferMlcqOtherMinusOwnMacroFprCI}{[-0.030, -0.025]}
-\newcommand{\transferMlcqOtherMinusOwnMacroMcc}{-0.014}
-\newcommand{\transferMlcqOtherMinusOwnMacroMccCI}{[-0.027, -0.003]}
-\newcommand{\transferMlcqOtherMinusOwnMicroMcc}{-0.007}
-\newcommand{\transferMlcqOtherMinusOwnMicroMccCI}{[-0.020, +0.006]}
+\newcommand{\transferMlcqOtherMinusOwnMacroFpr}{$-$0.028}
+\newcommand{\transferMlcqOtherMinusOwnMacroFprCI}{[$-$0.030, $-$0.025]}
+\newcommand{\transferMlcqOtherMinusOwnMacroFprVerdict}{superior}
+\newcommand{\transferMlcqOtherMinusOwnMacroMcc}{$-$0.014}
+\newcommand{\transferMlcqOtherMinusOwnMacroMccCI}{[$-$0.027, $-$0.003]}
+\newcommand{\transferMlcqOtherMinusOwnMacroMccVerdict}{non-inferior}
+\newcommand{\transferMlcqOtherMinusOwnMicroMcc}{$-$0.007}
+\newcommand{\transferMlcqOtherMinusOwnMicroMccCI}{[$-$0.020, +0.006]}
+\newcommand{\transferMlcqOtherMinusOwnMicroMccVerdict}{non-inferior}
+\newcommand{\transferMlcqOtherMinusOwnVerdict}{non-inferior}
 \newcommand{\transferMlcqOwnCut}{17}
+\newcommand{\transferMlcqOwnZCut}{2.87}
 \newcommand{\transferMlcqRelFlagged}{20{,}106}
 \newcommand{\transferMlcqRelMacroFpr}{0.087}
 \newcommand{\transferMlcqRelMacroFprPct}{8.7\%}
@@ -1172,12 +1241,33 @@
 \newcommand{\transferMlcqRelMicroMcc}{0.385}
 \newcommand{\transferMlcqRelMinusOtherMacroFpr}{+0.035}
 \newcommand{\transferMlcqRelMinusOtherMacroFprCI}{[+0.023, +0.044]}
-\newcommand{\transferMlcqRelMinusOtherMacroMcc}{-0.006}
-\newcommand{\transferMlcqRelMinusOtherMacroMccCI}{[-0.025, +0.011]}
-\newcommand{\transferMlcqRelMinusOtherMicroMcc}{-0.091}
-\newcommand{\transferMlcqRelMinusOtherMicroMccCI}{[-0.151, -0.053]}
+\newcommand{\transferMlcqRelMinusOtherMacroFprVerdict}{non-inferior}
+\newcommand{\transferMlcqRelMinusOtherMacroMcc}{$-$0.006}
+\newcommand{\transferMlcqRelMinusOtherMacroMccCI}{[$-$0.025, +0.011]}
+\newcommand{\transferMlcqRelMinusOtherMacroMccVerdict}{non-inferior}
+\newcommand{\transferMlcqRelMinusOtherMicroMcc}{$-$0.091}
+\newcommand{\transferMlcqRelMinusOtherMicroMccCI}{[$-$0.151, $-$0.053]}
+\newcommand{\transferMlcqRelMinusOtherMicroMccVerdict}{inconclusive}
+\newcommand{\transferMlcqRelMinusOtherVerdict}{inconclusive}
 \newcommand{\transferMlcqRelPrecision}{0.35}
 \newcommand{\transferMlcqRelRecall}{0.56}
+\newcommand{\transferMlcqRelTunedFlagged}{24{,}488}
+\newcommand{\transferMlcqRelTunedMacroFpr}{0.110}
+\newcommand{\transferMlcqRelTunedMacroFprPct}{11.0\%}
+\newcommand{\transferMlcqRelTunedMacroMcc}{0.371}
+\newcommand{\transferMlcqRelTunedMicroMcc}{0.387}
+\newcommand{\transferMlcqRelTunedPrecision}{0.32}
+\newcommand{\transferMlcqRelTunedRecall}{0.63}
+\newcommand{\transferMlcqTunedMinusOwnMacroFpr}{+0.030}
+\newcommand{\transferMlcqTunedMinusOwnMacroFprCI}{[+0.017, +0.041]}
+\newcommand{\transferMlcqTunedMinusOwnMacroFprVerdict}{non-inferior}
+\newcommand{\transferMlcqTunedMinusOwnMacroMcc}{$-$0.019}
+\newcommand{\transferMlcqTunedMinusOwnMacroMccCI}{[$-$0.037, $-$0.001]}
+\newcommand{\transferMlcqTunedMinusOwnMacroMccVerdict}{non-inferior}
+\newcommand{\transferMlcqTunedMinusOwnMicroMcc}{$-$0.096}
+\newcommand{\transferMlcqTunedMinusOwnMicroMccCI}{[$-$0.150, $-$0.061]}
+\newcommand{\transferMlcqTunedMinusOwnMicroMccVerdict}{inconclusive}
+\newcommand{\transferMlcqTunedMinusOwnVerdict}{inconclusive}
 \newcommand{\transferMlcqZCutMax}{171.3}
 \newcommand{\transferMlcqZCutMedian}{18.6}
 \newcommand{\transferMlcqZCutMin}{1.0}

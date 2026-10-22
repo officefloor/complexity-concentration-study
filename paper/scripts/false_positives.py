@@ -16,8 +16,10 @@ own extra flags for comparison.
 A. The component breakdown, over EVERY unit of each group (nothing sampled): the share that
    passes PMD's size clause (WMC >= 47, the registered wmc47 definition), the share a coupling
    component marks (CK CBO >= 14 or PMD CouplingBetweenObjects), the share a cohesion component
-   marks (CK TCC < 1/3 or LCOM* >= 0.8), the share with neither, and the medians of the raw
-   signal, lines and method count. A GodClass is WMC >= 47 AND ATFD > few AND TCC < 1/3, so an
+   marks (CK TCC < 1/3 or LCOM* >= 0.8), the share with neither, the share whose most complex
+   method reaches 15 on the harness's cognitive estimate (PMD's own method-level
+   CognitiveComplexity threshold: a file holding one method PMD would flag as too complex),
+   and the medians of the raw signal, lines and method count. A GodClass is WMC >= 47 AND ATFD > few AND TCC < 1/3, so an
    extra flag that passes the size clause failed on data access or cohesion, and one that does
    not was never a candidate on size. Shares carry a repository bootstrap interval.
 B. The reading sample: --n-fp false positives and --n-tp true positives drawn with --seed,
@@ -55,6 +57,7 @@ Z_CUT = 3.5
 SIGNAL = "cognitive_max"
 ORACLE = "pmd_GodClass"
 COUPLED = ("ck_CBOhigh", "pmd_CouplingBetweenObjects")
+COGNITIVE_METHOD_THRESHOLD = 15  # PMD CognitiveComplexity reportLevel; cognitive_max is the file's most complex method
 LOW_COHESION = ("ck_TCClow", "ck_LCOM")
 GROUPS = ("tp", "fp", "fn", "neither", "abs_fp")
 
@@ -139,6 +142,7 @@ def median(xs):
 
 
 SHARES = (("wmc47", lambda u: u["wmc47"]), ("coupled", lambda u: u["coupled"]),
+          ("cognitive15", lambda u: u["raw"] >= COGNITIVE_METHOD_THRESHOLD),
           ("low_cohesion", lambda u: u["low_cohesion"]),
           ("wmc47_and_coupled", lambda u: u["wmc47"] and u["coupled"]),
           ("neither_coupled_nor_low_cohesion", lambda u: not u["coupled"] and not u["low_cohesion"]),

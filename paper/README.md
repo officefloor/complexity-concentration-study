@@ -52,14 +52,17 @@ read-out and the exploratory agreement are computed here, and the paper says so 
 - `scripts/agreement.py` computes the exploratory agreement on the same reviewed units; the
   harness's step 5a output, scored over every Java class, is superseded by it;
 - `scripts/transfer.py` reads the explore-tuned cutoff of each population on the other's
-  confirm half (the comparison the plan never made), from the per-unit distributions the two
-  extractors keep (`dist` in `main.json`, `pmd_dist` in `mlcq.json`);
+  confirm half (the comparison the plan never made), and the relative cut tuned on each
+  population against that population's tuned cutoff on the plan's three arms (tuned against
+  tuned, the comparison that separates the standardised axis from the constant 3.5), from the
+  per-unit distributions the two extractors keep (`dist` in `main.json`, `pmd_dist` in
+  `mlcq.json`);
 - `scripts/false_positives.py` characterises every extra flag of the relative rule, draws the
   blinded reading sample and merges the readings; `scripts/fp_reading.py` prepares the
   author's reading and runs the model readers as blind `claude -p` sessions. `readings/` holds every reader's decisions, the one
   input no script reproduces, and is committed.
 
-All four were added after the first draft was reviewed, and the paper labels each exploratory.
+All five read-outs were added after drafts were reviewed, and the paper labels each exploratory (Section 6).
 
 `scripts/check_extract.py` shows the paper's reduction reproduces the harness's numbers on the
 main run to nine decimals, so the human read-out rests on the same code path.

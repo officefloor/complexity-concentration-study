@@ -5,7 +5,7 @@ Every number the paper prints is produced by a script under paper/scripts/ (in t
 repository, https://github.com/officefloor/complexity-concentration-study; the scripts are not
 part of this ancillary bundle) from the harness's analysis files (anc/main-run/analysis.json,
 anc/mlcq-run/analysis.json, the exploratory re-analysis and the classpath reports) and from the
-paper's own reductions of the per-unit sidecars (anc/paper/human.json, agreement.json, transfer.json, false_positives.json). No number is typed by hand: main.tex
+paper's own reductions of the per-unit sidecars (anc/paper/human.json, agreement.json, transfer.json, false_positives.json). No number the study computes is typed by hand (literature constants and the superseded harness agreement's figures are the exceptions): main.tex
 quotes macros from generated/numbers.tex and includes tables from generated/tab_*.tex, both
 written by scripts/tables.py; the figures are written by scripts/figures.py. If a script's
 output ever disagrees with the prose, the script is the authority.
@@ -43,7 +43,8 @@ TABLES (generated/), in the order the paper places them
   tab_secondary             the three secondaries (Section 5.3)
   tab_friedman              Friedman tests, both runs (Section 5.4)
   tab_classpath             the classpath reports under main-run/classpath/ (Section 5.5)
-  tab_transfer              the cutoff carried across populations, transfer.json (Section 5.7)
+  tab_transfer              the cutoff carried across populations and the relative cut tuned on
+                            each population (tuned against tuned), transfer.json (Section 5.7)
   tab_confirm_human_class_all, tab_confirm_human_method_all      human.json (Section 5.8)
   tab_agreement             agreement.json (Section 5.8; tab_agreement_groups is also written)
   tab_fp_breakdown          false_positives.json (Section 5.9); tab_fp_readings once readings exist
@@ -65,9 +66,13 @@ INLINE NUMBERS
   Every inline number is a macro in generated/numbers.tex (about 1,100 of them), named by its source:
   prim* (the primary), npath*/decor*/brain* (secondaries), mlcqPmd* (the plan on MLCQ's
   population), humBlob*/humLongMethod* with All/Pos (the human read-out, both populations),
-  agrBlob*/agrLm* (the agreement, with RelMinus* the paired differences), transfer* (the cutoff
-  carried across populations), fp* (the false positives: fpTp*/fpFp*/fpFn*/fpNeither*/fpAbsFp*
-  the component breakdown, fpRead*/fpKappa* the reading), sizeRho* (the size correlations),
-  calib*, scale*, trivial*, flag*, cp* (classpath), sample*, javaFiles*, mlcq* (coverage), fried*. `grep newcommand generated/numbers.tex` lists them with their values.
+  agrBlob*/agrLm* (the agreement, with RelMinus* the paired differences and *MaxMcc the best any
+  detector reaches), transfer* (the cutoff carried across populations: *RelMinusOther*,
+  *OtherMinusOwn*, and *TunedMinusOwn* the tuned relative cut against the tuned cutoff with the
+  plan's verdict on each arm), humCand* (the numbers quoted from the candidate tables), fp* (the false positives: fpTp*/fpFp*/fpFn*/fpNeither*/fpAbsFp*
+  the component breakdown, fpRead*/fpKappa* the reading, fpModelReadDate the model reader's run date, *CognitiveOneFive*
+  the share at PMD's method-level cognitive threshold), sizeRho* (the size correlations),
+  calib*, scale*, trivial*, flag*, cp* (classpath, with cpMaxFlipsRepo*/cpRateExclMax the one repository that carries most flips
+  and the rate without it), sample*, javaFiles*, mlcq* (coverage), fried*. `grep newcommand generated/numbers.tex` lists them with their values.
   Dates and commit identifiers in the timeline paragraph are provenance from the harness
   repository's git history and the analysis files' `analysed_utc` fields.

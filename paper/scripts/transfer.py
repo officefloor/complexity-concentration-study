@@ -12,6 +12,8 @@ script reads each population's confirm half three ways, on the primary signal (c
 against PMD GodClass, all on the Java class units the plan fits on:
 
   rel        the relative rule at its literature default, modified z >= 3.5 (no tuning at all);
+  rel_tuned  the relative rule at the z-cut tuned on THIS population's explore half (the plan's
+             secondary), the one row that isolates the axis from the constant: tuned against tuned;
   abs_own    the absolute cutoff tuned on THIS population's explore half (the plan's competitor);
   abs_other  the absolute cutoff tuned on the OTHER population's explore half, carried across
              unchanged: what a constant shipped from one corpus does on another.
@@ -20,7 +22,8 @@ For each, the plan's three arms (micro MCC, macro MCC over repositories with a p
 FPR over every repository carrying the definition), and two paired repository bootstraps per
 population: rel minus abs_other (the relative rule against a constant that did not get to see
 this population) and abs_other minus abs_own (the cost of carrying the constant across). Beside
-them, how much a per-repository optimum moves: the cutoff that maximises each confirm
+them, rel_tuned minus abs_own (the standardised axis against the raw axis, both tuned the
+same way on the same explore half). Beside them, how much a per-repository optimum moves: the cutoff that maximises each confirm
 repository's own MCC (repositories with >= 3 positives), and the raw value at which the relative
 rule's constant falls in each repository (its implied cutoff). The two tuned cutoffs are
 re-derived from the explore pools and checked against the harness's analysis files.
@@ -49,6 +52,12 @@ def tuned_cut(results_dir: str) -> float:
     return float(a["primary"][ORACLE]["confirm"]["absolute_cutoff"]["cut"])
 
 
+def tuned_z(results_dir: str) -> float:
+    """The relative cut tuned on the explore half, the plan's secondary (relative_tuned)."""
+    a = common.load_json(os.path.join(results_dir, "analysis.json"))
+    return float(a["primary"][ORACLE]["confirm"]["relative_tuned"]["z_cut"])
+
+
 def dists(data: dict, key: str) -> dict:
     """{repo: dist} for every usable repository carrying the definition, with its half."""
     rows = {r["repo"]: r for r in data["rows"]}
@@ -69,10 +78,13 @@ def confusion(flagged: list[bool], god: set, n: int) -> dict:
             "n_univ": n, "n_out": tp + fp, "n_overlap": tp, "n_god_univ": tp + fn}
 
 
-def item_of(d: dict, own_cut: float, other_cut: float) -> dict:
+def item_of(d: dict, own_cut: float, other_cut: float, own_z: float) -> dict:
     n = len(d["raw"])
     return {"n_pos": len(d["god"]),
             "rel": confusion([z >= Z_CUT for z in d["z"]], d["god"], n),
+            # the extractors store z to four decimals, and a tuned cut is an observed z, so a unit
+            # that ties the cut exactly can round below it: flag within half a rounding unit
+            "rel_tuned": confusion([z >= own_z - 0.00005 for z in d["z"]], d["god"], n),
             "abs_own": confusion([x >= own_cut for x in d["raw"]], d["god"], n),
             "abs_other": confusion([x >= other_cut for x in d["raw"]], d["god"], n)}
 
@@ -140,16 +152,17 @@ def implied_cut(d: dict) -> float | None:
     return x1 + (Z_CUT - z1) * (x2 - x1) / (z2 - z1)
 
 
-def analyse(name: str, D: dict, own_cut: float, other_cut: float, p) -> dict:
+def analyse(name: str, D: dict, own_cut: float, other_cut: float, own_z: float, p) -> dict:
     explore = [(x, k in d["god"]) for d in D.values() if d["half"] == "explore" for k, x in enumerate(d["raw"])]
     rederived = stats.best_cutoff(explore)
     confirm = {repo: d for repo, d in D.items() if d["half"] == "confirm"}
-    items = [item_of(d, own_cut, other_cut) for d in confirm.values()]
-    res = {"own_cut": own_cut, "other_cut": other_cut,
+    items = [item_of(d, own_cut, other_cut, own_z) for d in confirm.values()]
+    res = {"own_cut": own_cut, "other_cut": other_cut, "own_z_cut": own_z,
            "rederived_cut": rederived["cut"] if rederived else None,
            "n_confirm_repos": len(items), "n_confirm_repos_with_positive": sum(1 for it in items if it["n_pos"] >= 1),
-           "rules": {k: summary(items, k) for k in ("rel", "abs_own", "abs_other")},
+           "rules": {k: summary(items, k) for k in ("rel", "rel_tuned", "abs_own", "abs_other")},
            "rel_minus_abs_other": paired(items, "rel", "abs_other"),
+           "rel_tuned_minus_abs_own": paired(items, "rel_tuned", "abs_own"),
            "abs_other_minus_abs_own": paired(items, "abs_other", "abs_own"),
            "per_repo_optimal_cut": None, "implied_cut_of_z35": None}
     opt = []
@@ -161,12 +174,13 @@ def analyse(name: str, D: dict, own_cut: float, other_cut: float, p) -> dict:
     res["per_repo_optimal_cut"] = quantiles(opt)
     res["implied_cut_of_z35"] = quantiles([c for c in (implied_cut(d) for d in confirm.values()) if c is not None])
     p(f"\n[{name}] confirm: {len(items)} repositories carrying PMD GodClass, own cut {own_cut:g} "
-      f"(re-derived from the explore pool: {res['rederived_cut']}), other population's cut {other_cut:g}")
-    for k in ("rel", "abs_own", "abs_other"):
+      f"(re-derived from the explore pool: {res['rederived_cut']}), other population's cut {other_cut:g}, "
+      f"tuned relative cut z >= {own_z:.3f}")
+    for k in ("rel", "rel_tuned", "abs_own", "abs_other"):
         m = res["rules"][k]
         p(f"   {k:10} micro MCC {m['micro_mcc']:.3f}  macro MCC {m['macro_mcc']:.3f}  macro FPR {m['macro_fpr']:.3f}  "
           f"precision {m['precision']:.2f} recall {m['recall']:.2f}  flagged {m['flagged']}")
-    for lab in ("rel_minus_abs_other", "abs_other_minus_abs_own"):
+    for lab in ("rel_minus_abs_other", "abs_other_minus_abs_own", "rel_tuned_minus_abs_own"):
         for arm, b in res[lab].items():
             p(f"   {lab:24} {arm:9} {b['value']:+.3f} [{b['lo']:+.3f}, {b['hi']:+.3f}]" if b else f"   {lab} {arm} n/a")
     for lab in ("per_repo_optimal_cut", "implied_cut_of_z35"):
@@ -188,13 +202,14 @@ def main(argv=None) -> int:
     if "pmd_dist" not in mlcq_data:
         raise SystemExit("data/mlcq.json has no pmd_dist: re-run extract_mlcq.py")
     main_cut, mlcq_cut = tuned_cut(args.main), tuned_cut(args.mlcq)
+    main_z, mlcq_z = tuned_z(args.main), tuned_z(args.mlcq)
     p = print
     p("EXPLORATORY (not in PLAN.md): the absolute cutoff carried between populations, against the "
       f"relative rule at its default; signal {SIGNAL}, oracle {ORACLE}")
     out = {"exploratory": True, "signal": SIGNAL, "oracle": ORACLE, "z_cut": Z_CUT, "bootstrap": BOOT,
            "computed_utc": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-           "runs": {"main": analyse("main run", dists(main_data, "class"), main_cut, mlcq_cut, p),
-                    "mlcq": analyse("MLCQ", dists(mlcq_data, "pmd_dist"), mlcq_cut, main_cut, p)}}
+           "runs": {"main": analyse("main run", dists(main_data, "class"), main_cut, mlcq_cut, main_z, p),
+                    "mlcq": analyse("MLCQ", dists(mlcq_data, "pmd_dist"), mlcq_cut, main_cut, mlcq_z, p)}}
     for name, r in out["runs"].items():
         if r["rederived_cut"] is not None and abs(r["rederived_cut"] - r["own_cut"]) > 1e-9:
             print(f"WARNING: {name}: re-derived explore cutoff {r['rederived_cut']} != analysis.json's {r['own_cut']}",
