@@ -1,0 +1,362 @@
+{
+ "u005": {
+  "author": {
+   "q1": true,
+   "q2": true,
+   "q3": false,
+   "q4": false,
+   "note": "createEventSet: transforms text into part-of-speech events; a typically cohesive implementation for a plugin"
+  }
+ },
+ "u006": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "onScrollStateChanged: an event handler that selects, plays and pauses players; it should delegate rather than contain the logic"
+  }
+ },
+ "u023": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "parseRule: does as it says, parsing route rules out of a rule string"
+  }
+ },
+ "u026": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "getMetricFromKafkaByTotalPartitionOfBrokerJmx: reaches out over JMX to collect a topic's per-broker log size metrics and returns them"
+  }
+ },
+ "u030": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "postMatch: checks whether the interceptor applies to the target and returns a match for it"
+  }
+ },
+ "u038": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "handle: handles the reconnect API message by sending reconnect messages to the management nodes and publishing the result"
+  }
+ },
+ "u041": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "serialize: serialises the procedure's state onto the data stream"
+  }
+ },
+ "u044": {
+  "author": {
+   "q1": true,
+   "q2": true,
+   "q3": false,
+   "q4": false,
+   "note": "equals: does as its name suggests, equality over the request's own fields"
+  }
+ },
+ "u045": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "parseSelectWhere: parses a WHERE clause into a condition tree; the 'select' in its name is confusing"
+  }
+ },
+ "u047": {
+  "author": {
+   "q1": true,
+   "q2": true,
+   "q3": false,
+   "q4": false,
+   "note": "addChildSymbols: adds the child symbols to the instance's def and use lists"
+  }
+ },
+ "u049": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "processPublicTransportStopArea: processes a public-transport stop area relation and collects the results"
+  }
+ },
+ "u050": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "sendBuiltResponse: writes the built response out as an SSE event"
+  }
+ },
+ "u054": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "areAllValueColumnsDeleted: iterates over the value columns to determine whether all are deleted"
+  }
+ },
+ "u067": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "preHandle: seems to render something on pre-handle"
+  }
+ },
+ "u068": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "read: seems to read content from the buffer"
+  }
+ },
+ "u074": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "unzipXWalkZip: seems to unzip content"
+  }
+ },
+ "u087": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": true,
+   "note": "clone: looks at the type and then does small actions"
+  }
+ },
+ "u088": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "rebalance: a transaction script on another object (the tree nodes) in a group of others"
+  }
+ },
+ "u091": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "onBindViewHolder: seems to take an event and dispatch further events"
+  }
+ },
+ "u093": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "findOperationForRequest: a utility search through structure"
+  }
+ },
+ "u101": {
+  "author": {
+   "q1": true,
+   "q2": true,
+   "q3": false,
+   "q4": false,
+   "note": "equals: as the name suggests"
+  }
+ },
+ "u103": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "save: seems to be wrapper logic for an entity"
+  }
+ },
+ "u113": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "remapBanListAddress: a transform"
+  }
+ },
+ "u128": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "createNextReplicaFragmentMigrationState: "
+  }
+ },
+ "u133": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "post: looks to be handling a post by doing various things"
+  }
+ },
+ "u134": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "onCreate: handles creation and a lot of theme setup"
+  }
+ },
+ "u136": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "doCompaction: seems to use another object and then process its data"
+  }
+ },
+ "u143": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "createNewBundleInternal: seems to create a zip bundle"
+  }
+ },
+ "u144": {
+  "author": {
+   "q1": true,
+   "q2": true,
+   "q3": false,
+   "q4": false,
+   "note": "createNamenodeHeartbeatServices: seems to set up heartbeat monitoring"
+  }
+ },
+ "u146": {
+  "author": {
+   "q1": false,
+   "q2": true,
+   "q3": true,
+   "q4": false,
+   "note": "tryLoadObsolete: seems to look for files as a way to drive logic"
+  }
+ },
+ "u148": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "getAllJVMProcesses: seems a collector of state"
+  }
+ },
+ "u149": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": false,
+   "q4": false,
+   "note": "doAggregation: constructs a Flux execution node"
+  }
+ },
+ "u163": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "getConversations: seems to get conversations by writing messages to the output stream"
+  }
+ },
+ "u179": {
+  "author": {
+   "q1": true,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "batchInsertIfNotExists: merges content into the database"
+  }
+ },
+ "u184": {
+  "author": {
+   "q1": true,
+   "q2": true,
+   "q3": false,
+   "q4": false,
+   "note": "factors3: seems to be try-out code"
+  }
+ },
+ "u187": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": true,
+   "note": "onEntityDamage: transaction script for a game event"
+  }
+ },
+ "u188": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": true,
+   "note": "getServiceDTOS: based on type collects results"
+  }
+ },
+ "u189": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": true,
+   "note": "createFragmentForIntent: depending on type gets data"
+  }
+ },
+ "u190": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "displayStatus: transaction script to update the view"
+  }
+ },
+ "u192": {
+  "author": {
+   "q1": false,
+   "q2": false,
+   "q3": true,
+   "q4": false,
+   "note": "complementRequest: seems to capture security context"
+  }
+ }
+}
