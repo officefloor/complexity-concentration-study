@@ -55,19 +55,19 @@ definitions and human labels}
 
 \begin{abstract}
 \noindent
-Textbook god-class and god-method detectors mark concentrated complexity with
+God-class and god-method detectors mark concentrated complexity with
 a raw-scale threshold, a weighted method count of 47 or a
 cyclomatic complexity of 14, constants that must be re-fitted when the
-population moves, as LLM coding agents, which raise complexity and gather it in
-fewer classes, may be moving it. This paper pre-registers and tests a rule with no raw-scale
+population moves, as LLM coding agents may be moving it. This paper
+pre-registers and tests a rule with no raw-scale
 constant: a unit is a god unit when its complexity is a robust outlier for its
 own codebase, a modified z-score of 3.5 or more. On \nUsable{} repositories in
 ten languages and the \mlcqUsable{} Java
-repositories of MLCQ, every unit's complexity is measured ten ways, seven
-outlier rules are fitted per repository, and the flags are scored
+repositories of MLCQ, every unit is measured ten ways, seven
+outlier rules are fitted per repository and the flags are scored
 against PMD's GodClass, an approximate DECOR Blob, PMD's NPath and MLCQ's
 reviewers, with signal and cutoff chosen on half the
-repositories, read on the other.
+repositories and read on the other.
 
 Against PMD GodClass the rule recovers god classes from the per-file maximum of
 cognitive complexity at a per-repository AUC of \primAucMacro{}, but every
@@ -75,14 +75,16 @@ point estimate favours the cutoff tuned with hindsight: standardising moves the
 pooled AUC by \primPooledAucDiff{}, and at its default the rule matches the
 cutoff's MCC within the pre-registered margin while flagging twice as many
 non-god classes. The verdict is inconclusive and replicates on MLCQ. A cutoff
-carried between populations loses almost nothing, so on this human-written code the
-re-fitting the rule saves was not needed. At method level the rule is inferior.
-Against the reviewers every detector is weak on Blob; on Long Method the
-relative rule on cyclomatic complexity has the highest point estimate,
+carried between the populations loses almost nothing: on this
+human-written code no re-fitting was needed. At method level the rule is
+inferior. Against the reviewers every detector is weak on Blob; on Long Method
+the relative rule on cyclomatic complexity has the highest point estimate,
 unresolved against cognitive complexity at 15. The rule's extra flags are small
-classes carrying one complex method, not the large coupled classes PMD marks:
-concentration finds where the complexity is, and whether that place is a god
-unit is a question about coupling, for a registered follow-on study.
+classes carrying one complex method, not the large coupled classes PMD marks;
+two blind readers of a sample agreed on little beyond whether a class
+works on other objects' data. Concentration finds where the complexity is;
+whether that place is a god unit is a question about coupling, for a
+registered follow-on study.
 \end{abstract}
 
 \section{Introduction}
@@ -190,11 +192,15 @@ This paper contributes:
 \item What the false positives are (Section~\ref{sec:fp}): every extra flag of
   the relative rule characterised by the tool definitions' own component
   clauses, and a blinded reading of a seeded sample of them beside true
-  positives. Complexity concentration locates where a codebase's complexity has
-  gathered; whether a concentration is a god unit or a leaf that legitimately
-  holds the complexity of the algorithm it computes is a question about
-  coupling, which a follow-on study, registered before the human-label numbers
-  here existed, takes up.
+  positives, by the author and by a language model. By the component clauses
+  the extra flags are small, mostly uncoupled files with one complex method.
+  The reading did not settle what they are: the two readers agreed on whether
+  a class works on other objects' data and on little else, and each read the
+  extra flags and PMD's god classes more alike than apart. Complexity
+  concentration locates where a codebase's complexity has gathered; whether a
+  concentration is a god unit or a leaf that legitimately holds the complexity
+  of the algorithm it computes is a question about coupling, which a follow-on
+  study, registered before the human-label numbers here existed, takes up.
 \end{enumerate}
 
 \section{Background and related work}
@@ -413,7 +419,7 @@ and one candidate in both draws (\sampleFailedRepos{}) could not be checked out,
 leaving \nUsable{}. The sampler classifies each candidate by its measured
 dominant language, so a candidate drawn in one language's stratum can be usable
 under another; \sampleCrossStratumN{} main-draw repositories are
-(\sampleCrossStratumLangs{}), which is why three languages exceed 30 in
+(\sampleCrossStratumLangs{}), which is why two languages exceed 30 in
 Table~\ref{tab:sample}. Ruby was not sampled because the pinned parser
 mis-bounds Ruby functions.
 
@@ -505,8 +511,9 @@ on 2026-10-19, on explore repositories only; its re-analysis
 (\reanalysedUtc{}) changed no number and is reported as a deviation
 (Section~\ref{sec:classpath}). The MLCQ run was analysed on
 \mlcqAnalysedUtc{}. The human-label read-out in Section~\ref{sec:human} was
-computed by this paper's scripts on \humComputedUtc{}
-(Section~\ref{sec:deviations}); the follow-on study
+first computed by this paper's scripts on 2026-10-20, and the regeneration of
+\humComputedUtc{} that the numbers here are printed from reproduced every one
+of them (Section~\ref{sec:deviations}); the follow-on study
 mentioned in Section~\ref{sec:disc} registered its plan before that read-out
 existed, and its plan records what of this study it had seen.
 
@@ -527,7 +534,7 @@ on; it is retained, and the primary re-read without it is identical. The
 rows sharing an owner, so the bootstrap's assumption of independent
 repositories is close to met in the main run. It is not met in the MLCQ run,
 where \mlcqTopOwner{} alone holds \mlcqTopOwnerN{} of \mlcqUsable{} repositories
-(\mlcqApacheShare{}) and 28 owners hold all of them; its intervals are
+(\mlcqApacheShare{}) and \mlcqOwners{} owners hold all of them; its intervals are
 narrower than that dependence warrants and are read with that in mind.
 
 \begin{table}[t]
@@ -814,16 +821,18 @@ positives.
 Table~\ref{tab:friedman} ranks the five pre-specified rules by per-repository
 MCC and the six pre-specified signals by per-repository AUC against PMD
 GodClass, in both runs. Among rules, the modified z-score (mean rank
-\friedRankMadZ) and Tukey's fence (\friedRankIqr) are within a critical
-difference of \friedRulesCD{} of each other and ahead of the one-sided MAD
-(\friedRankDoubleMad), the top percentile (\friedRankPctTopOne) and the
-skew-adjusted boxplot (\friedRankAdjBoxplot), over \friedRulesN{} repositories.
+\friedRankMadZ), Tukey's fence (\friedRankIqr) and the one-sided MAD
+(\friedRankDoubleMad), in that order, are within a critical difference of
+\friedRulesCD{} of one another and separated from the top percentile
+(\friedRankPctTopOne) and the skew-adjusted boxplot (\friedRankAdjBoxplot),
+over \friedRulesN{} repositories.
 Among signals, the per-file sum of lines ranks first (\friedSigRankNlocSum) and
 the method count second (\friedSigRankNom), both size; among the non-size
 signals the two peaks, \sig{cc\_max} (\friedSigRankCcMax) and
 \sig{cognitive\_max} (\friedSigRankCognitiveMax), are within the critical
 difference of \friedSignalsCD{} of each other and well ahead of the two means.
-The MLCQ run reproduces both orderings with its larger $N$.
+The MLCQ run reproduces both orderings with its larger $N$, and its smaller
+critical difference separates the one-sided MAD from the first two rules.
 
 \begin{table}[t]
 \centering
@@ -1177,9 +1186,10 @@ cutoff the extra flags are big classes that missed on data access or cohesion,
 at a relative cut they are small classes with one complex method. The typical
 extra flag of the relative rule is therefore a file of about ten methods whose
 most complex method is an outlier for its repository: a concentration of
-complexity in a small unit, which is what the rule was built to find, and not
-a class that gathers responsibilities, which is what PMD's definition is built
-to find.
+complexity in a small unit, which is what the rule was built to find, and not,
+by PMD's own components, a class that gathers responsibilities, which is what
+PMD's definition is built to find. Whether it is one to a reader is the second
+read-out's question.
 
 The second read-out reads the source. A seeded sample of \fpSampleFp{} of the
 rule's extra flags and \fpSampleTp{} of the classes it flags that PMD also
@@ -1199,9 +1209,59 @@ draw the sample and apply the mapping are in the repository; every reader's
 answers, with the units they refer to, are in the ancillary data, as are the
 recorded sessions of the language-model reader, which a script ran blind, each
 session seeing only the protocol and its batch of files.
-%% READING RESULTS: Table~\ref{tab:fp-readings} and its paragraph go here once
-%% the reading is complete (false_positives.py merges readings/fp_readings_*.json
-%% and tables.py writes tab_fp_readings.tex).
+
+\begin{table}[t]
+\centering
+\caption{Exploratory: the blinded reading of \fpSampleFp{} of the relative
+rule's extra flags and \fpSampleTp{} of its flags that PMD also marks, by the
+author on a seeded subset and by a language model on every unit, each unit's
+category given by the protocol's fixed mapping of the four answers. Leaf: one
+algorithm, one responsibility, own data. Gatherer: more than one
+responsibility, or mostly other objects' data. Table: one dispatch table.}
+\label{tab:fp-readings}
+\small
+\fitwidth{\input{generated/tab_fp_readings}}
+\end{table}
+
+Table~\ref{tab:fp-readings} gives the reading. The author read a seeded subset
+of \fpReadAuthorFpN{} extra flags and \fpReadAuthorTpN{} of PMD's god classes,
+before the model read and before either reading was scored; the model, Claude
+Fable 5.1 through the Claude Code command line (version 2.1.307), read all
+\fpSampleN{} in ten sessions of twenty files. The two readers do not agree on
+what the files are. To the author \fpReadAuthorFpGathererPct{} of the extra
+flags are gatherers and \fpReadAuthorFpLeafPct{} leaves, against
+\fpReadAuthorTpGathererPct{} and \fpReadAuthorTpLeafPct{} of PMD's god
+classes; to the model \fpReadModelFpLeafPct{} of the extra flags are leaves
+and \fpReadModelFpGathererPct{} gatherers, against \fpReadModelTpLeafPct{} and
+\fpReadModelTpGathererPct{}. Each reader puts more leaves among the extra
+flags than among PMD's god classes and more gatherers among PMD's, the
+direction the component breakdown predicts, but each reads the two groups
+more alike than apart, and on the \fpKappaAuthorModelN{} units both read they
+give the same category to \fpKappaAuthorModelAgree{}, Cohen's $\kappa$ of
+\fpKappaAuthorModel{}. The disagreement sits in one question. On whether the
+most complex method implements one algorithm the readers say yes at much the
+same rate in both groups (the author for \fpReadAuthorFpQOneYesPct{} of the
+extra flags and \fpReadAuthorTpQOneYesPct{} of PMD's god classes, the model
+for \fpReadModelFpQOneYesPct{} and \fpReadModelTpQOneYesPct{}), so the
+complexity the rule finds is, to both readers, mostly an algorithm's, god
+class or not. On whether the class has one responsibility they part: the
+author says yes for \fpReadAuthorFpQTwoYesPct{} of the extra flags and
+\fpReadAuthorTpQTwoYesPct{} of PMD's god classes, the model for
+\fpReadModelFpQTwoYesPct{} and \fpReadModelTpQTwoYesPct{}, and their $\kappa$
+on that question is \fpKappaAuthorModelQTwo{}, chance agreement. The one
+question they answer alike is whether the class works mostly on other objects'
+data ($\kappa$ \fpKappaAuthorModelQThree{}), and on it both separate the
+groups the same way, the author widely and the model narrowly: yes for
+\fpReadAuthorFpQThreeYesPct{} of the extra flags against
+\fpReadAuthorTpQThreeYesPct{} of PMD's god classes to the author, and for
+\fpReadModelFpQThreeYesPct{} against \fpReadModelTpQThreeYesPct{} to the
+model. Dispatch tables are few to both. The reading therefore does not
+establish that the extra flags are leaves. Whether a class has one
+responsibility is a judgement two readers made differently on the same files
+under the same written conventions, and the mapping turns on it; what the two
+readers could judge alike, and what separated the extra flags from PMD's god
+classes to both, is whether the class works on other objects' data, which is
+the coupling question the follow-on study measures rather than reads.
 
 \subsection{Exploratory: the whole matrix}
 
@@ -1236,9 +1296,10 @@ scripts, with the harness's statistics module and the plan's constants, on the
 reviewed units reduced from the per-unit sidecar under the registry written at
 the end of the run. The extraction is checked against the harness's own
 analysis file on the main run, where every number it reproduces agrees to nine
-decimals. The read-out was first computed on \humComputedUtc{}; nothing about
-the procedure was chosen after seeing it, and the plan it follows is the one
-tagged before the run. Two readings are reported. The plan keeps a god-free
+decimals. The read-out was first computed on 2026-10-20 and last regenerated
+on \humComputedUtc{}, with every number unchanged; nothing about the procedure
+was chosen after seeing it, and the plan it follows is the one tagged before
+the run. Two readings are reported. The plan keeps a god-free
 repository, so the paper keeps every repository with a reviewed unit at that
 level, its reviewed units being negatives the reviewers did look at; that is
 the plan-faithful reading and the one the paper quotes. Restricted to the
@@ -1288,13 +1349,22 @@ clause, their median file has \fpFpMedianNom{} methods, and a coupling
 component marks \fpFpCoupledPct{} of them against \fpTpCoupledPct{} of PMD's
 god classes; against MLCQ's reviewers one in six of them is a Blob, more than
 twice the rate among unflagged classes and less than the rate among PMD's
-flags. The reading that fits is that complexity concentration locates where a
-codebase's complexity has gathered, and that a concentration in a small unit
-is not a god unit. A leaf that holds the
+flags. Reading the source did not settle whether they are leaves. Both readers
+found the complexity to be an algorithm's in about seven files of ten, god
+class or not; on whether the class around it has one responsibility the author
+and the model disagreed at chance, the author calling three in four of the
+extra flags gatherers and the model two in three leaves; and the one judgement
+the two shared, whether the class works on other objects' data, was the one
+that separated the extra flags from PMD's god classes to both. The reading
+that fits is that complexity concentration locates where a codebase's
+complexity has gathered, and that whether the place is a god unit is legible
+neither in the complexity nor, reliably, in a reader's sense of responsibility,
+but in what the unit does with other objects' data. A leaf that holds the
 complexity of the algorithm it computes, a parser, a solver, a state machine,
 is an outlier for its repository and is exactly where that complexity belongs.
-Complexity alone cannot tell it from a class that gathers responsibilities, and
-every definition in this study that does so adds a coupling clause to do it.
+Complexity alone cannot tell it from a class that gathers responsibilities,
+every definition in this study that does so adds a coupling clause to do it,
+and the coupling question was the one the two readers could answer alike.
 That is what the follow-on study takes up: whether a method's or class's
 coupling divergence, what it hands on to the rest of the system against what it
 receives, separates a complex leaf from a god unit among the units complexity
@@ -1379,8 +1449,10 @@ files hold more than one class, so a nested class's verdict and its methods'
 complexity are credited to the file that holds it. The relative rules are fitted with zeros included, which makes the
 zero-heavy method-level signals fall back to a mean-deviation scale; the scale
 kind is recorded and reported. The human read-out was computed by the paper's
-scripts, checked against the harness on the main run, and rests on nine and
-eight repositories for its signal choice and its per-repository AUC.
+scripts, checked against the harness on the main run, and rests on
+\humBlobAllMinPosEx{} (Blob) and \humLongMethodAllMinPosEx{} (Long Method)
+repositories for its signal choice and on \humBlobAllAucMacroN{} and
+\humLongMethodAllAucMacroN{} for its per-repository AUC.
 
 \paragraph{External.} GitHub repositories of 200 stars or more, ten languages,
 one commit each, drawn with equal allocation across three popularity tiers, so
@@ -1407,7 +1479,11 @@ complexity against Long Method, is an exploratory comparison, read with a
 paired test, that a reader should expect to shrink on replication. The
 cross-population transfer, the component breakdown of the false positives and
 the reading of a sample of them were added after the first draft of this paper
-was reviewed; none was pre-registered and each is labelled exploratory.
+was reviewed; none was pre-registered and each is labelled exploratory. The
+reading has two readers, one of them the author and the other a language
+model whose answers are not a human's, who agree on the category at a $\kappa$
+of \fpKappaAuthorModel{}; the author read \fpKappaAuthorModelN{} units and the
+per-question shares are descriptive, with no interval put on them.
 
 \section{Reproducibility and data availability}
 \label{sec:repro}
@@ -1420,7 +1496,9 @@ were drawn from, the frozen explore/confirm assignments, the per-repository
 summary tables and definition registries the harness writes, the converted MLCQ
 labels and their summary, the classpath reports and build log, the paper's own
 reductions of the per-unit data for the human read-out and the agreement
-comparison, and the harness's superseded agreement output. The raw per-unit
+comparison, every reader's answers on the false-positive sample with the
+model reader's recorded sessions, and the harness's superseded agreement
+output. The raw per-unit
 data (several gigabytes) is not included; it regenerates by running the
 harness on the published sample files, which pin every repository to its
 commit, and the ancillary README names the public code repositories of the
@@ -1449,7 +1527,9 @@ The result that carries forward is the shape of the errors. Concentration
 finds where the complexity is. Some of those places are god units, and some
 are small classes doing the work they were written to do, and a complexity
 measure cannot tell the two apart because the difference is not in the
-complexity. It is in what the unit does with the data it holds, which is a
+complexity. Two readers of the source could not tell them apart by eye either,
+except on one question, whether the class works on other objects' data. The
+difference is in what the unit does with the data it holds, which is a
 coupling question, and the next study asks it.
 
 \section*{Competing interests}
@@ -1460,8 +1540,11 @@ coupling divergence, comes from that line of work. This study compares no
 frameworks and its sample excludes the author's own ecosystem, but the reading
 in Section~\ref{sec:disc}, that the false positives call for a coupling measure,
 is the reading the author's interest favours, and a reader should weigh it as
-such. The sampler that drew the repositories is the author's tool as well. The companion study on conservation, which motivates this one, is the
-author's as well. Against the interest: the plan, the seed and the decision rule
+such. The author was also one of the two readers of the false-positive sample;
+that reading was blind to PMD's verdict, made under a protocol committed
+before it, and is reported beside the model's with their disagreement. The
+sampler that drew the repositories is the author's tool as well. The companion
+study on conservation, which motivates this one, is the author's as well. Against the interest: the plan, the seed and the decision rule
 were fixed before the data existed, the verdict that resulted is inconclusive
 rather than favourable, every deviation is reported with its effect,
 and a replication needs no cooperation from the author.

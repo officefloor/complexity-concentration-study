@@ -726,12 +726,21 @@ def table_fp(fp: dict, out: str) -> None:
                     num("fpRead" + camel(r) + camel(g) + c.capitalize() + "N", str(cs.get(c, 0)))
                     num("fpRead" + camel(r) + camel(g) + c.capitalize() + "Pct", pct(cs.get(c, 0) / n, 0) if n else "--")
                 num("fpRead" + camel(r) + camel(g) + "N", str(n))
+                # each question's yes-share in the group: fpReadAuthorFpQThreeYesPct and so on
+                for q, x in rd.get("questions_by_reader", {}).get(r, {}).get(g, {}).items():
+                    qn = "Q" + {"1": "One", "2": "Two", "3": "Three", "4": "Four"}[q[1]]
+                    num("fpRead" + camel(r) + camel(g) + qn + "YesN", str(x["yes"]))
+                    num("fpRead" + camel(r) + camel(g) + qn + "YesPct", pct(x["yes"] / x["n"], 0) if x["n"] else "--")
         for pair, a in rd["agreement"].items():
             x, y = pair.split("|")
             body.append(f"\\multicolumn{{7}}{{l}}{{agreement {tex(x)} with {tex(y)}: {a['agree']} of {a['n']} units, Cohen's $\\kappa = {f(a['kappa'], 2) if a['kappa'] is not None else '--'}$}} \\\\")
             num("fpKappa" + camel(x) + camel(y), f(a["kappa"], 2) if a["kappa"] is not None else "--")
             num("fpKappa" + camel(x) + camel(y) + "N", str(a["n"]))
             num("fpKappa" + camel(x) + camel(y) + "Agree", str(a["agree"]))
+            for q, qa in a.get("questions", {}).items():
+                qn = "Q" + {"1": "One", "2": "Two", "3": "Three", "4": "Four"}[q[1]]
+                num("fpKappa" + camel(x) + camel(y) + qn, f(qa["kappa"], 2) if qa["kappa"] is not None else "--")
+                num("fpKappa" + camel(x) + camel(y) + qn + "Agree", str(qa["agree"]))
         body += ["\\bottomrule", "\\end{tabular}"]
         write(out, "tab_fp_readings.tex", "\n".join(body) + "\n")
 

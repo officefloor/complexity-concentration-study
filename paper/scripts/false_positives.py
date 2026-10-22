@@ -267,7 +267,7 @@ def load_readings(pattern: str) -> tuple[dict, dict]:
 
 def merge_readings(readings: dict, key: dict) -> dict:
     """{reader: {group: {category: n}}}: each reader's category by group (derived from the
-    answers by the protocol's mapping), the share of LEAF per group with a unit bootstrap,
+    answers by the protocol's mapping), each reader's yes-count on every question by group,
     and the agreement between every pair of readers on the units both read: on the category
     (Cohen's kappa) and on each question."""
     readers = sorted({r for v in readings.values() for r in v})
@@ -276,9 +276,10 @@ def merge_readings(readings: dict, key: dict) -> dict:
             if r in v:
                 v[r]["category"] = category_of(v[r])
     out = {"readers": readers, "n_read": {r: sum(1 for v in readings.values() if r in v) for r in readers},
-           "by_reader": {}, "agreement": {}}
+           "by_reader": {}, "questions_by_reader": {}, "agreement": {}}
     for r in readers:
         tab: dict = {}
+        qtab: dict = {}
         for uid, v in readings.items():
             if r not in v or uid not in key:
                 continue
@@ -286,7 +287,12 @@ def merge_readings(readings: dict, key: dict) -> dict:
             tab.setdefault(g, {})
             c = v[r]["category"]
             tab[g][c] = tab[g].get(c, 0) + 1
+            qt = qtab.setdefault(g, {q: {"yes": 0, "n": 0} for q in ("q1", "q2", "q3", "q4")})
+            for q in qt:
+                qt[q]["n"] += 1
+                qt[q]["yes"] += 1 if bool(v[r].get(q)) else 0
         out["by_reader"][r] = tab
+        out["questions_by_reader"][r] = qtab
     for i, a in enumerate(readers):
         for b in readers[i + 1:]:
             both = [v for v in readings.values() if a in v and b in v]
@@ -351,6 +357,9 @@ def main(argv=None) -> int:
         p(f"\nreadings: {out['readings']['n_read']}, not yet answered {pending}")
         for r, tab in out["readings"]["by_reader"].items():
             p(f"   {r}: " + "; ".join(f"{g}: " + ", ".join(f"{c} {n}" for c, n in sorted(cs.items())) for g, cs in tab.items()))
+        for r, qtab in out["readings"]["questions_by_reader"].items():
+            p(f"   {r} yes by question: " + "; ".join(
+                f"{g}: " + ", ".join(f"{q} {x['yes']}/{x['n']}" for q, x in qt.items()) for g, qt in qtab.items()))
         for pair, a in out["readings"]["agreement"].items():
             p(f"   agreement {pair}: category {a['agree']}/{a['n']} kappa {a['kappa']}; " +
               "; ".join(f"{q} {x['agree']}/{a['n']} kappa {x['kappa']}" for q, x in a["questions"].items()))
