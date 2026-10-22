@@ -1,0 +1,440 @@
+{
+ "batch": 5,
+ "ids": [
+  "u101",
+  "u102",
+  "u103",
+  "u104",
+  "u105",
+  "u106",
+  "u107",
+  "u108",
+  "u109",
+  "u110",
+  "u111",
+  "u112",
+  "u113",
+  "u114",
+  "u115",
+  "u116",
+  "u117",
+  "u118",
+  "u119",
+  "u120"
+ ],
+ "model": "claude-fable-5-1",
+ "claude_version": "2.1.307 (Claude Code)",
+ "scripts_commit": "3b9e92236d85fc2b2f66e941af818bed4accbb85",
+ "scripts": [
+  "paper/scripts/fp_reading.py",
+  "paper/scripts/false_positives.py",
+  "paper/scripts/common.py"
+ ],
+ "started_utc": "2026-10-22T09:47:19Z",
+ "returncode": 0,
+ "command": [
+  "claude",
+  "-p",
+  "<prompt>",
+  "--model",
+  "claude-fable-5-1",
+  "--tools",
+  "Read",
+  "--permission-mode",
+  "dontAsk",
+  "--safe-mode",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json",
+  "--json-schema",
+  "{\"type\": \"object\", \"required\": [\"readings\"], \"properties\": {\"readings\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"id\", \"q1\", \"q2\", \"q3\", \"q4\", \"evidence\", \"note\"], \"properties\": {\"id\": {\"type\": \"string\"}, \"q1\": {\"type\": \"boolean\"}, \"q2\": {\"type\": \"boolean\"}, \"q3\": {\"type\": \"boolean\"}, \"q4\": {\"type\": \"boolean\"}, \"evidence\": {\"type\": \"object\", \"required\": [\"q1\", \"q2\", \"q3\", \"q4\"], \"properties\": {\"q1\": {\"type\": \"string\"}, \"q2\": {\"type\": \"string\"}, \"q3\": {\"type\": \"string\"}, \"q4\": {\"type\": \"string\"}}}, \"note\": {\"type\": \"string\"}}}}}}"
+ ],
+ "prompt": "You are a blind code reader in an empirical software-engineering study. Work only from the files in the current directory.\n\n1. Read protocol.md first.\n2. Read batch.md. It names 20 Java files by id, their path in their repository, and their local copy under files/.\n3. For every file: read the whole file (use Read with offset and limit for files over 2000 lines, do not skip the tail). Identify the method with the highest cognitive complexity (the one with the most and deepest nested branches, loops and boolean chains) and name it. Then answer Q1, Q2, Q3 and Q4 from the protocol as true or false, each with one sentence of evidence from the file, and write a one-line note of the form \"methodName: what it does\". Do NOT derive or state the category; the mapping is applied later.\n4. Blindness: do not try to read anything outside the current directory and do not try to find out anything about these classes beyond the file itself.\n5. Answer with one entry per id of the batch, all 20 of them, in the required JSON form.\n",
+ "batch_md": "# Batch 5: 20 Java files to read under the protocol\n\n| id | class (path in its repository) | local file |\n|---|---|---|\n| u101 | 03 OA\u8d26\u6237\u6743\u9650\u7ba1\u7406/15 \u5f00\u53d1-Odata\u3001Restful\u3001SpringBoot\u6587\u4ef6\u4e0a\u4f20/SpringBootMVC06OAProject7/src/main/java/com/mashibing/springboot/entity/Permission.java | files/u101.java |\n| u102 | hollow/src/main/java/com/netflix/hollow/tools/diff/HollowDiffRecordFieldExtractor.java | files/u102.java |\n| u103 | SpringBoot/springboot-04-web-restfulcrud/src/main/java/com/wdjr/springboot/dao/EmployeeDao.java | files/u103.java |\n| u104 | codegen/src/main/java/org/robobinding/codegen/presentationmodel/AbstractPresentationModelObjectClassGen.java | files/u104.java |\n| u105 | pmd-java/src/main/java/net/sourceforge/pmd/lang/java/rule/design/ExceptionAsFlowControlRule.java | files/u105.java |\n| u106 | core/src/main/java/org/modelmapper/internal/PropertyInfoSetResolver.java | files/u106.java |\n| u107 | framework/src/main/java/org/robobinding/PendingAttributesForViewImpl.java | files/u107.java |\n| u108 | hadoop-tools/hadoop-gridmix/src/main/java/org/apache/hadoop/mapred/gridmix/Gridmix.java | files/u108.java |\n| u109 | backend/src/main/java/org/github/tess1o/geopulse/streaming/service/trips/TravelClassification.java | files/u109.java |\n| u110 | jetlinks-components/gateway-component/src/main/java/org/jetlinks/community/gateway/DeviceGatewayHelper.java | files/u110.java |\n| u111 | core/src/main/java/org/zstack/core/ansible/AnsibleFacadeImpl.java | files/u111.java |\n| u112 | src/main/java/osmedile/intellij/stringmanip/align/ColumnAligner.java | files/u112.java |\n| u113 | src/main/java/com/ghostchu/peerbanhelper/util/IPAddressUtil.java | files/u113.java |\n| u114 | library/dash/src/main/java/com/google/android/exoplayer2/source/dash/DashMediaPeriod.java | files/u114.java |\n| u115 | pig-visual/pig-codegen/src/main/java/com/pig4cloud/pig/codegen/service/impl/GenTableServiceImpl.java | files/u115.java |\n| u116 | log-record-core/src/main/java/cn/monitor4all/logRecord/function/CustomFunctionObjectDiff.java | files/u116.java |\n| u117 | rt/external/apache-xml/src/main/java/org/apache/xpath/functions/FuncExtFunctionAvailable.java | files/u117.java |\n| u118 | squirrel-foundation/src/main/java/org/squirrelframework/foundation/fsm/impl/StateMachineBuilderImpl.java | files/u118.java |\n| u119 | pig-common/pig-common-data/src/main/java/com/pig4cloud/pig/common/data/mybatis/DruidSqlLogFilter.java | files/u119.java |\n| u120 | hazelcast/src/main/java/com/hazelcast/logging/Slf4jFactory.java | files/u120.java |\n",
+ "result": {
+  "duration_api_ms": 297152,
+  "stop_reason": "tool_use",
+  "session_id": "78a045e3-114a-4f3a-846f-6e58308ac4da",
+  "total_cost_usd": 4.07997875,
+  "usage": {
+   "input_tokens": 98,
+   "cache_creation_input_tokens": 147122,
+   "cache_read_input_tokens": 95435,
+   "output_tokens": 22254,
+   "output_tokens_details": {
+    "thinking_tokens": 14290
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 147122,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "global",
+   "iterations": [
+    {
+     "input_tokens": 32,
+     "output_tokens": 20616,
+     "cache_read_input_tokens": 76054,
+     "cache_creation_input_tokens": 76424,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 76424
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-fable-5-1": {
+    "inputTokens": 98,
+    "outputTokens": 22254,
+    "cacheReadInputTokens": 95435,
+    "cacheCreationInputTokens": 147122,
+    "webSearchRequests": 0,
+    "costUSD": 4.07997875,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 64000,
+    "thinkingTokens": 14290,
+    "canonicalModel": "claude-fable-5-1",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "{\"readings\":[{\"id\":\"u101\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"equals computes a boolean from the object's own seven fields through a chain of null-safe comparisons joined by && (lines 94-100).\",\"q2\":\"The class is a serializable permission record with fields id, uri, name, c, r, u, d plus getters, setters, equals, hashCode and toString.\",\"q3\":\"The only object it reads besides itself is `other`, which is another Permission of the same class, so no foreign getter chains exist.\",\"q4\":\"The complexity is a flat boolean conjunction of field comparisons, not a switch or if-else chain over kinds of one value.\"},\"note\":\"equals: null-safe field-by-field equality over the seven permission fields (generator-style DTO boilerplate)\"},{\"id\":\"u102\",\"q1\":true,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"traverse recursively descends the field path level by level, collecting child ordinals into an IntList and finally returning the extracted values (lines 41-81).\",\"q2\":\"The class is a stateless utility that extracts the values of one field, identified by a HollowDiffNodeIdentifier, for one record.\",\"q3\":\"It works entirely on passed-in data-access objects through chains like typeDataAccess.getDataAccess().getTypeDataAccess(objectAccess.getSchema().getReferencedType(fieldIdx)) and fieldIdentifier.getParents().get(level+1).getViaFieldName() (lines 51-52, 68).\",\"q4\":\"The instanceof chain over typeDataAccess has only three cases and each case contains its own loops, so the complexity is in the nested traversal, not a short-case table.\"},\"note\":\"traverse: recursive walk down a field path across object, collection and map type data accesses to collect ordinals and extract field values\"},{\"id\":\"u103\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"save only assigns an id when missing, then forwards to departmentDao.getDepartment and employees.put (lines 35-41); the class holds no algorithm.\",\"q2\":\"The class is an in-memory employee store with save, getAll, getEmpById and deleteEmpById backed by a static HashMap seeded with sample data.\",\"q3\":\"It touches Employee and Department only as plain data holders (employee.getDepartment().getId(), setDepartment), so there is no behaviour-bearing foreign data.\",\"q4\":\"There is no switch or if-else chain at all; the single branch is one null check on the id.\"},\"note\":\"save: assigns a sequential id if absent, re-resolves the department through DepartmentDao and stores the employee in a static map (demo fixture DAO)\"},{\"id\":\"u104\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"defineTryToCreateDataSetProperty is a code-emission pass that renders, per data-set property, an if-block with descriptor, anonymous get/set, factory and optional view-type-selector classes into the class's own JCodeModel (lines 388-464).\",\"q2\":\"The class generates the source of one presentation-model object class from a PresentationModelInfo; every define* method emits one method of that class.\",\"q3\":\"Its inputs are PresentationModelInfo, PropertyInfo, DataSetPropertyInfo and EventMethodInfo descriptors, which are plain data holders read with single getters such as propertyInfo.isCreatedByFactoryMethodWithArg().\",\"q4\":\"The branching is a loop over properties with several independent flag checks (factory-method kind, view-type selector, selector arg), not one chain over a single controlling value.\"},\"note\":\"defineTryToCreateDataSetProperty: emits the generated tryToCreateDataSetProperty method, one if-block per data-set property with descriptor, getter, item factory and optional view-type selector\"},{\"id\":\"u105\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"visit walks up the AST parents in a while loop, skipping catch clauses and non-called lambdas, and for each try statement checks whether a catch parameter type matches the thrown type (lines 57-89).\",\"q2\":\"The class is a single PMD rule that reports throw statements whose exception is caught by an enclosing try in the same method.\",\"q3\":\"It operates on AST nodes (ASTThrowStatement, ASTTryStatement, ASTCatchClause) which are syntax-tree data, not behaviour-bearing objects.\",\"q4\":\"The instanceof checks on parent are guards inside one ancestor walk with a nested for/if, not a short-case dispatch table.\"},\"note\":\"visit: climbs from a throw statement to the enclosing body declaration and reports a try whose catch clause would catch the thrown type\"},{\"id\":\"u106\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"resolveProperties(initialType, type, resolveRequest) recurses up the superclass chain and filters each member by access level, validity and naming convention to build and return a name-to-PropertyInfo map (lines 145-179).\",\"q2\":\"The class resolves sets of PropertyInfo (accessors or mutators) for a type, via value readers/writers, constructor injectors or reflection.\",\"q3\":\"It reads java.lang.reflect Members and its own ResolveRequest holder; Configuration is only consulted for settings such as access level and naming convention, with no behaviour copied from referenced classes.\",\"q4\":\"canAccessMember is a small switch, but the most complex method is a recursive filter with compound conditions, not a case table.\"},\"note\":\"resolveProperties(initialType, type, resolveRequest): depth-first walk of the class hierarchy collecting accessible, valid, convention-matching members as PropertyInfo\"},{\"id\":\"u107\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"resolveAttributeGroupIfExists forwards the present mappings to attributeGroupResolver.resolve and routes each of three exception types to a resolutionErrors.add* call (lines 63-80).\",\"q2\":\"The class holds the still-unresolved attribute mappings for one view and accumulates resolution errors as attributes are resolved.\",\"q3\":\"It works on its own attributeMappings map and its own ViewResolutionErrorsException; the view is passed through opaquely.\",\"q4\":\"The complexity comes from three catch clauses around one call, which is exception handling rather than a switch or if-else chain over a controlling value.\"},\"note\":\"resolveAttributeGroupIfExists: if any attribute of the group is pending, resolves the group, records any resolution exception, and removes the attributes\"},{\"id\":\"u108\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"runJob parses argv into genbytes/userRsrc, then calls userResolver.setTargetUsers, FileSystem.mkdirs and start(), deciding which to call and when (lines 388-465).\",\"q2\":\"The class is the Gridmix benchmark driver: all methods (arg parsing, data generation, pipeline start, emulation setup, shutdown hook, usage) serve running one benchmark.\",\"q3\":\"It drives its own pipeline components (factory, submitter, monitor, statistics) through their own start/join/shutdown methods rather than reading their fields.\",\"q4\":\"The -generate/-users option chain has two cases and the rest is nested validation and error handling, not a dispatch table.\"},\"note\":\"runJob: validates and parses the command line, configures the user resolver, creates the io directory and hands off to start()\"},{\"id\":\"u109\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"classifyWithoutGpsStatistics computes average speed from distance and duration and applies distance/speed thresholds to return a TripType (lines 369-471).\",\"q2\":\"The class classifies a trip's travel type from GPS speed statistics, distance, duration and water evidence; every method is a step of that classification.\",\"q3\":\"TimelineConfig and TimelineTripEntity are read as plain settings/data holders (config.getFlightEnabled(), trip.getDistanceMeters()); the decisions are the class's own numeric rules.\",\"q4\":\"The if-chain tests compound numeric ranges (distance, speed, duration, enabled flags), not kinds of one controlling value.\"},\"note\":\"classifyWithoutGpsStatistics: fallback classifier using distance and duration heuristics for FLIGHT, TRAIN, BOAT, then speed-based classification\"},{\"id\":\"u110\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"handleChildrenDeviceMessage decides, by message type and headers, whether to call sessionManager.remove, sessionManager.getSession/createOrUpdateSession or getDeviceForRegister, composing Monos into ctx.before/after (lines 105-198).\",\"q2\":\"The class routes an incoming device message to the matching session lifecycle action (create, update, replace, remove) and then to the message handler.\",\"q3\":\"It decides on message headers (children.getHeaderOrDefault(Headers.ignoreSession), getHeader(Headers.force).orElse(false)) and session internals such as session.unwrap(KeepOnlineSession.class).getParent().isAlive() and childrenSession.getParent().getDeviceId(), and mutates both.\",\"q4\":\"The instanceof checks are interleaved with nested header conditions and reactive compositions; no single short-case chain dominates.\"},\"note\":\"handleChildrenDeviceMessage: for a child-device message, removes the child session on offline/unregister or creates/updates a ChildrenDeviceSession under the parent, handling registration\"},{\"id\":\"u111\",\"q1\":true,\"q2\":false,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"isNeedToDeploy walks source and destination module directories, computes MD5 digests per file and compares counts and digests to return whether deployment is needed (lines 399-491).\",\"q2\":\"The class installs pip/ansible into a virtualenv and writes ansible.cfg (init), manages the SSH key pair via JsonLabel (start), deploys module directories by digest comparison (deployModule) and runs playbooks as bus messages (handle/doHandle).\",\"q3\":\"It works on files, shell commands and its own moduleChanges/variables maps; RunAnsibleMsg is read with single getters.\",\"q4\":\"There is no switch; the complexity is nested loops, try/finally and early returns in the digest comparison.\"},\"note\":\"isNeedToDeploy: compares file counts and per-file MD5 digests between the classpath module and the deployed copy to decide whether to redeploy\"},{\"id\":\"u112\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"process sorts the lines, then loops column by column appending text, padding, separators and spaces to each ColumnAlignerLine until no line has tokens left, returning the aligned strings (lines 93-183).\",\"q2\":\"The class aligns text into columns by separators according to a ColumnAlignerModel, with sorting as a preliminary step of the same alignment.\",\"q3\":\"It operates on its own ColumnAlignerLine working objects and model settings; the one direct field read (line.leadingIndent) is on its own line type.\",\"q4\":\"The complexity is a while loop over columns containing many for loops and a few mode checks, not a case chain.\"},\"note\":\"process: the column-alignment pass that sorts, indents and pads every line column by column\"},{\"id\":\"u113\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"remapBanListAddress computes the set of equivalent addresses (IPv4/IPv6 forms, NAT64 extraction, prefix blocks) for a ban address and returns them as a list (lines 163-192).\",\"q2\":\"The class is an IP address utility: parsing, normalisation, NAT64 and Teredo extraction, and ban-list remapping.\",\"q3\":\"IPAddress values are library value objects and configuration is read via Main.getMainConfig().getBoolean(...) only for toggles and ranges.\",\"q4\":\"The branches are compound conditions on address family, prefix length and config flags, not a table over one value.\"},\"note\":\"remapBanListAddress: expands a ban address into its IPv4/IPv6, NAT64 and prefix-block equivalents according to remapping settings\"},{\"id\":\"u114\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"getGroupedAdaptationSetIndices merges adaptation sets into groups using trick-play and adaptation-set-switching descriptors and returns sorted int[][] groups (lines 560-634).\",\"q2\":\"The class is the DASH MediaPeriod: it builds track groups from the manifest period and manages selection, seeking and loading of its sample streams.\",\"q3\":\"AdaptationSet, Descriptor and Representation are parsed-manifest data holders read with single field accesses (adaptationSet.essentialProperties, descriptor.value).\",\"q4\":\"The complexity is two nested merge loops with lookups, not a switch over kinds.\"},\"note\":\"getGroupedAdaptationSetIndices: groups adaptation sets that are trick-play pairs or marked safe for switching into merged index arrays\"},{\"id\":\"u115\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"queryTablePage switches the datasource, clears the cache, then filters and sorts ServiceProxy.metadata().tables() with lambdas before paging via CollUtil.page (lines 113-141).\",\"q2\":\"The class is the code-generator table service: querying DDL, columns and tables for a datasource and importing/syncing table metadata into GenTable records.\",\"q3\":\"The objects it copies between (PigCodeGenDefaultProperties, Table, Column, GenTable, GenTableColumnEntity) are configuration and entity data holders, so by the convention this is not foreign behaviour.\",\"q4\":\"The branching is a filter predicate and a comparator with nested null ternaries, not a case chain.\"},\"note\":\"queryTablePage: lists the datasource's tables filtered by name/comment, sorted by update/create time, and pages them manually\"},{\"id\":\"u116\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"objectDiff reflects over the old object's fields, finds matching new fields, decides per field whether to diff, compares values and assembles a DiffDTO and formatted message string (lines 53-171).\",\"q2\":\"The class implements the _DIFF log-record function: a generic field-by-field diff of two objects with configurable formatting.\",\"q3\":\"It reads arbitrary objects' fields via reflection as a generic utility, not behaviour that belongs to any particular referenced class.\",\"q4\":\"The complexity is a loop with several guard conditions and a second assembly loop, not a switch over kinds.\"},\"note\":\"objectDiff: reflective field-by-field diff of two annotated objects producing DiffDTO entries and a templated change message\"},{\"id\":\"u117\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"execute splits the argument into prefix and local name, resolves the namespace, and returns an XBoolean from the function-table or extension-provider lookup (lines 48-92).\",\"q2\":\"The class implements one XPath function, ExtFunctionAvailable.\",\"q3\":\"Apart from one chain xctxt.getNamespaceContext().getNamespaceForPrefix(prefix), it works on its own argument string and function table.\",\"q4\":\"The branching is a namespace split and an XSL-vs-extension decision, two cases with try/catch, not a table over many kinds.\"},\"note\":\"execute: evaluates function-available(name) by parsing the QName and consulting the XSL function table or the extensions provider\"},{\"id\":\"u118\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"buildDeclareTransition converts annotation strings via converters, searches existing transitions, then drives the FSM builder chain (from/to/on/when/perform) and instantiates conditions by reflection, deciding which builder calls to make (lines 337-411).\",\"q2\":\"The class is the state machine builder: it defines states and transitions programmatically or from annotations, installs convention-named extension methods and instantiates state machines from the definition.\",\"q3\":\"It mutates its own states map through MutableState/MutableTransition APIs; getter chains such as transition.getTargetState().getStateId() are incidental.\",\"q4\":\"The branching mixes preconditions, an existing-transition search loop, a transition-type choice and condition instantiation; no short-case table dominates.\"},\"note\":\"buildDeclareTransition: turns a @Transit annotation into a transition, adding an action to a matching existing transition or building a new internal/local/external one with condition\"},{\"id\":\"u119\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"getTablesBydruid delegates parsing to SQLUtils.parseStatements, picks a SchemaStatVisitor by dbType, calls stmt.accept(visitor) and copies visitor.getTables() names into a list (lines 191-217).\",\"q2\":\"The class is a Druid filter that logs the executable SQL with parameters and execution time after statement close.\",\"q3\":\"It reads statement proxy data (statement.getConnectionProxy().getDirectDataSource().getDbType()) only to log it; that is the filter's purpose rather than displaced behaviour.\",\"q4\":\"Most of the method's complexity is the if/else-if chain on dbType choosing SQLServer, Oracle, PG or generic visitor, each case one constructor call.\"},\"note\":\"getTablesBydruid: parses SQL and extracts referenced table names using a dialect-specific Druid schema visitor\"},{\"id\":\"u120\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"isLoggable maps a java.util.logging Level onto the matching logger.isXxxEnabled() call through a nested ternary chain (lines 85-94); no value is computed from own state.\",\"q2\":\"The class adapts Hazelcast's ILogger to SLF4J.\",\"q3\":\"It only forwards to the wrapped org.slf4j.Logger; no getter chains or copying.\",\"q4\":\"isLoggable, getLevel and both log methods are each one chain over the Level enum with a single logger call per case.\"},\"note\":\"isLoggable: nested ternary chain translating a JUL Level into the corresponding SLF4J isXxxEnabled check\"}]}",
+  "structured_output": {
+   "readings": [
+    {
+     "id": "u101",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "equals computes a boolean from the object's own seven fields through a chain of null-safe comparisons joined by && (lines 94-100).",
+      "q2": "The class is a serializable permission record with fields id, uri, name, c, r, u, d plus getters, setters, equals, hashCode and toString.",
+      "q3": "The only object it reads besides itself is `other`, which is another Permission of the same class, so no foreign getter chains exist.",
+      "q4": "The complexity is a flat boolean conjunction of field comparisons, not a switch or if-else chain over kinds of one value."
+     },
+     "note": "equals: null-safe field-by-field equality over the seven permission fields (generator-style DTO boilerplate)"
+    },
+    {
+     "id": "u102",
+     "q1": true,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "traverse recursively descends the field path level by level, collecting child ordinals into an IntList and finally returning the extracted values (lines 41-81).",
+      "q2": "The class is a stateless utility that extracts the values of one field, identified by a HollowDiffNodeIdentifier, for one record.",
+      "q3": "It works entirely on passed-in data-access objects through chains like typeDataAccess.getDataAccess().getTypeDataAccess(objectAccess.getSchema().getReferencedType(fieldIdx)) and fieldIdentifier.getParents().get(level+1).getViaFieldName() (lines 51-52, 68).",
+      "q4": "The instanceof chain over typeDataAccess has only three cases and each case contains its own loops, so the complexity is in the nested traversal, not a short-case table."
+     },
+     "note": "traverse: recursive walk down a field path across object, collection and map type data accesses to collect ordinals and extract field values"
+    },
+    {
+     "id": "u103",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "save only assigns an id when missing, then forwards to departmentDao.getDepartment and employees.put (lines 35-41); the class holds no algorithm.",
+      "q2": "The class is an in-memory employee store with save, getAll, getEmpById and deleteEmpById backed by a static HashMap seeded with sample data.",
+      "q3": "It touches Employee and Department only as plain data holders (employee.getDepartment().getId(), setDepartment), so there is no behaviour-bearing foreign data.",
+      "q4": "There is no switch or if-else chain at all; the single branch is one null check on the id."
+     },
+     "note": "save: assigns a sequential id if absent, re-resolves the department through DepartmentDao and stores the employee in a static map (demo fixture DAO)"
+    },
+    {
+     "id": "u104",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "defineTryToCreateDataSetProperty is a code-emission pass that renders, per data-set property, an if-block with descriptor, anonymous get/set, factory and optional view-type-selector classes into the class's own JCodeModel (lines 388-464).",
+      "q2": "The class generates the source of one presentation-model object class from a PresentationModelInfo; every define* method emits one method of that class.",
+      "q3": "Its inputs are PresentationModelInfo, PropertyInfo, DataSetPropertyInfo and EventMethodInfo descriptors, which are plain data holders read with single getters such as propertyInfo.isCreatedByFactoryMethodWithArg().",
+      "q4": "The branching is a loop over properties with several independent flag checks (factory-method kind, view-type selector, selector arg), not one chain over a single controlling value."
+     },
+     "note": "defineTryToCreateDataSetProperty: emits the generated tryToCreateDataSetProperty method, one if-block per data-set property with descriptor, getter, item factory and optional view-type selector"
+    },
+    {
+     "id": "u105",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "visit walks up the AST parents in a while loop, skipping catch clauses and non-called lambdas, and for each try statement checks whether a catch parameter type matches the thrown type (lines 57-89).",
+      "q2": "The class is a single PMD rule that reports throw statements whose exception is caught by an enclosing try in the same method.",
+      "q3": "It operates on AST nodes (ASTThrowStatement, ASTTryStatement, ASTCatchClause) which are syntax-tree data, not behaviour-bearing objects.",
+      "q4": "The instanceof checks on parent are guards inside one ancestor walk with a nested for/if, not a short-case dispatch table."
+     },
+     "note": "visit: climbs from a throw statement to the enclosing body declaration and reports a try whose catch clause would catch the thrown type"
+    },
+    {
+     "id": "u106",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "resolveProperties(initialType, type, resolveRequest) recurses up the superclass chain and filters each member by access level, validity and naming convention to build and return a name-to-PropertyInfo map (lines 145-179).",
+      "q2": "The class resolves sets of PropertyInfo (accessors or mutators) for a type, via value readers/writers, constructor injectors or reflection.",
+      "q3": "It reads java.lang.reflect Members and its own ResolveRequest holder; Configuration is only consulted for settings such as access level and naming convention, with no behaviour copied from referenced classes.",
+      "q4": "canAccessMember is a small switch, but the most complex method is a recursive filter with compound conditions, not a case table."
+     },
+     "note": "resolveProperties(initialType, type, resolveRequest): depth-first walk of the class hierarchy collecting accessible, valid, convention-matching members as PropertyInfo"
+    },
+    {
+     "id": "u107",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "resolveAttributeGroupIfExists forwards the present mappings to attributeGroupResolver.resolve and routes each of three exception types to a resolutionErrors.add* call (lines 63-80).",
+      "q2": "The class holds the still-unresolved attribute mappings for one view and accumulates resolution errors as attributes are resolved.",
+      "q3": "It works on its own attributeMappings map and its own ViewResolutionErrorsException; the view is passed through opaquely.",
+      "q4": "The complexity comes from three catch clauses around one call, which is exception handling rather than a switch or if-else chain over a controlling value."
+     },
+     "note": "resolveAttributeGroupIfExists: if any attribute of the group is pending, resolves the group, records any resolution exception, and removes the attributes"
+    },
+    {
+     "id": "u108",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "runJob parses argv into genbytes/userRsrc, then calls userResolver.setTargetUsers, FileSystem.mkdirs and start(), deciding which to call and when (lines 388-465).",
+      "q2": "The class is the Gridmix benchmark driver: all methods (arg parsing, data generation, pipeline start, emulation setup, shutdown hook, usage) serve running one benchmark.",
+      "q3": "It drives its own pipeline components (factory, submitter, monitor, statistics) through their own start/join/shutdown methods rather than reading their fields.",
+      "q4": "The -generate/-users option chain has two cases and the rest is nested validation and error handling, not a dispatch table."
+     },
+     "note": "runJob: validates and parses the command line, configures the user resolver, creates the io directory and hands off to start()"
+    },
+    {
+     "id": "u109",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "classifyWithoutGpsStatistics computes average speed from distance and duration and applies distance/speed thresholds to return a TripType (lines 369-471).",
+      "q2": "The class classifies a trip's travel type from GPS speed statistics, distance, duration and water evidence; every method is a step of that classification.",
+      "q3": "TimelineConfig and TimelineTripEntity are read as plain settings/data holders (config.getFlightEnabled(), trip.getDistanceMeters()); the decisions are the class's own numeric rules.",
+      "q4": "The if-chain tests compound numeric ranges (distance, speed, duration, enabled flags), not kinds of one controlling value."
+     },
+     "note": "classifyWithoutGpsStatistics: fallback classifier using distance and duration heuristics for FLIGHT, TRAIN, BOAT, then speed-based classification"
+    },
+    {
+     "id": "u110",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "handleChildrenDeviceMessage decides, by message type and headers, whether to call sessionManager.remove, sessionManager.getSession/createOrUpdateSession or getDeviceForRegister, composing Monos into ctx.before/after (lines 105-198).",
+      "q2": "The class routes an incoming device message to the matching session lifecycle action (create, update, replace, remove) and then to the message handler.",
+      "q3": "It decides on message headers (children.getHeaderOrDefault(Headers.ignoreSession), getHeader(Headers.force).orElse(false)) and session internals such as session.unwrap(KeepOnlineSession.class).getParent().isAlive() and childrenSession.getParent().getDeviceId(), and mutates both.",
+      "q4": "The instanceof checks are interleaved with nested header conditions and reactive compositions; no single short-case chain dominates."
+     },
+     "note": "handleChildrenDeviceMessage: for a child-device message, removes the child session on offline/unregister or creates/updates a ChildrenDeviceSession under the parent, handling registration"
+    },
+    {
+     "id": "u111",
+     "q1": true,
+     "q2": false,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "isNeedToDeploy walks source and destination module directories, computes MD5 digests per file and compares counts and digests to return whether deployment is needed (lines 399-491).",
+      "q2": "The class installs pip/ansible into a virtualenv and writes ansible.cfg (init), manages the SSH key pair via JsonLabel (start), deploys module directories by digest comparison (deployModule) and runs playbooks as bus messages (handle/doHandle).",
+      "q3": "It works on files, shell commands and its own moduleChanges/variables maps; RunAnsibleMsg is read with single getters.",
+      "q4": "There is no switch; the complexity is nested loops, try/finally and early returns in the digest comparison."
+     },
+     "note": "isNeedToDeploy: compares file counts and per-file MD5 digests between the classpath module and the deployed copy to decide whether to redeploy"
+    },
+    {
+     "id": "u112",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "process sorts the lines, then loops column by column appending text, padding, separators and spaces to each ColumnAlignerLine until no line has tokens left, returning the aligned strings (lines 93-183).",
+      "q2": "The class aligns text into columns by separators according to a ColumnAlignerModel, with sorting as a preliminary step of the same alignment.",
+      "q3": "It operates on its own ColumnAlignerLine working objects and model settings; the one direct field read (line.leadingIndent) is on its own line type.",
+      "q4": "The complexity is a while loop over columns containing many for loops and a few mode checks, not a case chain."
+     },
+     "note": "process: the column-alignment pass that sorts, indents and pads every line column by column"
+    },
+    {
+     "id": "u113",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "remapBanListAddress computes the set of equivalent addresses (IPv4/IPv6 forms, NAT64 extraction, prefix blocks) for a ban address and returns them as a list (lines 163-192).",
+      "q2": "The class is an IP address utility: parsing, normalisation, NAT64 and Teredo extraction, and ban-list remapping.",
+      "q3": "IPAddress values are library value objects and configuration is read via Main.getMainConfig().getBoolean(...) only for toggles and ranges.",
+      "q4": "The branches are compound conditions on address family, prefix length and config flags, not a table over one value."
+     },
+     "note": "remapBanListAddress: expands a ban address into its IPv4/IPv6, NAT64 and prefix-block equivalents according to remapping settings"
+    },
+    {
+     "id": "u114",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "getGroupedAdaptationSetIndices merges adaptation sets into groups using trick-play and adaptation-set-switching descriptors and returns sorted int[][] groups (lines 560-634).",
+      "q2": "The class is the DASH MediaPeriod: it builds track groups from the manifest period and manages selection, seeking and loading of its sample streams.",
+      "q3": "AdaptationSet, Descriptor and Representation are parsed-manifest data holders read with single field accesses (adaptationSet.essentialProperties, descriptor.value).",
+      "q4": "The complexity is two nested merge loops with lookups, not a switch over kinds."
+     },
+     "note": "getGroupedAdaptationSetIndices: groups adaptation sets that are trick-play pairs or marked safe for switching into merged index arrays"
+    },
+    {
+     "id": "u115",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "queryTablePage switches the datasource, clears the cache, then filters and sorts ServiceProxy.metadata().tables() with lambdas before paging via CollUtil.page (lines 113-141).",
+      "q2": "The class is the code-generator table service: querying DDL, columns and tables for a datasource and importing/syncing table metadata into GenTable records.",
+      "q3": "The objects it copies between (PigCodeGenDefaultProperties, Table, Column, GenTable, GenTableColumnEntity) are configuration and entity data holders, so by the convention this is not foreign behaviour.",
+      "q4": "The branching is a filter predicate and a comparator with nested null ternaries, not a case chain."
+     },
+     "note": "queryTablePage: lists the datasource's tables filtered by name/comment, sorted by update/create time, and pages them manually"
+    },
+    {
+     "id": "u116",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "objectDiff reflects over the old object's fields, finds matching new fields, decides per field whether to diff, compares values and assembles a DiffDTO and formatted message string (lines 53-171).",
+      "q2": "The class implements the _DIFF log-record function: a generic field-by-field diff of two objects with configurable formatting.",
+      "q3": "It reads arbitrary objects' fields via reflection as a generic utility, not behaviour that belongs to any particular referenced class.",
+      "q4": "The complexity is a loop with several guard conditions and a second assembly loop, not a switch over kinds."
+     },
+     "note": "objectDiff: reflective field-by-field diff of two annotated objects producing DiffDTO entries and a templated change message"
+    },
+    {
+     "id": "u117",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "execute splits the argument into prefix and local name, resolves the namespace, and returns an XBoolean from the function-table or extension-provider lookup (lines 48-92).",
+      "q2": "The class implements one XPath function, ExtFunctionAvailable.",
+      "q3": "Apart from one chain xctxt.getNamespaceContext().getNamespaceForPrefix(prefix), it works on its own argument string and function table.",
+      "q4": "The branching is a namespace split and an XSL-vs-extension decision, two cases with try/catch, not a table over many kinds."
+     },
+     "note": "execute: evaluates function-available(name) by parsing the QName and consulting the XSL function table or the extensions provider"
+    },
+    {
+     "id": "u118",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "buildDeclareTransition converts annotation strings via converters, searches existing transitions, then drives the FSM builder chain (from/to/on/when/perform) and instantiates conditions by reflection, deciding which builder calls to make (lines 337-411).",
+      "q2": "The class is the state machine builder: it defines states and transitions programmatically or from annotations, installs convention-named extension methods and instantiates state machines from the definition.",
+      "q3": "It mutates its own states map through MutableState/MutableTransition APIs; getter chains such as transition.getTargetState().getStateId() are incidental.",
+      "q4": "The branching mixes preconditions, an existing-transition search loop, a transition-type choice and condition instantiation; no short-case table dominates."
+     },
+     "note": "buildDeclareTransition: turns a @Transit annotation into a transition, adding an action to a matching existing transition or building a new internal/local/external one with condition"
+    },
+    {
+     "id": "u119",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "getTablesBydruid delegates parsing to SQLUtils.parseStatements, picks a SchemaStatVisitor by dbType, calls stmt.accept(visitor) and copies visitor.getTables() names into a list (lines 191-217).",
+      "q2": "The class is a Druid filter that logs the executable SQL with parameters and execution time after statement close.",
+      "q3": "It reads statement proxy data (statement.getConnectionProxy().getDirectDataSource().getDbType()) only to log it; that is the filter's purpose rather than displaced behaviour.",
+      "q4": "Most of the method's complexity is the if/else-if chain on dbType choosing SQLServer, Oracle, PG or generic visitor, each case one constructor call."
+     },
+     "note": "getTablesBydruid: parses SQL and extracts referenced table names using a dialect-specific Druid schema visitor"
+    },
+    {
+     "id": "u120",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "isLoggable maps a java.util.logging Level onto the matching logger.isXxxEnabled() call through a nested ternary chain (lines 85-94); no value is computed from own state.",
+      "q2": "The class adapts Hazelcast's ILogger to SLF4J.",
+      "q3": "It only forwards to the wrapped org.slf4j.Logger; no getter chains or copying.",
+      "q4": "isLoggable, getLevel and both log methods are each one chain over the Level enum with a single logger call per case."
+     },
+     "note": "isLoggable: nested ternary chain translating a JUL Level into the corresponding SLF4J isXxxEnabled check"
+    }
+   ]
+  },
+  "ttft_ms": 1808,
+  "type": "result",
+  "duration_ms": 297331,
+  "uuid": "f58e971c-08a4-45a8-beff-747ce4a9abb7",
+  "ttft_stream_ms": 1613,
+  "time_to_request_ms": 121,
+  "first_content_frame_ms": 1614,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

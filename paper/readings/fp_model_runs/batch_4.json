@@ -1,0 +1,440 @@
+{
+ "batch": 4,
+ "ids": [
+  "u081",
+  "u082",
+  "u083",
+  "u084",
+  "u085",
+  "u086",
+  "u087",
+  "u088",
+  "u089",
+  "u090",
+  "u091",
+  "u092",
+  "u093",
+  "u094",
+  "u095",
+  "u096",
+  "u097",
+  "u098",
+  "u099",
+  "u100"
+ ],
+ "model": "claude-fable-5-1",
+ "claude_version": "2.1.307 (Claude Code)",
+ "scripts_commit": "3b9e92236d85fc2b2f66e941af818bed4accbb85",
+ "scripts": [
+  "paper/scripts/fp_reading.py",
+  "paper/scripts/false_positives.py",
+  "paper/scripts/common.py"
+ ],
+ "started_utc": "2026-10-22T09:46:48Z",
+ "returncode": 0,
+ "command": [
+  "claude",
+  "-p",
+  "<prompt>",
+  "--model",
+  "claude-fable-5-1",
+  "--tools",
+  "Read",
+  "--permission-mode",
+  "dontAsk",
+  "--safe-mode",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json",
+  "--json-schema",
+  "{\"type\": \"object\", \"required\": [\"readings\"], \"properties\": {\"readings\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"id\", \"q1\", \"q2\", \"q3\", \"q4\", \"evidence\", \"note\"], \"properties\": {\"id\": {\"type\": \"string\"}, \"q1\": {\"type\": \"boolean\"}, \"q2\": {\"type\": \"boolean\"}, \"q3\": {\"type\": \"boolean\"}, \"q4\": {\"type\": \"boolean\"}, \"evidence\": {\"type\": \"object\", \"required\": [\"q1\", \"q2\", \"q3\", \"q4\"], \"properties\": {\"q1\": {\"type\": \"string\"}, \"q2\": {\"type\": \"string\"}, \"q3\": {\"type\": \"string\"}, \"q4\": {\"type\": \"string\"}}}, \"note\": {\"type\": \"string\"}}}}}}"
+ ],
+ "prompt": "You are a blind code reader in an empirical software-engineering study. Work only from the files in the current directory.\n\n1. Read protocol.md first.\n2. Read batch.md. It names 20 Java files by id, their path in their repository, and their local copy under files/.\n3. For every file: read the whole file (use Read with offset and limit for files over 2000 lines, do not skip the tail). Identify the method with the highest cognitive complexity (the one with the most and deepest nested branches, loops and boolean chains) and name it. Then answer Q1, Q2, Q3 and Q4 from the protocol as true or false, each with one sentence of evidence from the file, and write a one-line note of the form \"methodName: what it does\". Do NOT derive or state the category; the mapping is applied later.\n4. Blindness: do not try to read anything outside the current directory and do not try to find out anything about these classes beyond the file itself.\n5. Answer with one entry per id of the batch, all 20 of them, in the required JSON form.\n",
+ "batch_md": "# Batch 4: 20 Java files to read under the protocol\n\n| id | class (path in its repository) | local file |\n|---|---|---|\n| u081 | karate-js/src/main/java/io/karatelabs/js/JavaUtils.java | files/u081.java |\n| u082 | atlas-gradle-plugin/dexpatch/src/main/java/android/content/res/chunk/sections/StringSection.java | files/u082.java |\n| u083 | Java/hexagonal/src/main/java/com/iluwatar/hexagonal/domain/PlayerDetails.java | files/u083.java |\n| u084 | plugin/src/main/java/com/Acrobot/ChestShop/Listeners/PreTransaction/PartialTransactionModule.java | files/u084.java |\n| u085 | app/src/main/java/ml/docilealligator/infinityforreddit/activities/FilteredPostsActivity.java | files/u085.java |\n| u086 | compute/src/main/java/org/zstack/compute/vm/VmHostNameHelper.java | files/u086.java |\n| u087 | karate-js/src/main/java/io/karatelabs/js/JsStructuredClone.java | files/u087.java |\n| u088 | gson/src/main/java/com/google/gson/internal/LinkedTreeMap.java | files/u088.java |\n| u089 | Java/hexagonal/src/main/java/com/iluwatar/hexagonal/domain/LotteryNumbers.java | files/u089.java |\n| u090 | app/src/main/java/org/telegram/android/base/TelegramFragment.java | files/u090.java |\n| u091 | app/src/main/java/ml/docilealligator/infinityforreddit/markdown/CustomMarkwonAdapter.java | files/u091.java |\n| u092 | src/main/java/leetcode/medium/AddTwoNumbersII.java | files/u092.java |\n| u093 | soapui/src/main/java/com/eviware/soapui/impl/wsdl/support/soap/SoapUtils.java | files/u093.java |\n| u094 | soapui/src/main/java/com/eviware/soapui/impl/wsdl/teststeps/HttpTestRequestStep.java | files/u094.java |\n| u095 | pmd-java/src/main/java/net/sourceforge/pmd/lang/java/types/TypeOps.java | files/u095.java |\n| u096 | hazelcast/src/main/java/com/hazelcast/query/impl/TypeConverters.java | files/u096.java |\n| u097 | app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java | files/u097.java |\n| u098 | app/src/main/java/com/yibao/music/util/ImageUitl.java | files/u098.java |\n| u099 | runtime/common-yaml/src/main/java/io/aklivity/zilla/runtime/common/yaml/internal/YamlEmitter.java | files/u099.java |\n| u100 | app/src/main/java/com/github/tvbox/osc/util/thunder/Thunder.java | files/u100.java |\n",
+ "result": {
+  "duration_api_ms": 316123,
+  "stop_reason": "tool_use",
+  "session_id": "0530d1d2-7411-4bbd-b6d5-f3166871f928",
+  "total_cost_usd": 4.5306715,
+  "usage": {
+   "input_tokens": 162,
+   "cache_creation_input_tokens": 158412,
+   "cache_read_input_tokens": 256246,
+   "output_tokens": 25935,
+   "output_tokens_details": {
+    "thinking_tokens": 17964
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 158412,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "global",
+   "iterations": [
+    {
+     "input_tokens": 32,
+     "output_tokens": 24115,
+     "cache_read_input_tokens": 119707,
+     "cache_creation_input_tokens": 44061,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 44061
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-fable-5-1": {
+    "inputTokens": 162,
+    "outputTokens": 25935,
+    "cacheReadInputTokens": 256246,
+    "cacheCreationInputTokens": 158412,
+    "webSearchRequests": 0,
+    "costUSD": 4.5306715,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 64000,
+    "thinkingTokens": 17964,
+    "canonicalModel": "claude-fable-5-1",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 25,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "{\"readings\":[{\"id\":\"u081\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"match (lines 480-525) walks the parameter types and argument values with nested loops and array/varargs branches to compute a boolean for reflective overload selection, converting Lists to arrays as it goes.\",\"q2\":\"Every method serves one concept, bridging JS calls to Java reflection (construct, invokeStatic/invoke, get/set members, member cache, bean-to-map), so the class reads as one responsibility.\",\"q3\":\"It works on java.lang.reflect Class/Method/Constructor metadata and its own args arrays, not on behaviour-bearing domain objects whose logic should move elsewhere.\",\"q4\":\"The complexity of match comes from nested loops and array/varargs conditions, not from a switch over one controlling value; jsTypeName and matchSingle are short type chains but are not the most complex method.\"},\"note\":\"match: checks whether an argument array fits a reflective parameter-type list, converting Lists to arrays and validating varargs elements.\"},{\"id\":\"u082\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"toBytes (lines 386-492) encodes the class's own string pool into a byte layout, computing offsets, length prefixes, 4-byte padding and UTF-8 versus UTF-16 variants in a loop over its pool items.\",\"q2\":\"All methods read, index, size or serialize the string-pool chunk of a resource file; one responsibility.\",\"q3\":\"It uses only its own fields and PoolItem's getOffset/getString/setString, where PoolItem is a plain data holder.\",\"q4\":\"The complexity is a loop with flag-dependent branches on UTF8_FLAG and padding arithmetic, not a case table.\"},\"note\":\"toBytes: serializes the string pool chunk (header, offset table, length-prefixed strings with padding) into a little-endian byte array.\"},{\"id\":\"u083\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"equals (lines 84-117) compares the object's own three fields with null-guarded branches and returns a boolean.\",\"q2\":\"The class is an immutable value object holding player details with getters, toString, hashCode and equals.\",\"q3\":\"It only reads its own fields and those of another PlayerDetails; no other class's data is used.\",\"q4\":\"The complexity is a sequence of null/equality guards per field, not a case table over one controlling value.\"},\"note\":\"equals: null-safe field-by-field equality of email, bank account and phone number (boilerplate value-object equals).\"},{\"id\":\"u084\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"onPreSellTransaction (lines 126-212) mostly fires CurrencyCheck/CurrencyAmount/CurrencyHold events via ChestShop.callEvent and InventoryUtil helpers, then writes results back into the event with setExactPrice/setStock/setCancelled.\",\"q2\":\"Both handlers and the private helpers exist to shrink a transaction to the affordable, available or fitting partial amount; one responsibility.\",\"q3\":\"It decides on the event's getStock, getExactPrice, getClientInventory, getOwnerInventory and getOwnerAccount().getUuid(), then mutates the event's fields; the logic is about the PreTransactionEvent's data.\",\"q4\":\"The complexity is three sequential guarded blocks (money, stock, space), each nested two deep, not a switch over cases.\"},\"note\":\"onPreSellTransaction: for a SELL event, reduces price and stock to what the shop can pay, the client has, and the chest can hold, or cancels the transaction.\"},{\"id\":\"u085\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"onCreate (lines 109-264) inflates the binding, registers EventBus, configures window insets, reads intent extras and hands a PostFilter to bindView; it is a sequence of calls into Android and app objects.\",\"q2\":\"Every method serves the filtered-posts screen: lifecycle, theme, toolbar title, fragment hosting, sort/layout menus and FAB callbacks.\",\"q3\":\"It sets flags on PostFilter (a plain data holder) and delegates actions to mFragment rather than deciding on another behaviour-bearing object's fields.\",\"q4\":\"The switch over the post-type filter fills PostFilter flags, but the method's complexity also comes from nested SDK-version/immersive checks and the saved-state branch, so it is not mainly a table.\"},\"note\":\"onCreate: sets up the activity window, toolbar and theme, builds a PostFilter from the intent's post-type filter, and creates or restores the PostFragment.\"},{\"id\":\"u086\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"getHostName(VmInstanceInventory) (lines 21-37) loops over the VM's nics and derives a hostname string from the default-L3 nic's IP (IPv4 dots to dashes, or the IPv6 helper), returning the computed value.\",\"q2\":\"All three overloads compute a VM's hostname from a system tag or its default nic IP; one responsibility.\",\"q3\":\"VmInstanceInventory/VmInstanceVO and VmNicInventory/VmNicVO are inventory and entity data holders, so reading their uuid, nic list and ip is not foreign behaviour under the convention.\",\"q4\":\"The complexity is a loop with a compound condition and an IPv4/IPv6 branch, not a case table.\"},\"note\":\"getHostName: returns the VM's hostname system tag, or else a hostname derived from the IP of the nic on the default L3 network.\"},{\"id\":\"u087\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"clone (lines 62-165) is a recursive structured-clone algorithm with an identity memo that builds a new value graph for primitives, dates, regexes, arrays, maps, sets, errors, objects and Java maps/lists.\",\"q2\":\"The class exists only to implement structuredClone; every helper (copyOwn, boxed, builtinErrorPrototype, dataCloneError) serves that.\",\"q3\":\"It copies engine value representations (JsArray, JsMap, JsObject) as the data of a deep-copy walk, like a tree traversal, rather than holding behaviour that belongs on those classes.\",\"q4\":\"The instanceof chain over value is the skeleton, but the complexity comes from recursion, memoization, per-kind loops and the error-prototype case with nested conditions, so cases are not uniformly short.\"},\"note\":\"clone: deep-copies a JS value graph by kind with an identity memo so cycles are preserved, throwing DataCloneError for functions and symbols.\"},{\"id\":\"u088\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"rebalance (lines 328-386) walks from the unbalanced node to the root computing height deltas and applying AVL single or double rotations on the map's own node tree.\",\"q2\":\"The class is an insertion-ordered AVL tree map; every method implements map operations, node search, removal, rotation or iteration.\",\"q3\":\"Node is the class's own nested data structure; no other class's data is used.\",\"q4\":\"The branching is on computed height deltas (-2, 2, 0, otherwise) with nested rotation decisions and insert/remove exits, not a dispatch table over kinds.\"},\"note\":\"rebalance: restores AVL balance from a node up to the root after an insert or removal using left/right rotations.\"},{\"id\":\"u089\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"equals (lines 155-174) compares the object's own numbers set with identity, null and class guards and returns a boolean.\",\"q2\":\"The class is a value object holding four lottery numbers with factory methods, formatting, random generation and equality.\",\"q3\":\"It reads only its own numbers field and that of another LotteryNumbers.\",\"q4\":\"The complexity is a chain of identity/null/class guards, not a switch over cases.\"},\"note\":\"equals: null-safe equality of the numbers set (boilerplate value-object equals).\"},{\"id\":\"u090\",\"q1\":true,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"The anonymous TagHandler.handleTag inside html (lines 164-192) tracks font_a/font_b tag start positions in its own fields and applies ForegroundColorSpans to the output when tags open or close, a small tag state machine.\",\"q2\":\"The class mixes photo-size lookup, user online status, title/subtitle HTML highlighting, clipboard copying, file/user/location picking, temp file paths, event sending and notifications.\",\"q3\":\"It reaches through getter chains such as application.getKernel().sendEvent, application.getUiKernel().getUiNotifications(), ((FragmentResultController) getActivity()).getResultCode() and status.getExpires().\",\"q4\":\"The nested if/else on tag name and opening flag covers two tags with symmetric handling, not a large case table.\"},\"note\":\"html: parses an HTML string with a custom TagHandler that colors font_a/font_b regions via spans.\"},{\"id\":\"u091\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"onBindViewHolder (lines 123-199) binds the node through the entry and then installs click and long-click listeners on the holder's views, forwarding to the adapter's listeners.\",\"q2\":\"The class is a Markwon RecyclerView adapter whose methods map nodes to entries and holders and wire click listeners; one concept.\",\"q3\":\"It digs into holder.itemView.findViewById, tableLayout.getChildAt(i), tableRow.getChildAt(j) and ((ImageAndGifEntry.Holder) holder).binding.captionTextViewMarkdownImageAndGifBlock.getSelectionStart() to decide on those views' state.\",\"q4\":\"The instanceof branches on itemView contain nested loops and lambdas, so the complexity is not a short-case table.\"},\"note\":\"onBindViewHolder: binds a markdown node to its holder and attaches click/long-click listeners to text views, table cells and image captions.\"},{\"id\":\"u092\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"addTwoNumbers (lines 12-74) pushes both lists onto stacks and adds digit by digit with a carry, building the result list.\",\"q2\":\"The class has one method solving one problem.\",\"q3\":\"ListNode is a plain data node with val and next; no other class's behaviour is involved.\",\"q4\":\"The complexity is loops with carry branches, not a case table.\"},\"note\":\"addTwoNumbers: adds two numbers stored as forward-order linked lists using stacks and a carry.\"},{\"id\":\"u093\",\"q1\":true,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"findOperationForRequest (lines 195-330) computes and returns the WSDL operation whose action, body element QName, SOAP version and message parts match the request content.\",\"q2\":\"Every method is a SOAP envelope or operation utility (fault detection, version deduction, header/body access, operation lookup, header transfer).\",\"q3\":\"It walks getter chains such as wsdlOperation.getBindingOperation().getOperation().getInput().getMessage().getParts() and attachment.getPart() and decides on their fields.\",\"q4\":\"The complexity is nested loops over operations, parts, attachments and child nodes with matching conditions, not a case table.\"},\"note\":\"findOperationForRequest: finds the WSDL operation matching a request by SOAP action, body element, version and document/RPC part matching.\"},{\"id\":\"u094\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"run (lines 260-356) submits the request, inspects submit status and response, copies values into a RestRequestStepResult via setters, then expands properties; it orchestrates other objects.\",\"q2\":\"The class is a test step wrapping an HttpTestRequest; constructor, run, clone, property change and assertion forwarding all serve that step.\",\"q3\":\"run copies response.getTimeTaken, getContentLength, getURL, getMethod and getStatusCode into testStepResult and decides on submit.getStatus and testRequest.getAssertionStatus; most other methods forward to testRequest.\",\"q4\":\"The two switches on assertion status are small parts; the complexity is nested status/response conditionals and the assertion error loops.\"},\"note\":\"run: executes the HTTP request, maps submit and assertion status into a step result with response properties and error messages.\"},{\"id\":\"u095\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"ProjectionVisitor.visitClass (lines 1275-1330) computes the upward or downward projection of a parameterized type by recursing into each type argument and deciding wildcard replacements per JLS 4.10.5, returning a new type.\",\"q2\":\"All sections (same-type, supertypes, subtyping, substitution, projection, overriding, SAM, asSuper, mentions, accessibility) are operations on the JTypeMirror type model; one domain concept.\",\"q3\":\"It reads type-mirror structure (getTypeArgs, getFormalTypeParams, getUpperBound) through visitors; type mirrors are immutable type representations like syntax trees, not behaviour that should move.\",\"q4\":\"The complexity is a loop with nested recursion-stop, wildcard and bound-containment conditions, not a switch over one controlling value.\"},\"note\":\"ProjectionVisitor.visitClass: rewrites a parameterized type's arguments that mention captured variables into wildcards (upward/downward projection).\"},{\"id\":\"u096\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"ByteConverter.convertInternal (lines 499-559) computes a byte from a Long, Double, Integer, Float, Short or String, checking the narrowing is lossless and falling back to long/double parses.\",\"q2\":\"The class is a set of TypeConverter implementations for index and query comparison; one concept.\",\"q3\":\"It works on the Comparable value it receives and returns a new value; no other object's fields are involved.\",\"q4\":\"The bulk of the complexity is an if/else-if chain over clazz (Long, Double, Integer, Float, Short) with a short lossless-narrowing check per case, plus a parse fallback.\"},\"note\":\"ByteConverter.convertInternal: converts a numeric or string Comparable to Byte when lossless, else returns the wider value.\"},{\"id\":\"u097\",\"q1\":true,\"q2\":false,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"parseJson(String, String) (lines 226-346) decodes the config JSON into the class's own state: sourceBeanList, parseBeanList, vipParseFlags, liveChannelGroupList, ijkCodes, spider and wallpaper.\",\"q2\":\"The class is a singleton that fetches config over HTTP with file caching, parses it, downloads and loads a spider jar, proxies to JarLoader, rewrites clan:// URLs and parses live channel lists.\",\"q3\":\"It copies JsonObject fields into SourceBean, ParseBean, IJKCode and LiveChannelGroup, which are plain bean data holders.\",\"q4\":\"The complexity is several loops over JSON arrays with nested conditions and a try block, not a switch over one value.\"},\"note\":\"parseJson: parses the API config JSON into site sources, parsers, live channel groups, ad hosts and IJK codec options, selecting defaults from Hawk prefs.\"},{\"id\":\"u098\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"glideSaveImg (lines 121-172) issues an OkHttp call, then in onResponse chains Glide.downloadOnly through an RxJava Observable and copies the file; it forwards to libraries rather than computing a value.\",\"q2\":\"All methods are image helpers: zoom view creation, Glide loading, saving an image, crop intent.\",\"q3\":\"It uses Constant, FileUtil and VersionUtil plus library builders; it does not decide on other behaviour-bearing objects' fields.\",\"q4\":\"The complexity is nested callbacks and lambdas with a version branch and ternaries, not a case table.\"},\"note\":\"glideSaveImg: downloads an image via OkHttp and Glide on a background thread and copies it to the album or artist directory.\"},{\"id\":\"u099\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"writeScalar (lines 50-87) writes the value verbatim when plain, otherwise iterates characters choosing an escape via a switch and emits a double-quoted YAML string.\",\"q2\":\"The class is scalar formatting for a YAML emitter: integers, scalars, plain-ness and number detection.\",\"q3\":\"It works only on the String or long it receives and the Writer it writes to.\",\"q4\":\"The escape switch is a small lookup inside a character loop; the method's complexity includes the plain/quoted branch and the loop, so it is not mainly a table.\"},\"note\":\"writeScalar: writes a YAML scalar, plain or double-quoted with escapes.\"},{\"id\":\"u100\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"parse's anonymous Runnable.run (lines 99-171) adds a magnet or thunder task through XLTaskHelper, polls getTaskInfo in a loop and reports via callback.status/list; it drives the SDK and callbacks rather than returning a computed value.\",\"q2\":\"The class wraps the Xunlei download SDK for parsing and playing magnet/thunder links; init, stop, error text, media filter and random ids all support that.\",\"q3\":\"taskInfo.mTaskStatus, torrentInfo.mSubFileInfo and sub.mFileName are SDK parameter structs (data holders), not behaviour-bearing objects.\",\"q4\":\"The switch on mTaskStatus has one large case with nested try, loop and conditions, so the complexity is nested polling logic, not a short-case table.\"},\"note\":\"parse: starts a magnet/thunder task, polls its status up to 30 times, and on completion reports the media file list from the torrent.\"}]}",
+  "structured_output": {
+   "readings": [
+    {
+     "id": "u081",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "match (lines 480-525) walks the parameter types and argument values with nested loops and array/varargs branches to compute a boolean for reflective overload selection, converting Lists to arrays as it goes.",
+      "q2": "Every method serves one concept, bridging JS calls to Java reflection (construct, invokeStatic/invoke, get/set members, member cache, bean-to-map), so the class reads as one responsibility.",
+      "q3": "It works on java.lang.reflect Class/Method/Constructor metadata and its own args arrays, not on behaviour-bearing domain objects whose logic should move elsewhere.",
+      "q4": "The complexity of match comes from nested loops and array/varargs conditions, not from a switch over one controlling value; jsTypeName and matchSingle are short type chains but are not the most complex method."
+     },
+     "note": "match: checks whether an argument array fits a reflective parameter-type list, converting Lists to arrays and validating varargs elements."
+    },
+    {
+     "id": "u082",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "toBytes (lines 386-492) encodes the class's own string pool into a byte layout, computing offsets, length prefixes, 4-byte padding and UTF-8 versus UTF-16 variants in a loop over its pool items.",
+      "q2": "All methods read, index, size or serialize the string-pool chunk of a resource file; one responsibility.",
+      "q3": "It uses only its own fields and PoolItem's getOffset/getString/setString, where PoolItem is a plain data holder.",
+      "q4": "The complexity is a loop with flag-dependent branches on UTF8_FLAG and padding arithmetic, not a case table."
+     },
+     "note": "toBytes: serializes the string pool chunk (header, offset table, length-prefixed strings with padding) into a little-endian byte array."
+    },
+    {
+     "id": "u083",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "equals (lines 84-117) compares the object's own three fields with null-guarded branches and returns a boolean.",
+      "q2": "The class is an immutable value object holding player details with getters, toString, hashCode and equals.",
+      "q3": "It only reads its own fields and those of another PlayerDetails; no other class's data is used.",
+      "q4": "The complexity is a sequence of null/equality guards per field, not a case table over one controlling value."
+     },
+     "note": "equals: null-safe field-by-field equality of email, bank account and phone number (boilerplate value-object equals)."
+    },
+    {
+     "id": "u084",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "onPreSellTransaction (lines 126-212) mostly fires CurrencyCheck/CurrencyAmount/CurrencyHold events via ChestShop.callEvent and InventoryUtil helpers, then writes results back into the event with setExactPrice/setStock/setCancelled.",
+      "q2": "Both handlers and the private helpers exist to shrink a transaction to the affordable, available or fitting partial amount; one responsibility.",
+      "q3": "It decides on the event's getStock, getExactPrice, getClientInventory, getOwnerInventory and getOwnerAccount().getUuid(), then mutates the event's fields; the logic is about the PreTransactionEvent's data.",
+      "q4": "The complexity is three sequential guarded blocks (money, stock, space), each nested two deep, not a switch over cases."
+     },
+     "note": "onPreSellTransaction: for a SELL event, reduces price and stock to what the shop can pay, the client has, and the chest can hold, or cancels the transaction."
+    },
+    {
+     "id": "u085",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "onCreate (lines 109-264) inflates the binding, registers EventBus, configures window insets, reads intent extras and hands a PostFilter to bindView; it is a sequence of calls into Android and app objects.",
+      "q2": "Every method serves the filtered-posts screen: lifecycle, theme, toolbar title, fragment hosting, sort/layout menus and FAB callbacks.",
+      "q3": "It sets flags on PostFilter (a plain data holder) and delegates actions to mFragment rather than deciding on another behaviour-bearing object's fields.",
+      "q4": "The switch over the post-type filter fills PostFilter flags, but the method's complexity also comes from nested SDK-version/immersive checks and the saved-state branch, so it is not mainly a table."
+     },
+     "note": "onCreate: sets up the activity window, toolbar and theme, builds a PostFilter from the intent's post-type filter, and creates or restores the PostFragment."
+    },
+    {
+     "id": "u086",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "getHostName(VmInstanceInventory) (lines 21-37) loops over the VM's nics and derives a hostname string from the default-L3 nic's IP (IPv4 dots to dashes, or the IPv6 helper), returning the computed value.",
+      "q2": "All three overloads compute a VM's hostname from a system tag or its default nic IP; one responsibility.",
+      "q3": "VmInstanceInventory/VmInstanceVO and VmNicInventory/VmNicVO are inventory and entity data holders, so reading their uuid, nic list and ip is not foreign behaviour under the convention.",
+      "q4": "The complexity is a loop with a compound condition and an IPv4/IPv6 branch, not a case table."
+     },
+     "note": "getHostName: returns the VM's hostname system tag, or else a hostname derived from the IP of the nic on the default L3 network."
+    },
+    {
+     "id": "u087",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "clone (lines 62-165) is a recursive structured-clone algorithm with an identity memo that builds a new value graph for primitives, dates, regexes, arrays, maps, sets, errors, objects and Java maps/lists.",
+      "q2": "The class exists only to implement structuredClone; every helper (copyOwn, boxed, builtinErrorPrototype, dataCloneError) serves that.",
+      "q3": "It copies engine value representations (JsArray, JsMap, JsObject) as the data of a deep-copy walk, like a tree traversal, rather than holding behaviour that belongs on those classes.",
+      "q4": "The instanceof chain over value is the skeleton, but the complexity comes from recursion, memoization, per-kind loops and the error-prototype case with nested conditions, so cases are not uniformly short."
+     },
+     "note": "clone: deep-copies a JS value graph by kind with an identity memo so cycles are preserved, throwing DataCloneError for functions and symbols."
+    },
+    {
+     "id": "u088",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "rebalance (lines 328-386) walks from the unbalanced node to the root computing height deltas and applying AVL single or double rotations on the map's own node tree.",
+      "q2": "The class is an insertion-ordered AVL tree map; every method implements map operations, node search, removal, rotation or iteration.",
+      "q3": "Node is the class's own nested data structure; no other class's data is used.",
+      "q4": "The branching is on computed height deltas (-2, 2, 0, otherwise) with nested rotation decisions and insert/remove exits, not a dispatch table over kinds."
+     },
+     "note": "rebalance: restores AVL balance from a node up to the root after an insert or removal using left/right rotations."
+    },
+    {
+     "id": "u089",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "equals (lines 155-174) compares the object's own numbers set with identity, null and class guards and returns a boolean.",
+      "q2": "The class is a value object holding four lottery numbers with factory methods, formatting, random generation and equality.",
+      "q3": "It reads only its own numbers field and that of another LotteryNumbers.",
+      "q4": "The complexity is a chain of identity/null/class guards, not a switch over cases."
+     },
+     "note": "equals: null-safe equality of the numbers set (boilerplate value-object equals)."
+    },
+    {
+     "id": "u090",
+     "q1": true,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "The anonymous TagHandler.handleTag inside html (lines 164-192) tracks font_a/font_b tag start positions in its own fields and applies ForegroundColorSpans to the output when tags open or close, a small tag state machine.",
+      "q2": "The class mixes photo-size lookup, user online status, title/subtitle HTML highlighting, clipboard copying, file/user/location picking, temp file paths, event sending and notifications.",
+      "q3": "It reaches through getter chains such as application.getKernel().sendEvent, application.getUiKernel().getUiNotifications(), ((FragmentResultController) getActivity()).getResultCode() and status.getExpires().",
+      "q4": "The nested if/else on tag name and opening flag covers two tags with symmetric handling, not a large case table."
+     },
+     "note": "html: parses an HTML string with a custom TagHandler that colors font_a/font_b regions via spans."
+    },
+    {
+     "id": "u091",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "onBindViewHolder (lines 123-199) binds the node through the entry and then installs click and long-click listeners on the holder's views, forwarding to the adapter's listeners.",
+      "q2": "The class is a Markwon RecyclerView adapter whose methods map nodes to entries and holders and wire click listeners; one concept.",
+      "q3": "It digs into holder.itemView.findViewById, tableLayout.getChildAt(i), tableRow.getChildAt(j) and ((ImageAndGifEntry.Holder) holder).binding.captionTextViewMarkdownImageAndGifBlock.getSelectionStart() to decide on those views' state.",
+      "q4": "The instanceof branches on itemView contain nested loops and lambdas, so the complexity is not a short-case table."
+     },
+     "note": "onBindViewHolder: binds a markdown node to its holder and attaches click/long-click listeners to text views, table cells and image captions."
+    },
+    {
+     "id": "u092",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "addTwoNumbers (lines 12-74) pushes both lists onto stacks and adds digit by digit with a carry, building the result list.",
+      "q2": "The class has one method solving one problem.",
+      "q3": "ListNode is a plain data node with val and next; no other class's behaviour is involved.",
+      "q4": "The complexity is loops with carry branches, not a case table."
+     },
+     "note": "addTwoNumbers: adds two numbers stored as forward-order linked lists using stacks and a carry."
+    },
+    {
+     "id": "u093",
+     "q1": true,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "findOperationForRequest (lines 195-330) computes and returns the WSDL operation whose action, body element QName, SOAP version and message parts match the request content.",
+      "q2": "Every method is a SOAP envelope or operation utility (fault detection, version deduction, header/body access, operation lookup, header transfer).",
+      "q3": "It walks getter chains such as wsdlOperation.getBindingOperation().getOperation().getInput().getMessage().getParts() and attachment.getPart() and decides on their fields.",
+      "q4": "The complexity is nested loops over operations, parts, attachments and child nodes with matching conditions, not a case table."
+     },
+     "note": "findOperationForRequest: finds the WSDL operation matching a request by SOAP action, body element, version and document/RPC part matching."
+    },
+    {
+     "id": "u094",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "run (lines 260-356) submits the request, inspects submit status and response, copies values into a RestRequestStepResult via setters, then expands properties; it orchestrates other objects.",
+      "q2": "The class is a test step wrapping an HttpTestRequest; constructor, run, clone, property change and assertion forwarding all serve that step.",
+      "q3": "run copies response.getTimeTaken, getContentLength, getURL, getMethod and getStatusCode into testStepResult and decides on submit.getStatus and testRequest.getAssertionStatus; most other methods forward to testRequest.",
+      "q4": "The two switches on assertion status are small parts; the complexity is nested status/response conditionals and the assertion error loops."
+     },
+     "note": "run: executes the HTTP request, maps submit and assertion status into a step result with response properties and error messages."
+    },
+    {
+     "id": "u095",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "ProjectionVisitor.visitClass (lines 1275-1330) computes the upward or downward projection of a parameterized type by recursing into each type argument and deciding wildcard replacements per JLS 4.10.5, returning a new type.",
+      "q2": "All sections (same-type, supertypes, subtyping, substitution, projection, overriding, SAM, asSuper, mentions, accessibility) are operations on the JTypeMirror type model; one domain concept.",
+      "q3": "It reads type-mirror structure (getTypeArgs, getFormalTypeParams, getUpperBound) through visitors; type mirrors are immutable type representations like syntax trees, not behaviour that should move.",
+      "q4": "The complexity is a loop with nested recursion-stop, wildcard and bound-containment conditions, not a switch over one controlling value."
+     },
+     "note": "ProjectionVisitor.visitClass: rewrites a parameterized type's arguments that mention captured variables into wildcards (upward/downward projection)."
+    },
+    {
+     "id": "u096",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "ByteConverter.convertInternal (lines 499-559) computes a byte from a Long, Double, Integer, Float, Short or String, checking the narrowing is lossless and falling back to long/double parses.",
+      "q2": "The class is a set of TypeConverter implementations for index and query comparison; one concept.",
+      "q3": "It works on the Comparable value it receives and returns a new value; no other object's fields are involved.",
+      "q4": "The bulk of the complexity is an if/else-if chain over clazz (Long, Double, Integer, Float, Short) with a short lossless-narrowing check per case, plus a parse fallback."
+     },
+     "note": "ByteConverter.convertInternal: converts a numeric or string Comparable to Byte when lossless, else returns the wider value."
+    },
+    {
+     "id": "u097",
+     "q1": true,
+     "q2": false,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "parseJson(String, String) (lines 226-346) decodes the config JSON into the class's own state: sourceBeanList, parseBeanList, vipParseFlags, liveChannelGroupList, ijkCodes, spider and wallpaper.",
+      "q2": "The class is a singleton that fetches config over HTTP with file caching, parses it, downloads and loads a spider jar, proxies to JarLoader, rewrites clan:// URLs and parses live channel lists.",
+      "q3": "It copies JsonObject fields into SourceBean, ParseBean, IJKCode and LiveChannelGroup, which are plain bean data holders.",
+      "q4": "The complexity is several loops over JSON arrays with nested conditions and a try block, not a switch over one value."
+     },
+     "note": "parseJson: parses the API config JSON into site sources, parsers, live channel groups, ad hosts and IJK codec options, selecting defaults from Hawk prefs."
+    },
+    {
+     "id": "u098",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "glideSaveImg (lines 121-172) issues an OkHttp call, then in onResponse chains Glide.downloadOnly through an RxJava Observable and copies the file; it forwards to libraries rather than computing a value.",
+      "q2": "All methods are image helpers: zoom view creation, Glide loading, saving an image, crop intent.",
+      "q3": "It uses Constant, FileUtil and VersionUtil plus library builders; it does not decide on other behaviour-bearing objects' fields.",
+      "q4": "The complexity is nested callbacks and lambdas with a version branch and ternaries, not a case table."
+     },
+     "note": "glideSaveImg: downloads an image via OkHttp and Glide on a background thread and copies it to the album or artist directory."
+    },
+    {
+     "id": "u099",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "writeScalar (lines 50-87) writes the value verbatim when plain, otherwise iterates characters choosing an escape via a switch and emits a double-quoted YAML string.",
+      "q2": "The class is scalar formatting for a YAML emitter: integers, scalars, plain-ness and number detection.",
+      "q3": "It works only on the String or long it receives and the Writer it writes to.",
+      "q4": "The escape switch is a small lookup inside a character loop; the method's complexity includes the plain/quoted branch and the loop, so it is not mainly a table."
+     },
+     "note": "writeScalar: writes a YAML scalar, plain or double-quoted with escapes."
+    },
+    {
+     "id": "u100",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "parse's anonymous Runnable.run (lines 99-171) adds a magnet or thunder task through XLTaskHelper, polls getTaskInfo in a loop and reports via callback.status/list; it drives the SDK and callbacks rather than returning a computed value.",
+      "q2": "The class wraps the Xunlei download SDK for parsing and playing magnet/thunder links; init, stop, error text, media filter and random ids all support that.",
+      "q3": "taskInfo.mTaskStatus, torrentInfo.mSubFileInfo and sub.mFileName are SDK parameter structs (data holders), not behaviour-bearing objects.",
+      "q4": "The switch on mTaskStatus has one large case with nested try, loop and conditions, so the complexity is nested polling logic, not a short-case table."
+     },
+     "note": "parse: starts a magnet/thunder task, polls its status up to 30 times, and on completion reports the media file list from the torrent."
+    }
+   ]
+  },
+  "ttft_ms": 1486,
+  "type": "result",
+  "duration_ms": 316771,
+  "uuid": "2b1e39c5-fa5b-44ac-97a9-778b0a79a8d6",
+  "ttft_stream_ms": 1155,
+  "time_to_request_ms": 129,
+  "first_content_frame_ms": 1156,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

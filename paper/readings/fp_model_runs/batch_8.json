@@ -1,0 +1,440 @@
+{
+ "batch": 8,
+ "ids": [
+  "u161",
+  "u162",
+  "u163",
+  "u164",
+  "u165",
+  "u166",
+  "u167",
+  "u168",
+  "u169",
+  "u170",
+  "u171",
+  "u172",
+  "u173",
+  "u174",
+  "u175",
+  "u176",
+  "u177",
+  "u178",
+  "u179",
+  "u180"
+ ],
+ "model": "claude-fable-5-1",
+ "claude_version": "2.1.307 (Claude Code)",
+ "scripts_commit": "3b9e92236d85fc2b2f66e941af818bed4accbb85",
+ "scripts": [
+  "paper/scripts/fp_reading.py",
+  "paper/scripts/false_positives.py",
+  "paper/scripts/common.py"
+ ],
+ "started_utc": "2026-10-22T09:52:07Z",
+ "returncode": 0,
+ "command": [
+  "claude",
+  "-p",
+  "<prompt>",
+  "--model",
+  "claude-fable-5-1",
+  "--tools",
+  "Read",
+  "--permission-mode",
+  "dontAsk",
+  "--safe-mode",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json",
+  "--json-schema",
+  "{\"type\": \"object\", \"required\": [\"readings\"], \"properties\": {\"readings\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"id\", \"q1\", \"q2\", \"q3\", \"q4\", \"evidence\", \"note\"], \"properties\": {\"id\": {\"type\": \"string\"}, \"q1\": {\"type\": \"boolean\"}, \"q2\": {\"type\": \"boolean\"}, \"q3\": {\"type\": \"boolean\"}, \"q4\": {\"type\": \"boolean\"}, \"evidence\": {\"type\": \"object\", \"required\": [\"q1\", \"q2\", \"q3\", \"q4\"], \"properties\": {\"q1\": {\"type\": \"string\"}, \"q2\": {\"type\": \"string\"}, \"q3\": {\"type\": \"string\"}, \"q4\": {\"type\": \"string\"}}}, \"note\": {\"type\": \"string\"}}}}}}"
+ ],
+ "prompt": "You are a blind code reader in an empirical software-engineering study. Work only from the files in the current directory.\n\n1. Read protocol.md first.\n2. Read batch.md. It names 20 Java files by id, their path in their repository, and their local copy under files/.\n3. For every file: read the whole file (use Read with offset and limit for files over 2000 lines, do not skip the tail). Identify the method with the highest cognitive complexity (the one with the most and deepest nested branches, loops and boolean chains) and name it. Then answer Q1, Q2, Q3 and Q4 from the protocol as true or false, each with one sentence of evidence from the file, and write a one-line note of the form \"methodName: what it does\". Do NOT derive or state the category; the mapping is applied later.\n4. Blindness: do not try to read anything outside the current directory and do not try to find out anything about these classes beyond the file itself.\n5. Answer with one entry per id of the batch, all 20 of them, in the required JSON form.\n",
+ "batch_md": "# Batch 8: 20 Java files to read under the protocol\n\n| id | class (path in its repository) | local file |\n|---|---|---|\n| u161 | beans/src/main/java/fr/pilato/elasticsearch/crawler/fs/beans/DocUtils.java | files/u161.java |\n| u162 | pmd-core/src/main/java/net/sourceforge/pmd/lang/rule/xpath/internal/SaxonExtensionFunctionDefinitionAdapter.java | files/u162.java |\n| u163 | app/src/main/java/com/termux/api/apis/SmsInboxAPI.java | files/u163.java |\n| u164 | soapui/src/main/java/org/syntax/jedit/tokenmarker/ShellScriptTokenMarker.java | files/u164.java |\n| u165 | runtime/catalog-schema-registry/src/main/java/io/aklivity/zilla/runtime/catalog/schema/registry/internal/handler/SchemaRegistryCatalogHandler.java | files/u165.java |\n| u166 | hollow/src/main/java/com/netflix/hollow/api/client/HollowUpdatePlanner.java | files/u166.java |\n| u167 | hazelcast/src/main/java/com/hazelcast/internal/config/AbstractConfigLocator.java | files/u167.java |\n| u168 | firetweet.component.common/src/main/java/org/getlantern/firetweet/util/HtmlBuilder.java | files/u168.java |\n| u169 | core/src/main/java/net/qihoo/hbox/client/ClientArguments.java | files/u169.java |\n| u170 | elasticsearch-client/src/main/java/fr/pilato/elasticsearch/crawler/fs/client/ElasticsearchClient.java | files/u170.java |\n| u171 | library/hls/src/main/java/com/google/android/exoplayer2/source/hls/HlsSampleStreamWrapper.java | files/u171.java |\n| u172 | km-persistence/src/main/java/com/xiaojukeji/know/streaming/km/persistence/es/dao/connect/BaseConnectorMetricESDAO.java | files/u172.java |\n| u173 | jetlinks-components/common-component/src/main/java/org/jetlinks/community/buffer/PersistenceBuffer.java | files/u173.java |\n| u174 | core/src/main/java/org/zstack/core/salt/SaltRunner.java | files/u174.java |\n| u175 | rt/libcore/luni/src/main/java/java/util/concurrent/ForkJoinPool.java | files/u175.java |\n| u176 | km-core/src/main/java/com/xiaojukeji/know/streaming/km/core/service/group/impl/GroupServiceImpl.java | files/u176.java |\n| u177 | runtime/binding-mcp-http/src/main/java/io/aklivity/zilla/runtime/binding/mcp/http/internal/config/McpHttpBindingConfig.java | files/u177.java |\n| u178 | extras/src/main/java/com/google/gson/typeadapters/UtcDateTypeAdapter.java | files/u178.java |\n| u179 | src/main/java/com/getjobs/application/service/Job51Service.java | files/u179.java |\n| u180 | src/main/java/com/gmail/nossr50/config/GeneralConfig.java | files/u180.java |\n",
+ "result": {
+  "duration_api_ms": 471999,
+  "stop_reason": "tool_use",
+  "session_id": "b2a9fcf1-f545-4f4c-a2b5-28a7e79bca4c",
+  "total_cost_usd": 6.542028,
+  "usage": {
+   "input_tokens": 230,
+   "cache_creation_input_tokens": 295991,
+   "cache_read_input_tokens": 1015832,
+   "output_tokens": 7319,
+   "output_tokens_details": {
+    "thinking_tokens": 197
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 295991,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "global",
+   "iterations": [
+    {
+     "input_tokens": 4,
+     "output_tokens": 4997,
+     "cache_read_input_tokens": 282559,
+     "cache_creation_input_tokens": 18788,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 18788
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-fable-5-1": {
+    "inputTokens": 230,
+    "outputTokens": 7319,
+    "cacheReadInputTokens": 1015832,
+    "cacheCreationInputTokens": 295991,
+    "webSearchRequests": 0,
+    "costUSD": 6.542028,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 64000,
+    "thinkingTokens": 197,
+    "canonicalModel": "claude-fable-5-1",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "{\"readings\":[{\"id\":\"u161\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"merge() loops over updateNode.properties() and recurses into objects and arrays to produce a merged JsonNode from its two inputs.\",\"q2\":\"Every method merges a Doc with tag JSON/YAML or pretty-prints it; one utility concern.\",\"q3\":\"It operates on Jackson JsonNode trees, which are plain data holders, not behaviour-bearing objects.\",\"q4\":\"The branching is nested isObject/isArray/null checks driving recursion, not a switch over one controlling value.\"},\"note\":\"merge: recursively merges updateNode's fields into mainNode, descending into objects and arrays and setting only missing fields\"},{\"id\":\"u162\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"The anonymous call() only wraps arguments and the result in Saxon types and forwards the actual work to call.call(contextNode, convertedArguments).\",\"q2\":\"The class solely adapts a PMD XPathFunctionDefinition to Saxon's ExtensionFunctionDefinition.\",\"q3\":\"It reads definition.getArgumentTypes()/getResultType() (depth-1 getters) on the adaptee it exists to wrap; nothing belongs elsewhere.\",\"q4\":\"Complexity is two switches over the XPathFunctionDefinition.Type enum (argument and result conversion), each case a one-line conversion.\"},\"note\":\"makeCallExpression().call (anonymous ExtensionFunctionCall): converts Saxon argument sequences to PMD values, invokes the PMD function, converts the result back by result type\"},{\"id\":\"u163\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"getConversations() iterates conversation and message cursors it queried and renders them into the JsonWriter, computing the output structure from its flag inputs.\",\"q2\":\"All methods serve listing SMS messages/conversations as JSON for the API.\",\"q3\":\"It reads Android Cursor rows (framework result sets) and writes JSON; no behaviour that should live in another class.\",\"q4\":\"Branching is nested loops and boolean flags (nested view, reverse order, multiple messages), not one switch over kinds.\"},\"note\":\"getConversations: queries SMS threads then each thread's messages via ContentResolver and writes them as JSON honouring nested/reverse/multi-message flags\"},{\"id\":\"u164\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"markTokensImpl() is a character-by-character lexer state machine over the line's char array producing token runs.\",\"q2\":\"The class is a single shell-script token marker with one method.\",\"q3\":\"It works only on the Segment passed in and inherited lineInfo/addToken state.\",\"q4\":\"The outer switch on token state and inner switch on char contain multi-statement state transitions with further nested conditions, not short lookup cases.\"},\"note\":\"markTokensImpl: per-line shell-script lexer state machine assigning token types to character runs\"},{\"id\":\"u165\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"resolve(subject, version) computes a schema id from its own caches, futures and an HTTP fetch with retry/backoff bookkeeping.\",\"q2\":\"All methods register, unregister, resolve, encode or decode schemas against one schema registry.\",\"q3\":\"It reads fields of CachedSchemaId/CachedSchema, which are its own cache value objects.\",\"q4\":\"Complexity is nested cache/future/retry conditions, not a switch over one controlling value.\"},\"note\":\"resolve(subject, version): looks up a schema id in local cache, else coordinates a shared future, fetches from the registry with retry/backoff state and emits events\"},{\"id\":\"u166\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"includeNearestSnapshot() walks back through snapshot blobs within a lookback limit to choose which transition to add to the plan it returns.\",\"q2\":\"Every method contributes to building a HollowUpdatePlan from current to desired version.\",\"q3\":\"It consults the retriever and verifier it was constructed with and reads VersionInfo (a value object); the planning decisions belong to the planner.\",\"q4\":\"Branching is a while loop with nested announcement-status checks, not a case table.\"},\"note\":\"includeNearestSnapshot: picks the snapshot blob at or below the desired version, walking back through announced versions within a lookback limit\"},{\"id\":\"u167\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"loadFromSystemProperty() reads a system property, validates its suffix and sets its own in/configurationFile/configurationUrl state.\",\"q2\":\"All methods locate and open a configuration file from system property, working dir, classpath or defaults.\",\"q3\":\"It works on System properties, files and classloader resources, setting its own fields.\",\"q4\":\"Sequential guards (null, suffix, classpath: prefix) rather than one switch over kinds.\"},\"note\":\"loadFromSystemProperty: reads a config path from a system property, validates its suffix, and loads it from classpath or file into the locator's fields\"},{\"id\":\"u168\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"build() iterates its sorted link specs and code points to assemble the HTML string it returns.\",\"q2\":\"The class builds HTML from source text plus added link ranges; LinkSpec is its own value type.\",\"q3\":\"It operates on its own codePoints array and links list.\",\"q4\":\"Branching is index/range checks within a loop, not a switch over one value.\"},\"note\":\"build: renders the source text as HTML, inserting <a> tags for sorted link ranges and (un)escaping the gaps\"},{\"id\":\"u169\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"cliParser() parses the args into the object's own fields with defaults and app-type-dependent rules.\",\"q2\":\"The class defines, parses and holds the client's command-line arguments.\",\"q3\":\"It reads the commons-cli CommandLine parse result (a data holder) and writes its own fields.\",\"q4\":\"It is many independent if(hasOption(x)) guards on different options, not one switch over a single controlling value.\"},\"note\":\"cliParser: parses command-line options and positional args into the argument fields with defaults and app-type-dependent rules\"},{\"id\":\"u170\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"executeWithRetry() implements a retry loop with exponential backoff and a wall-clock budget around httpCall, deciding from status codes and elapsed time.\",\"q2\":\"All methods are operations of one Elasticsearch REST client (requests, templates, search, bulk, node failover).\",\"q3\":\"It reads FsSettings (a config value object) and parses JSON responses; the retry/node logic is its own.\",\"q4\":\"Complexity is loop, catch and timing conditions, not a case table.\"},\"note\":\"executeWithRetry: retry loop around httpCall with exponential backoff for 5xx/429/cold-start 404 within a wall-clock budget\"},{\"id\":\"u171\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"selectTracks() updates enabledTrackGroupCount, streams and reset flags and computes whether a seek is required from its own queues and chunks.\",\"q2\":\"All methods manage loading HLS media chunks and exposing sample streams for one track type.\",\"q3\":\"It works on its own sampleQueues and mediaChunks, calling collaborators it owns (chunkSource, loader).\",\"q4\":\"Branching is loops with nested state conditions, not a switch over one value.\"},\"note\":\"selectTracks: applies renderer track selections, binding/unbinding sample queues and deciding whether a seek or reset is needed\"},{\"id\":\"u172\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"handleTopConnectorESQueryResponse() collects per-metric connector values from aggregation buckets, sorts them and truncates to topN, returning the map.\",\"q2\":\"All methods query connector metrics from Elasticsearch.\",\"q3\":\"The deep getter chains are over ES response objects (ESAggr/ESBucket), which are plain response data holders.\",\"q4\":\"Complexity is nested loops/lambdas with try/catch and null checks, not a case table.\"},\"note\":\"handleTopConnectorESQueryResponse: walks ES aggregation buckets to collect per-metric connector values, sorts them and keeps the topN\"},{\"id\":\"u173\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"dispose() drives the buffer's own shutdown: waits for wip to drain in a do-while, cancels flushers, moves the in-memory buffer to the file queue and closes queues.\",\"q2\":\"All members (flushing, requeue/dead queues, serialization type, MBean monitor) serve one persistent batching buffer.\",\"q3\":\"It operates on its own queues, buffer and counters.\",\"q4\":\"Branching is lifecycle conditions and loops, not a switch over kinds.\"},\"note\":\"dispose: marks disposed, cancels in-flight flushes while waiting for wip to drain, moves remaining buffer into the file queue and closes queues/schedulers\"},{\"id\":\"u174\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"doRunState() builds the salt command, runs it and parses the JSON output through nested loops to decide success.\",\"q2\":\"All methods set up a salt minion and run a salt state on a target host.\",\"q3\":\"It works on shell results and parsed JSON maps, not on another behaviour-bearing object's fields.\",\"q4\":\"Branching is nested loops over the parsed output with result checks, not a case table.\"},\"note\":\"doRunState: builds and runs the salt state.sls command, then parses its JSON output to detect failed states\"},{\"id\":\"u175\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"tryTerminate() implements the pool's termination protocol over its own ctl/plock state and workQueues array with CAS loops and three passes.\",\"q2\":\"The class is one work-stealing executor; nested WorkQueue/Submitter are its own data structures.\",\"q3\":\"WorkQueue fields are accessed directly by design as pool-managed state (per the style notes); nothing belongs elsewhere.\",\"q4\":\"Complexity is deeply nested loops and CAS conditions, not a switch over kinds.\"},\"note\":\"tryTerminate: initiates/completes pool termination with three passes over workQueues (set STOP_BIT, cancel tasks, interrupt/unpark workers); scan and tryHelpStealer are close seconds\"},{\"id\":\"u176\",\"q1\":false,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"batchReplaceGroupMembers() mainly decides which DAO call to make (insert/updateById/deleteById) per row and forwards POs to them.\",\"q2\":\"The class both administers consumer groups through Kafka AdminClient and persists/queries group tables in MySQL, plus op-log recording.\",\"q3\":\"It builds GroupMemberPO from group/member fields, copies dbPO.getId() into newPO and decides on dbPO.equal2GroupMemberPO(newPO) and group.getState().getState().\",\"q4\":\"Branching is loops with null/equality checks, not a switch over one value.\"},\"note\":\"batchReplaceGroupMembers: diffs new group-topic members against DB rows and inserts/updates/deletes via DAOs\"},{\"id\":\"u177\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"unsatisfiedAccessors() validates a route's accessors against the tool's JSON schema and resource captures, computing and caching the returned list.\",\"q2\":\"All methods resolve tools, resources, routes, guards and schemas for one MCP HTTP binding configuration.\",\"q3\":\"It reads route/tool/model config objects, which are plain config value holders.\",\"q4\":\"Branching is nested ifs and loops over accessors, not a switch over kinds.\"},\"note\":\"unsatisfiedAccessors: validates a route's arg/param accessors against the tool's JSON schema and the resource URI captures, caching the verdict\"},{\"id\":\"u178\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"parse() is a hand-written ISO-8601 parser computing a Date from offsets in the input string.\",\"q2\":\"The class only serializes and deserializes Date as UTC ISO-8601 for Gson.\",\"q3\":\"It works only on the string, ParsePosition and a Calendar it creates.\",\"q4\":\"Branching is sequential optional-field checks in a parser, not a case table.\"},\"note\":\"parse: hand-written ISO-8601 date parser producing a Date from yyyy-MM-dd[Thh:mm[:ss[.sss]]][Z|\u00b1hh:mm]\"},{\"id\":\"u179\",\"q1\":false,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"batchInsertIfNotExists() mainly forwards entity fields to PreparedStatement setters and mapper calls; its 18 if/else lines are null-guarded setter calls.\",\"q2\":\"The class loads config, normalizes options, creates tables via DDL, parses crawler JSON, batch-inserts rows, marks deliveries, computes stats/charts, pages lists, parses salaries and runs VACUUM.\",\"q3\":\"It copies fields between Job51Entity and PreparedStatement, JsonNode and entity, entity and Job51Row, deciding on entity fields throughout.\",\"q4\":\"The if/else chain checks 18 different fields for null, not one controlling value.\"},\"note\":\"batchInsertIfNotExists: filters out job rows already in DB, stamps timestamps, then binds 18 nullable columns per row into a JDBC batch insert\"},{\"id\":\"u180\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"validateKeys() checks the class's own config getters against valid ranges and returns the collected reasons.\",\"q2\":\"All methods are typed accessors and validation over one config.yml.\",\"q3\":\"It reads the underlying ConfigurationSection (a data holder) through its own getters.\",\"q4\":\"It is a flat list of independent range checks on different keys, not a switch over one value.\"},\"note\":\"validateKeys: checks dozens of config values for valid ranges and collects reason strings\"}]}",
+  "structured_output": {
+   "readings": [
+    {
+     "id": "u161",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "merge() loops over updateNode.properties() and recurses into objects and arrays to produce a merged JsonNode from its two inputs.",
+      "q2": "Every method merges a Doc with tag JSON/YAML or pretty-prints it; one utility concern.",
+      "q3": "It operates on Jackson JsonNode trees, which are plain data holders, not behaviour-bearing objects.",
+      "q4": "The branching is nested isObject/isArray/null checks driving recursion, not a switch over one controlling value."
+     },
+     "note": "merge: recursively merges updateNode's fields into mainNode, descending into objects and arrays and setting only missing fields"
+    },
+    {
+     "id": "u162",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "The anonymous call() only wraps arguments and the result in Saxon types and forwards the actual work to call.call(contextNode, convertedArguments).",
+      "q2": "The class solely adapts a PMD XPathFunctionDefinition to Saxon's ExtensionFunctionDefinition.",
+      "q3": "It reads definition.getArgumentTypes()/getResultType() (depth-1 getters) on the adaptee it exists to wrap; nothing belongs elsewhere.",
+      "q4": "Complexity is two switches over the XPathFunctionDefinition.Type enum (argument and result conversion), each case a one-line conversion."
+     },
+     "note": "makeCallExpression().call (anonymous ExtensionFunctionCall): converts Saxon argument sequences to PMD values, invokes the PMD function, converts the result back by result type"
+    },
+    {
+     "id": "u163",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "getConversations() iterates conversation and message cursors it queried and renders them into the JsonWriter, computing the output structure from its flag inputs.",
+      "q2": "All methods serve listing SMS messages/conversations as JSON for the API.",
+      "q3": "It reads Android Cursor rows (framework result sets) and writes JSON; no behaviour that should live in another class.",
+      "q4": "Branching is nested loops and boolean flags (nested view, reverse order, multiple messages), not one switch over kinds."
+     },
+     "note": "getConversations: queries SMS threads then each thread's messages via ContentResolver and writes them as JSON honouring nested/reverse/multi-message flags"
+    },
+    {
+     "id": "u164",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "markTokensImpl() is a character-by-character lexer state machine over the line's char array producing token runs.",
+      "q2": "The class is a single shell-script token marker with one method.",
+      "q3": "It works only on the Segment passed in and inherited lineInfo/addToken state.",
+      "q4": "The outer switch on token state and inner switch on char contain multi-statement state transitions with further nested conditions, not short lookup cases."
+     },
+     "note": "markTokensImpl: per-line shell-script lexer state machine assigning token types to character runs"
+    },
+    {
+     "id": "u165",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "resolve(subject, version) computes a schema id from its own caches, futures and an HTTP fetch with retry/backoff bookkeeping.",
+      "q2": "All methods register, unregister, resolve, encode or decode schemas against one schema registry.",
+      "q3": "It reads fields of CachedSchemaId/CachedSchema, which are its own cache value objects.",
+      "q4": "Complexity is nested cache/future/retry conditions, not a switch over one controlling value."
+     },
+     "note": "resolve(subject, version): looks up a schema id in local cache, else coordinates a shared future, fetches from the registry with retry/backoff state and emits events"
+    },
+    {
+     "id": "u166",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "includeNearestSnapshot() walks back through snapshot blobs within a lookback limit to choose which transition to add to the plan it returns.",
+      "q2": "Every method contributes to building a HollowUpdatePlan from current to desired version.",
+      "q3": "It consults the retriever and verifier it was constructed with and reads VersionInfo (a value object); the planning decisions belong to the planner.",
+      "q4": "Branching is a while loop with nested announcement-status checks, not a case table."
+     },
+     "note": "includeNearestSnapshot: picks the snapshot blob at or below the desired version, walking back through announced versions within a lookback limit"
+    },
+    {
+     "id": "u167",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "loadFromSystemProperty() reads a system property, validates its suffix and sets its own in/configurationFile/configurationUrl state.",
+      "q2": "All methods locate and open a configuration file from system property, working dir, classpath or defaults.",
+      "q3": "It works on System properties, files and classloader resources, setting its own fields.",
+      "q4": "Sequential guards (null, suffix, classpath: prefix) rather than one switch over kinds."
+     },
+     "note": "loadFromSystemProperty: reads a config path from a system property, validates its suffix, and loads it from classpath or file into the locator's fields"
+    },
+    {
+     "id": "u168",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "build() iterates its sorted link specs and code points to assemble the HTML string it returns.",
+      "q2": "The class builds HTML from source text plus added link ranges; LinkSpec is its own value type.",
+      "q3": "It operates on its own codePoints array and links list.",
+      "q4": "Branching is index/range checks within a loop, not a switch over one value."
+     },
+     "note": "build: renders the source text as HTML, inserting <a> tags for sorted link ranges and (un)escaping the gaps"
+    },
+    {
+     "id": "u169",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "cliParser() parses the args into the object's own fields with defaults and app-type-dependent rules.",
+      "q2": "The class defines, parses and holds the client's command-line arguments.",
+      "q3": "It reads the commons-cli CommandLine parse result (a data holder) and writes its own fields.",
+      "q4": "It is many independent if(hasOption(x)) guards on different options, not one switch over a single controlling value."
+     },
+     "note": "cliParser: parses command-line options and positional args into the argument fields with defaults and app-type-dependent rules"
+    },
+    {
+     "id": "u170",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "executeWithRetry() implements a retry loop with exponential backoff and a wall-clock budget around httpCall, deciding from status codes and elapsed time.",
+      "q2": "All methods are operations of one Elasticsearch REST client (requests, templates, search, bulk, node failover).",
+      "q3": "It reads FsSettings (a config value object) and parses JSON responses; the retry/node logic is its own.",
+      "q4": "Complexity is loop, catch and timing conditions, not a case table."
+     },
+     "note": "executeWithRetry: retry loop around httpCall with exponential backoff for 5xx/429/cold-start 404 within a wall-clock budget"
+    },
+    {
+     "id": "u171",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "selectTracks() updates enabledTrackGroupCount, streams and reset flags and computes whether a seek is required from its own queues and chunks.",
+      "q2": "All methods manage loading HLS media chunks and exposing sample streams for one track type.",
+      "q3": "It works on its own sampleQueues and mediaChunks, calling collaborators it owns (chunkSource, loader).",
+      "q4": "Branching is loops with nested state conditions, not a switch over one value."
+     },
+     "note": "selectTracks: applies renderer track selections, binding/unbinding sample queues and deciding whether a seek or reset is needed"
+    },
+    {
+     "id": "u172",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "handleTopConnectorESQueryResponse() collects per-metric connector values from aggregation buckets, sorts them and truncates to topN, returning the map.",
+      "q2": "All methods query connector metrics from Elasticsearch.",
+      "q3": "The deep getter chains are over ES response objects (ESAggr/ESBucket), which are plain response data holders.",
+      "q4": "Complexity is nested loops/lambdas with try/catch and null checks, not a case table."
+     },
+     "note": "handleTopConnectorESQueryResponse: walks ES aggregation buckets to collect per-metric connector values, sorts them and keeps the topN"
+    },
+    {
+     "id": "u173",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "dispose() drives the buffer's own shutdown: waits for wip to drain in a do-while, cancels flushers, moves the in-memory buffer to the file queue and closes queues.",
+      "q2": "All members (flushing, requeue/dead queues, serialization type, MBean monitor) serve one persistent batching buffer.",
+      "q3": "It operates on its own queues, buffer and counters.",
+      "q4": "Branching is lifecycle conditions and loops, not a switch over kinds."
+     },
+     "note": "dispose: marks disposed, cancels in-flight flushes while waiting for wip to drain, moves remaining buffer into the file queue and closes queues/schedulers"
+    },
+    {
+     "id": "u174",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "doRunState() builds the salt command, runs it and parses the JSON output through nested loops to decide success.",
+      "q2": "All methods set up a salt minion and run a salt state on a target host.",
+      "q3": "It works on shell results and parsed JSON maps, not on another behaviour-bearing object's fields.",
+      "q4": "Branching is nested loops over the parsed output with result checks, not a case table."
+     },
+     "note": "doRunState: builds and runs the salt state.sls command, then parses its JSON output to detect failed states"
+    },
+    {
+     "id": "u175",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "tryTerminate() implements the pool's termination protocol over its own ctl/plock state and workQueues array with CAS loops and three passes.",
+      "q2": "The class is one work-stealing executor; nested WorkQueue/Submitter are its own data structures.",
+      "q3": "WorkQueue fields are accessed directly by design as pool-managed state (per the style notes); nothing belongs elsewhere.",
+      "q4": "Complexity is deeply nested loops and CAS conditions, not a switch over kinds."
+     },
+     "note": "tryTerminate: initiates/completes pool termination with three passes over workQueues (set STOP_BIT, cancel tasks, interrupt/unpark workers); scan and tryHelpStealer are close seconds"
+    },
+    {
+     "id": "u176",
+     "q1": false,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "batchReplaceGroupMembers() mainly decides which DAO call to make (insert/updateById/deleteById) per row and forwards POs to them.",
+      "q2": "The class both administers consumer groups through Kafka AdminClient and persists/queries group tables in MySQL, plus op-log recording.",
+      "q3": "It builds GroupMemberPO from group/member fields, copies dbPO.getId() into newPO and decides on dbPO.equal2GroupMemberPO(newPO) and group.getState().getState().",
+      "q4": "Branching is loops with null/equality checks, not a switch over one value."
+     },
+     "note": "batchReplaceGroupMembers: diffs new group-topic members against DB rows and inserts/updates/deletes via DAOs"
+    },
+    {
+     "id": "u177",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "unsatisfiedAccessors() validates a route's accessors against the tool's JSON schema and resource captures, computing and caching the returned list.",
+      "q2": "All methods resolve tools, resources, routes, guards and schemas for one MCP HTTP binding configuration.",
+      "q3": "It reads route/tool/model config objects, which are plain config value holders.",
+      "q4": "Branching is nested ifs and loops over accessors, not a switch over kinds."
+     },
+     "note": "unsatisfiedAccessors: validates a route's arg/param accessors against the tool's JSON schema and the resource URI captures, caching the verdict"
+    },
+    {
+     "id": "u178",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "parse() is a hand-written ISO-8601 parser computing a Date from offsets in the input string.",
+      "q2": "The class only serializes and deserializes Date as UTC ISO-8601 for Gson.",
+      "q3": "It works only on the string, ParsePosition and a Calendar it creates.",
+      "q4": "Branching is sequential optional-field checks in a parser, not a case table."
+     },
+     "note": "parse: hand-written ISO-8601 date parser producing a Date from yyyy-MM-dd[Thh:mm[:ss[.sss]]][Z|\u00b1hh:mm]"
+    },
+    {
+     "id": "u179",
+     "q1": false,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "batchInsertIfNotExists() mainly forwards entity fields to PreparedStatement setters and mapper calls; its 18 if/else lines are null-guarded setter calls.",
+      "q2": "The class loads config, normalizes options, creates tables via DDL, parses crawler JSON, batch-inserts rows, marks deliveries, computes stats/charts, pages lists, parses salaries and runs VACUUM.",
+      "q3": "It copies fields between Job51Entity and PreparedStatement, JsonNode and entity, entity and Job51Row, deciding on entity fields throughout.",
+      "q4": "The if/else chain checks 18 different fields for null, not one controlling value."
+     },
+     "note": "batchInsertIfNotExists: filters out job rows already in DB, stamps timestamps, then binds 18 nullable columns per row into a JDBC batch insert"
+    },
+    {
+     "id": "u180",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "validateKeys() checks the class's own config getters against valid ranges and returns the collected reasons.",
+      "q2": "All methods are typed accessors and validation over one config.yml.",
+      "q3": "It reads the underlying ConfigurationSection (a data holder) through its own getters.",
+      "q4": "It is a flat list of independent range checks on different keys, not a switch over one value."
+     },
+     "note": "validateKeys: checks dozens of config values for valid ranges and collects reason strings"
+    }
+   ]
+  },
+  "ttft_ms": 2467,
+  "type": "result",
+  "duration_ms": 474773,
+  "uuid": "c3627ded-f33e-405c-a94e-2be905000011",
+  "ttft_stream_ms": 2154,
+  "time_to_request_ms": 466,
+  "first_content_frame_ms": 2155,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

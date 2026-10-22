@@ -1,0 +1,440 @@
+{
+ "batch": 9,
+ "ids": [
+  "u181",
+  "u182",
+  "u183",
+  "u184",
+  "u185",
+  "u186",
+  "u187",
+  "u188",
+  "u189",
+  "u190",
+  "u191",
+  "u192",
+  "u193",
+  "u194",
+  "u195",
+  "u196",
+  "u197",
+  "u198",
+  "u199",
+  "u200"
+ ],
+ "model": "claude-fable-5-1",
+ "claude_version": "2.1.307 (Claude Code)",
+ "scripts_commit": "3b9e92236d85fc2b2f66e941af818bed4accbb85",
+ "scripts": [
+  "paper/scripts/fp_reading.py",
+  "paper/scripts/false_positives.py",
+  "paper/scripts/common.py"
+ ],
+ "started_utc": "2026-10-22T09:52:18Z",
+ "returncode": 0,
+ "command": [
+  "claude",
+  "-p",
+  "<prompt>",
+  "--model",
+  "claude-fable-5-1",
+  "--tools",
+  "Read",
+  "--permission-mode",
+  "dontAsk",
+  "--safe-mode",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json",
+  "--json-schema",
+  "{\"type\": \"object\", \"required\": [\"readings\"], \"properties\": {\"readings\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"id\", \"q1\", \"q2\", \"q3\", \"q4\", \"evidence\", \"note\"], \"properties\": {\"id\": {\"type\": \"string\"}, \"q1\": {\"type\": \"boolean\"}, \"q2\": {\"type\": \"boolean\"}, \"q3\": {\"type\": \"boolean\"}, \"q4\": {\"type\": \"boolean\"}, \"evidence\": {\"type\": \"object\", \"required\": [\"q1\", \"q2\", \"q3\", \"q4\"], \"properties\": {\"q1\": {\"type\": \"string\"}, \"q2\": {\"type\": \"string\"}, \"q3\": {\"type\": \"string\"}, \"q4\": {\"type\": \"string\"}}}, \"note\": {\"type\": \"string\"}}}}}}"
+ ],
+ "prompt": "You are a blind code reader in an empirical software-engineering study. Work only from the files in the current directory.\n\n1. Read protocol.md first.\n2. Read batch.md. It names 20 Java files by id, their path in their repository, and their local copy under files/.\n3. For every file: read the whole file (use Read with offset and limit for files over 2000 lines, do not skip the tail). Identify the method with the highest cognitive complexity (the one with the most and deepest nested branches, loops and boolean chains) and name it. Then answer Q1, Q2, Q3 and Q4 from the protocol as true or false, each with one sentence of evidence from the file, and write a one-line note of the form \"methodName: what it does\". Do NOT derive or state the category; the mapping is applied later.\n4. Blindness: do not try to read anything outside the current directory and do not try to find out anything about these classes beyond the file itself.\n5. Answer with one entry per id of the batch, all 20 of them, in the required JSON form.\n",
+ "batch_md": "# Batch 9: 20 Java files to read under the protocol\n\n| id | class (path in its repository) | local file |\n|---|---|---|\n| u181 | iotdb-core/datanode/src/main/java/org/apache/iotdb/db/schemaengine/schemaregion/impl/SchemaRegionPBTreeImpl.java | files/u181.java |\n| u182 | library/core/src/main/java/com/google/android/exoplayer2/audio/DefaultAudioSink.java | files/u182.java |\n| u183 | compute/src/main/java/org/zstack/compute/allocator/HostStateAndHypervisorAllocatorFlow.java | files/u183.java |\n| u184 | lectures/16-math/code/src/com/kunal/maths/Factors.java | files/u184.java |\n| u185 | resteasy-client/src/main/java/org/jboss/resteasy/client/jaxrs/engines/ManualClosingApacheHttpClient43Engine.java | files/u185.java |\n| u186 | src/main/java/com/gmail/nossr50/util/scoreboards/ScoreboardManager.java | files/u186.java |\n| u187 | src/main/java/com/gmail/nossr50/listeners/EntityListener.java | files/u187.java |\n| u188 | 08 dubbo\u5fae\u4fe1\u5f00\u53d1/dubbo-admin-develop/dubbo-admin-server/src/main/java/org/apache/dubbo/admin/service/impl/ProviderServiceImpl.java | files/u188.java |\n| u189 | firetweet/src/main/java/org/getlantern/firetweet/util/Utils.java | files/u189.java |\n| u190 | firetweet/src/main/java/org/getlantern/firetweet/view/holder/StatusViewHolder.java | files/u190.java |\n| u191 | app/src/main/java/ml/docilealligator/infinityforreddit/activities/CommentActivity.java | files/u191.java |\n| u192 | soapui/src/main/java/com/eviware/soapui/impl/wsdl/endpoint/DefaultEndpointStrategy.java | files/u192.java |\n| u193 | lectures/10-binary search/code/src/com/kunal/SplitArray.java | files/u193.java |\n| u194 | extras/src/main/java/com/google/gson/typeadapters/RuntimeTypeAdapterFactory.java | files/u194.java |\n| u195 | bottom-bar/src/main/java/com/roughike/bottombar/BottomBar.java | files/u195.java |\n| u196 | pmd-java/src/main/java/net/sourceforge/pmd/lang/java/rule/bestpractices/MethodReturnsInternalArrayRule.java | files/u196.java |\n| u197 | codegen/src/main/java/org/robobinding/codegen/presentationmodel/processor/DataSetPropertyInfoBuilder.java | files/u197.java |\n| u198 | soapui/src/main/java/com/eviware/soapui/impl/wsdl/actions/request/AddRequestToMockServiceAction.java | files/u198.java |\n| u199 | gson/src/main/java/com/google/gson/internal/bind/ReflectiveTypeAdapterFactory.java | files/u199.java |\n| u200 | src/main/java/com/gmail/nossr50/datatypes/LevelUpBroadcastPredicate.java | files/u200.java |\n",
+ "result": {
+  "duration_api_ms": 191107,
+  "stop_reason": "tool_use",
+  "session_id": "f2dda18d-754c-4431-a066-5f4398cb78d3",
+  "total_cost_usd": 7.249261,
+  "usage": {
+   "input_tokens": 162,
+   "cache_creation_input_tokens": 320173,
+   "cache_read_input_tokens": 446324,
+   "output_tokens": 14652,
+   "output_tokens_details": {
+    "thinking_tokens": 6080
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 320173,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "global",
+   "iterations": [
+    {
+     "input_tokens": 32,
+     "output_tokens": 11986,
+     "cache_read_input_tokens": 215487,
+     "cache_creation_input_tokens": 110042,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 110042
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-fable-5-1": {
+    "inputTokens": 162,
+    "outputTokens": 14652,
+    "cacheReadInputTokens": 446324,
+    "cacheCreationInputTokens": 320173,
+    "webSearchRequests": 0,
+    "costUSD": 7.249261,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 64000,
+    "thinkingTokens": 6080,
+    "canonicalModel": "claude-fable-5-1",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "{\"readings\":[{\"id\":\"u181\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"createAlignedTimeSeries mostly sequences calls into mtree.createAlignedTimeSeries, tagManager.addIndex/writeTagFile, mtree.pinMNode/updateMNode and writeToMLog, deciding which to call in what order rather than computing a value.\",\"q2\":\"Every method (init/recover, create/delete timeseries, tag and attribute ops, templates, snapshots, readers) serves the single concept of one schema region's metadata store.\",\"q3\":\"Decisions hinge on other behaviour-bearing objects' state such as leafMNode.getOffset() < 0, measurementMNode.isLogicalView(), plan.getTags(), and getter chains like o.getAsMeasurementMNode().setOffset(offset) and node.getParent().getAsDeviceMNode().isAligned().\",\"q4\":\"There is no switch over a controlling value; the complexity is nested loops over measurements and guards on recovery state, tags and attributes.\"},\"note\":\"createAlignedTimeSeries: creates a batch of aligned measurements in the MTree, merges existing ones, updates tag index/tag file offsets and writes the plan to the mlog.\"},{\"id\":\"u182\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"handleBuffer is a state machine over the sink's own fields (pendingConfiguration, startMediaTimeUs, inputBuffer, submittedPcmBytes, framesPerEncodedSample) that drains, reconfigures, syncs timing and feeds the processing pipeline before returning whether the buffer was consumed.\",\"q2\":\"All methods (configure, handleBuffer, writeBuffer, flush, playback params, volume, offload callbacks) serve the single concept of playing audio through an AudioTrack.\",\"q3\":\"The method works almost entirely on the sink's own fields and its own inner Configuration/MediaPositionParameters data holders; AudioTrack calls are the sink's own output, not borrowed logic.\",\"q4\":\"Complexity comes from sequential guarded phases (pending config, init, time sync, submit) rather than one switch over a kind value; the only switch (getFramesPerEncodedSample) is a small helper.\"},\"note\":\"handleBuffer: accepts an input buffer, handles pending reconfiguration/drain, initializes the AudioTrack, syncs start media time, and pushes data through the processing pipeline to the track.\"},{\"id\":\"u183\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"allocate() computes the filtered host list from the DB query or the candidate list and derives a specific ErrorCode from the candidates' state before calling fail/next.\",\"q2\":\"The class is one allocator flow step: filter hosts by Enabled/Connected state and hypervisor type.\",\"q3\":\"It reads HostVO.getState()/getStatus()/getHypervisorType(), but HostVO is a plain value object with no behaviour to move; the decisions belong to the allocator.\",\"q4\":\"The if/else-if chain (isNoConnectedHost, isNoEnabledHost, isNoHypervisor) is a set of separate diagnostic conditions, not a dispatch over kinds of one value.\"},\"note\":\"allocate: filters candidate hosts to Enabled+Connected with the requested hypervisor type and fails with a diagnostic error when none remain.\"},{\"id\":\"u184\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"factors3 computes the factors of n with a sqrt loop and a buffered list, a pure numeric routine over its parameter.\",\"q2\":\"The class contains three variants of the same factorization routine and a main; one concept.\",\"q3\":\"It uses only an int parameter and a local ArrayList; no other objects' data.\",\"q4\":\"No switch or type chain; complexity is a loop with a nested if/else and a second loop.\"},\"note\":\"factors3: prints all factors of n in O(sqrt n) by printing small divisors and buffering their complements.\"},{\"id\":\"u185\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"invoke (with its anonymous FinalizedClientResponse.releaseConnection) forwards to httpClient.execute, loadHttpMethod, entity.getContent() and stream.close(), deciding the order of calls rather than computing a value.\",\"q2\":\"All methods serve one concept: an Apache HttpClient based engine that builds, sends and wraps JAX-RS requests/responses.\",\"q3\":\"It copies data between request/response objects: res.getStatusLine().getStatusCode()/getReasonPhrase() into the ClientResponse, request.getHeaders().asMap() into httpMethod headers, and request.getClient().httpEngine() in getCurrentConfiguration.\",\"q4\":\"No switch over a kind value; complexity is nested try/finally and null checks in connection release.\"},\"note\":\"invoke: executes the ClientInvocation through Apache HttpClient and wraps the HttpResponse in a ClientResponse whose stream handling releases the connection.\"},{\"id\":\"u186\",\"q1\":true,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"buildLabels computes the class's own static label maps (skillLabels, abilityLabelsColored, abilityLabelsSkill) and header strings from locale and config values.\",\"q2\":\"All methods serve managing per-player mcMMO scoreboards: labels, backend selection, player setup/teardown, board display and power level tags.\",\"q3\":\"It relies on getter chains such as mcMMO.p.getSkillTools().getSuperAbility(primarySkillType).getLocalizedName() and mcMMO.p.getGeneralConfig().getScoreboardRainbows(), and decides on wrapper.isStatsScoreboard()/wrapper.targetSkill in several methods.\",\"q4\":\"The only switch (backend type in init) is small; buildLabels' complexity is nested loops and ifs over skills and colors.\"},\"note\":\"buildLabels: builds the localized, color-styled skill and ability label maps used on the scoreboards, in rainbow or normal color scheme.\"},{\"id\":\"u187\",\"q1\":false,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"onEntityDamage forwards to InteractionManager.processEvent, tamingManager.processEnvironmentallyAware, Taming.processThickFur, event.setCancelled etc., choosing which to call based on guards.\",\"q2\":\"The listener handles unrelated concerns: arrow metadata, falling block tracking, combat damage, pet taming abilities, blast mining, food diets, potion splash fixes and crossbows.\",\"q3\":\"Decisions are made on other objects' fields such as pet.getOwner(), mmoPlayer.getGodMode(), tamingManager.canUseThickFur(), event.getFinalDamage(), and projectile.getShooter() instanceof Player.\",\"q4\":\"The switch on DamageCause is one part, but most complexity is layered guard conditions (world blacklist, WorldGuard, NPC, profile loaded) before it.\"},\"note\":\"onEntityDamage: on an entity damage event, applies god mode/recent-hurt bookkeeping for players and taming damage-reduction abilities for owned wolves depending on the damage cause.\"},{\"id\":\"u188\",\"q1\":true,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"getServiceDTOS computes and returns a set of ServiceDTOs by choosing exact or regex-based matching over candidates and collecting providers.\",\"q2\":\"All methods serve one concept: querying and managing provider registrations from the registry cache.\",\"q3\":\"Methods iterate the registry cache reading u.getAddress()/u.getParameter(Constants.APPLICATION) from URL objects and convertProviders2DTO copies Provider fields into ServiceDTO.\",\"q4\":\"The if/else-if on pattern (IP/SERVICE/APPLICATION) is small; complexity is the regex loop and nested branches, not a dispatch table.\"},\"note\":\"getServiceDTOS: finds providers by address/service/application, exactly or by fuzzy regex, and converts them to ServiceDTOs.\"},{\"id\":\"u189\",\"q1\":true,\"q2\":false,\"q3\":true,\"q4\":true,\"evidence\":{\"q1\":\"createFragmentForIntent uses the intent's uri and extras to build an args Bundle and returns the constructed Fragment.\",\"q2\":\"Utils is a grab bag: URI matching, DB cleanup, account lookups, Twitter client construction, error messages, opening activities, menus, toasts and Pebble notifications.\",\"q3\":\"It mostly reads other objects' data: uri.getQueryParameter, cursor columns, status.user_screen_name, context.getSharedPreferences().getString, and copies them into intents/bundles.\",\"q4\":\"The complexity is one large switch over linkId with ~25 cases, each a few lines constructing a fragment and putting args.\"},\"note\":\"createFragmentForIntent: maps a link id and intent uri to the matching Fragment subclass, filling its argument bundle from query parameters and the account id.\"},{\"id\":\"u190\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"displayStatus(Cursor, CursorIndices, boolean) mainly forwards values into views' setters (setText, setVisibility, setImageResource, displayProfileImage) rather than computing a return value or own state.\",\"q2\":\"All methods serve one concept: binding a status to the row views of a RecyclerView item.\",\"q3\":\"It decides on adapter.isProfileImageEnabled(), adapter.getLinkHighlightingStyle(), twitter.isDestroyingStatus(...) and copies cursor/status fields into views.\",\"q4\":\"The complexity is a sequence of if/else blocks on retweet/reply/quote/media conditions, not one switch over a kind value.\"},\"note\":\"displayStatus(Cursor...): reads a status row from a cursor and renders names, text, quote, media preview, counts and icons into the holder's views.\"},{\"id\":\"u191\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"onCreate is a sequence of setup calls: inject, inflate binding, register EventBus, set listeners, build markwon plugins, adapters and view model, with no computed result.\",\"q2\":\"All methods serve the single comment-composition screen (parent preview, editor, account choice, image/gif insertion, send).\",\"q3\":\"It uses chains like binding.commentCommentEditText.getText().toString(), intent.getExtras().getInt(...), selectedAccount.getProfileImageUrl() and decides on other objects' state throughout.\",\"q4\":\"No switch over a kind value; complexity is nested anonymous callbacks and conditionals in onCreate.\"},\"note\":\"onCreate: initializes the comment activity UI, parent post preview with markdown, account display, markdown toolbar, draft loading and back-press handling.\"},{\"id\":\"u192\",\"q1\":true,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"filterRequest matches the request URI against the class's own defaults map (exact, then property-expanded, then host-only for REST) to find the EndpointDefaults to apply.\",\"q2\":\"All methods serve one concept: per-endpoint default credentials for a project and applying them to outgoing requests.\",\"q3\":\"The apply methods decide on and copy other objects' fields: wsdlRequest.getUsername()/getWssPasswordType(), def.getWssType(), ec.getDomain() etc., pushing them into HttpAuthenticationRequestFilter and WssAuthenticationRequestFilter.\",\"q4\":\"The mode branch (OVERRIDE/COPY/COMPLEMENT) is three calls; the main complexity is nested loops and try/catch in filterRequest and nested ternaries in complementRequest.\"},\"note\":\"filterRequest: finds the EndpointDefaults matching the request's URI (direct, expanded or host match) and applies its credentials to the request.\"},{\"id\":\"u193\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"splitArray performs a binary search on the answer with an inner greedy partition count over the nums array and returns the minimal largest sum.\",\"q2\":\"The class is a single LeetCode solution with a main stub.\",\"q3\":\"It uses only its int[] and int parameters and local variables.\",\"q4\":\"No switch or type chain; complexity is a while loop containing a for loop with an if/else.\"},\"note\":\"splitArray: binary-searches the minimum possible largest subarray sum when splitting nums into m parts.\"},{\"id\":\"u194\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"create builds and returns a TypeAdapter whose read/write decode and encode polymorphic JSON using the type field and the factory's own label/subtype maps.\",\"q2\":\"All methods serve one concept: a runtime-type-dispatching Gson TypeAdapterFactory.\",\"q3\":\"It works on JsonElement/JsonObject trees (data) and its own maps; no behaviour belonging to other classes.\",\"q4\":\"No switch; complexity is null/handle checks and the anonymous read/write bodies with map lookups and error branches.\"},\"note\":\"create: returns a nullSafe TypeAdapter that reads the type label to pick a delegate adapter and writes the label into the serialized object.\"},{\"id\":\"u195\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"updateItems is a layout pass that computes each tab's type, selects the current one, records currentTabs and then resizes tabs, i.e. it sets the bar's own state from the parsed tab list.\",\"q2\":\"All methods serve one widget: a bottom navigation bar with tabs, selection, shifting and background animations.\",\"q3\":\"It mostly manipulates its own child tabs and own fields (currentTabPosition, widths, colors); reads like tabView.isActive() are on its own children.\",\"q4\":\"No switch over a kind value; complexity is a loop with nested if/else on mode and index.\"},\"note\":\"updateItems: assigns type and selection state to each parsed BottomBarTab, wires click listeners, stores them and resizes them for the current mode.\"},{\"id\":\"u196\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"findEscapingField is a backward provenance analysis over expressions and reaching definitions that returns the field reference that escapes.\",\"q2\":\"All methods serve one rule: detect methods returning an internal array.\",\"q3\":\"It works on AST nodes, symbols and dataflow results, which are syntax-tree data, not behaviour-bearing objects to move logic into.\",\"q4\":\"The method is an instanceof chain over the single expression variable with short cases delegating to fromNamedReference/fromMethodCall etc.\"},\"note\":\"findEscapingField: recursively traces an expression (casts, conditionals, switches, array access, calls) back to an internal array field reference, if any.\"},{\"id\":\"u197\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"checkFactoryMethod validates by querying factoryMethod.hasNoParameter()/hasSingleParameterTyped and returnType.isAssignableTo, then throws; it computes no value or own state.\",\"q2\":\"All methods serve one concept: building a DataSetPropertyInfo from a getter and its annotation.\",\"q3\":\"Decisions are made on other behaviour-bearing objects' state (annotation.hasFactoryMethod(), factoryMethod.returnType().isAssignableTo(...)) and values are passed through from annotation getters.\",\"q4\":\"No switch; complexity is a boolean chain with a nested if.\"},\"note\":\"checkFactoryMethod: verifies the configured factory method exists with no or one int parameter and returns the item presentation model type, else throws.\"},{\"id\":\"u198\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"perform prompts the user and forwards to project.addNewMockService, mockService.addNewMockOperation, mockOperation.addNewMockResponse and SoapUI.getDesktop().showDesktopPanel, choosing the order of calls.\",\"q2\":\"The class is one UI action: add a request to a mock service.\",\"q3\":\"It uses chains like request.getOperation().getInterface().getProject() and mockOperation.getMockService() and copies response content, attachments and headers from WsdlResponse into the new WsdlMockResponse.\",\"q4\":\"No switch; complexity is a while loop with nested prompts and null checks.\"},\"note\":\"perform: picks or creates a mock service and operation for the request, adds a mock response copied from the actual response, and optionally opens the editor.\"},{\"id\":\"u199\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"getBoundFields walks the class hierarchy with reflection and computes the FieldsData maps of bound fields, returning them.\",\"q2\":\"All methods serve one concept: creating reflective TypeAdapters for ordinary classes and records.\",\"q3\":\"It works on java.lang.reflect Field/Class metadata and its own BoundField/FieldsData holders; no behaviour belongs to other classes.\",\"q4\":\"No switch over a kind value; complexity is a while over superclasses containing a for over fields with record/access checks.\"},\"note\":\"getBoundFields: collects serializable and deserializable fields of a type and its superclasses into BoundFields, handling records, access filters and duplicate names.\"},{\"id\":\"u200\",\"q1\":true,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"test computes and returns a boolean deciding whether a recipient should receive the level-up broadcast.\",\"q2\":\"The class is a single predicate for level-up broadcast recipients.\",\"q3\":\"It decides on other objects' fields via chains like mmoBroadcastingPlayer.getPlayer().getWorld(), mcMMO.p.getGeneralConfig().isLevelUpBroadcastsPartyMembersOnly() and mmoListeningPlayer.getParty().\",\"q4\":\"No switch; complexity is nested if guards on party, world, distance and visibility.\"},\"note\":\"test: returns whether the listener (player or console) should receive the broadcaster's level-up message based on party, world, distance and visibility config.\"}]}",
+  "structured_output": {
+   "readings": [
+    {
+     "id": "u181",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "createAlignedTimeSeries mostly sequences calls into mtree.createAlignedTimeSeries, tagManager.addIndex/writeTagFile, mtree.pinMNode/updateMNode and writeToMLog, deciding which to call in what order rather than computing a value.",
+      "q2": "Every method (init/recover, create/delete timeseries, tag and attribute ops, templates, snapshots, readers) serves the single concept of one schema region's metadata store.",
+      "q3": "Decisions hinge on other behaviour-bearing objects' state such as leafMNode.getOffset() < 0, measurementMNode.isLogicalView(), plan.getTags(), and getter chains like o.getAsMeasurementMNode().setOffset(offset) and node.getParent().getAsDeviceMNode().isAligned().",
+      "q4": "There is no switch over a controlling value; the complexity is nested loops over measurements and guards on recovery state, tags and attributes."
+     },
+     "note": "createAlignedTimeSeries: creates a batch of aligned measurements in the MTree, merges existing ones, updates tag index/tag file offsets and writes the plan to the mlog."
+    },
+    {
+     "id": "u182",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "handleBuffer is a state machine over the sink's own fields (pendingConfiguration, startMediaTimeUs, inputBuffer, submittedPcmBytes, framesPerEncodedSample) that drains, reconfigures, syncs timing and feeds the processing pipeline before returning whether the buffer was consumed.",
+      "q2": "All methods (configure, handleBuffer, writeBuffer, flush, playback params, volume, offload callbacks) serve the single concept of playing audio through an AudioTrack.",
+      "q3": "The method works almost entirely on the sink's own fields and its own inner Configuration/MediaPositionParameters data holders; AudioTrack calls are the sink's own output, not borrowed logic.",
+      "q4": "Complexity comes from sequential guarded phases (pending config, init, time sync, submit) rather than one switch over a kind value; the only switch (getFramesPerEncodedSample) is a small helper."
+     },
+     "note": "handleBuffer: accepts an input buffer, handles pending reconfiguration/drain, initializes the AudioTrack, syncs start media time, and pushes data through the processing pipeline to the track."
+    },
+    {
+     "id": "u183",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "allocate() computes the filtered host list from the DB query or the candidate list and derives a specific ErrorCode from the candidates' state before calling fail/next.",
+      "q2": "The class is one allocator flow step: filter hosts by Enabled/Connected state and hypervisor type.",
+      "q3": "It reads HostVO.getState()/getStatus()/getHypervisorType(), but HostVO is a plain value object with no behaviour to move; the decisions belong to the allocator.",
+      "q4": "The if/else-if chain (isNoConnectedHost, isNoEnabledHost, isNoHypervisor) is a set of separate diagnostic conditions, not a dispatch over kinds of one value."
+     },
+     "note": "allocate: filters candidate hosts to Enabled+Connected with the requested hypervisor type and fails with a diagnostic error when none remain."
+    },
+    {
+     "id": "u184",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "factors3 computes the factors of n with a sqrt loop and a buffered list, a pure numeric routine over its parameter.",
+      "q2": "The class contains three variants of the same factorization routine and a main; one concept.",
+      "q3": "It uses only an int parameter and a local ArrayList; no other objects' data.",
+      "q4": "No switch or type chain; complexity is a loop with a nested if/else and a second loop."
+     },
+     "note": "factors3: prints all factors of n in O(sqrt n) by printing small divisors and buffering their complements."
+    },
+    {
+     "id": "u185",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "invoke (with its anonymous FinalizedClientResponse.releaseConnection) forwards to httpClient.execute, loadHttpMethod, entity.getContent() and stream.close(), deciding the order of calls rather than computing a value.",
+      "q2": "All methods serve one concept: an Apache HttpClient based engine that builds, sends and wraps JAX-RS requests/responses.",
+      "q3": "It copies data between request/response objects: res.getStatusLine().getStatusCode()/getReasonPhrase() into the ClientResponse, request.getHeaders().asMap() into httpMethod headers, and request.getClient().httpEngine() in getCurrentConfiguration.",
+      "q4": "No switch over a kind value; complexity is nested try/finally and null checks in connection release."
+     },
+     "note": "invoke: executes the ClientInvocation through Apache HttpClient and wraps the HttpResponse in a ClientResponse whose stream handling releases the connection."
+    },
+    {
+     "id": "u186",
+     "q1": true,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "buildLabels computes the class's own static label maps (skillLabels, abilityLabelsColored, abilityLabelsSkill) and header strings from locale and config values.",
+      "q2": "All methods serve managing per-player mcMMO scoreboards: labels, backend selection, player setup/teardown, board display and power level tags.",
+      "q3": "It relies on getter chains such as mcMMO.p.getSkillTools().getSuperAbility(primarySkillType).getLocalizedName() and mcMMO.p.getGeneralConfig().getScoreboardRainbows(), and decides on wrapper.isStatsScoreboard()/wrapper.targetSkill in several methods.",
+      "q4": "The only switch (backend type in init) is small; buildLabels' complexity is nested loops and ifs over skills and colors."
+     },
+     "note": "buildLabels: builds the localized, color-styled skill and ability label maps used on the scoreboards, in rainbow or normal color scheme."
+    },
+    {
+     "id": "u187",
+     "q1": false,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "onEntityDamage forwards to InteractionManager.processEvent, tamingManager.processEnvironmentallyAware, Taming.processThickFur, event.setCancelled etc., choosing which to call based on guards.",
+      "q2": "The listener handles unrelated concerns: arrow metadata, falling block tracking, combat damage, pet taming abilities, blast mining, food diets, potion splash fixes and crossbows.",
+      "q3": "Decisions are made on other objects' fields such as pet.getOwner(), mmoPlayer.getGodMode(), tamingManager.canUseThickFur(), event.getFinalDamage(), and projectile.getShooter() instanceof Player.",
+      "q4": "The switch on DamageCause is one part, but most complexity is layered guard conditions (world blacklist, WorldGuard, NPC, profile loaded) before it."
+     },
+     "note": "onEntityDamage: on an entity damage event, applies god mode/recent-hurt bookkeeping for players and taming damage-reduction abilities for owned wolves depending on the damage cause."
+    },
+    {
+     "id": "u188",
+     "q1": true,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "getServiceDTOS computes and returns a set of ServiceDTOs by choosing exact or regex-based matching over candidates and collecting providers.",
+      "q2": "All methods serve one concept: querying and managing provider registrations from the registry cache.",
+      "q3": "Methods iterate the registry cache reading u.getAddress()/u.getParameter(Constants.APPLICATION) from URL objects and convertProviders2DTO copies Provider fields into ServiceDTO.",
+      "q4": "The if/else-if on pattern (IP/SERVICE/APPLICATION) is small; complexity is the regex loop and nested branches, not a dispatch table."
+     },
+     "note": "getServiceDTOS: finds providers by address/service/application, exactly or by fuzzy regex, and converts them to ServiceDTOs."
+    },
+    {
+     "id": "u189",
+     "q1": true,
+     "q2": false,
+     "q3": true,
+     "q4": true,
+     "evidence": {
+      "q1": "createFragmentForIntent uses the intent's uri and extras to build an args Bundle and returns the constructed Fragment.",
+      "q2": "Utils is a grab bag: URI matching, DB cleanup, account lookups, Twitter client construction, error messages, opening activities, menus, toasts and Pebble notifications.",
+      "q3": "It mostly reads other objects' data: uri.getQueryParameter, cursor columns, status.user_screen_name, context.getSharedPreferences().getString, and copies them into intents/bundles.",
+      "q4": "The complexity is one large switch over linkId with ~25 cases, each a few lines constructing a fragment and putting args."
+     },
+     "note": "createFragmentForIntent: maps a link id and intent uri to the matching Fragment subclass, filling its argument bundle from query parameters and the account id."
+    },
+    {
+     "id": "u190",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "displayStatus(Cursor, CursorIndices, boolean) mainly forwards values into views' setters (setText, setVisibility, setImageResource, displayProfileImage) rather than computing a return value or own state.",
+      "q2": "All methods serve one concept: binding a status to the row views of a RecyclerView item.",
+      "q3": "It decides on adapter.isProfileImageEnabled(), adapter.getLinkHighlightingStyle(), twitter.isDestroyingStatus(...) and copies cursor/status fields into views.",
+      "q4": "The complexity is a sequence of if/else blocks on retweet/reply/quote/media conditions, not one switch over a kind value."
+     },
+     "note": "displayStatus(Cursor...): reads a status row from a cursor and renders names, text, quote, media preview, counts and icons into the holder's views."
+    },
+    {
+     "id": "u191",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "onCreate is a sequence of setup calls: inject, inflate binding, register EventBus, set listeners, build markwon plugins, adapters and view model, with no computed result.",
+      "q2": "All methods serve the single comment-composition screen (parent preview, editor, account choice, image/gif insertion, send).",
+      "q3": "It uses chains like binding.commentCommentEditText.getText().toString(), intent.getExtras().getInt(...), selectedAccount.getProfileImageUrl() and decides on other objects' state throughout.",
+      "q4": "No switch over a kind value; complexity is nested anonymous callbacks and conditionals in onCreate."
+     },
+     "note": "onCreate: initializes the comment activity UI, parent post preview with markdown, account display, markdown toolbar, draft loading and back-press handling."
+    },
+    {
+     "id": "u192",
+     "q1": true,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "filterRequest matches the request URI against the class's own defaults map (exact, then property-expanded, then host-only for REST) to find the EndpointDefaults to apply.",
+      "q2": "All methods serve one concept: per-endpoint default credentials for a project and applying them to outgoing requests.",
+      "q3": "The apply methods decide on and copy other objects' fields: wsdlRequest.getUsername()/getWssPasswordType(), def.getWssType(), ec.getDomain() etc., pushing them into HttpAuthenticationRequestFilter and WssAuthenticationRequestFilter.",
+      "q4": "The mode branch (OVERRIDE/COPY/COMPLEMENT) is three calls; the main complexity is nested loops and try/catch in filterRequest and nested ternaries in complementRequest."
+     },
+     "note": "filterRequest: finds the EndpointDefaults matching the request's URI (direct, expanded or host match) and applies its credentials to the request."
+    },
+    {
+     "id": "u193",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "splitArray performs a binary search on the answer with an inner greedy partition count over the nums array and returns the minimal largest sum.",
+      "q2": "The class is a single LeetCode solution with a main stub.",
+      "q3": "It uses only its int[] and int parameters and local variables.",
+      "q4": "No switch or type chain; complexity is a while loop containing a for loop with an if/else."
+     },
+     "note": "splitArray: binary-searches the minimum possible largest subarray sum when splitting nums into m parts."
+    },
+    {
+     "id": "u194",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "create builds and returns a TypeAdapter whose read/write decode and encode polymorphic JSON using the type field and the factory's own label/subtype maps.",
+      "q2": "All methods serve one concept: a runtime-type-dispatching Gson TypeAdapterFactory.",
+      "q3": "It works on JsonElement/JsonObject trees (data) and its own maps; no behaviour belonging to other classes.",
+      "q4": "No switch; complexity is null/handle checks and the anonymous read/write bodies with map lookups and error branches."
+     },
+     "note": "create: returns a nullSafe TypeAdapter that reads the type label to pick a delegate adapter and writes the label into the serialized object."
+    },
+    {
+     "id": "u195",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "updateItems is a layout pass that computes each tab's type, selects the current one, records currentTabs and then resizes tabs, i.e. it sets the bar's own state from the parsed tab list.",
+      "q2": "All methods serve one widget: a bottom navigation bar with tabs, selection, shifting and background animations.",
+      "q3": "It mostly manipulates its own child tabs and own fields (currentTabPosition, widths, colors); reads like tabView.isActive() are on its own children.",
+      "q4": "No switch over a kind value; complexity is a loop with nested if/else on mode and index."
+     },
+     "note": "updateItems: assigns type and selection state to each parsed BottomBarTab, wires click listeners, stores them and resizes them for the current mode."
+    },
+    {
+     "id": "u196",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "findEscapingField is a backward provenance analysis over expressions and reaching definitions that returns the field reference that escapes.",
+      "q2": "All methods serve one rule: detect methods returning an internal array.",
+      "q3": "It works on AST nodes, symbols and dataflow results, which are syntax-tree data, not behaviour-bearing objects to move logic into.",
+      "q4": "The method is an instanceof chain over the single expression variable with short cases delegating to fromNamedReference/fromMethodCall etc."
+     },
+     "note": "findEscapingField: recursively traces an expression (casts, conditionals, switches, array access, calls) back to an internal array field reference, if any."
+    },
+    {
+     "id": "u197",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "checkFactoryMethod validates by querying factoryMethod.hasNoParameter()/hasSingleParameterTyped and returnType.isAssignableTo, then throws; it computes no value or own state.",
+      "q2": "All methods serve one concept: building a DataSetPropertyInfo from a getter and its annotation.",
+      "q3": "Decisions are made on other behaviour-bearing objects' state (annotation.hasFactoryMethod(), factoryMethod.returnType().isAssignableTo(...)) and values are passed through from annotation getters.",
+      "q4": "No switch; complexity is a boolean chain with a nested if."
+     },
+     "note": "checkFactoryMethod: verifies the configured factory method exists with no or one int parameter and returns the item presentation model type, else throws."
+    },
+    {
+     "id": "u198",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "perform prompts the user and forwards to project.addNewMockService, mockService.addNewMockOperation, mockOperation.addNewMockResponse and SoapUI.getDesktop().showDesktopPanel, choosing the order of calls.",
+      "q2": "The class is one UI action: add a request to a mock service.",
+      "q3": "It uses chains like request.getOperation().getInterface().getProject() and mockOperation.getMockService() and copies response content, attachments and headers from WsdlResponse into the new WsdlMockResponse.",
+      "q4": "No switch; complexity is a while loop with nested prompts and null checks."
+     },
+     "note": "perform: picks or creates a mock service and operation for the request, adds a mock response copied from the actual response, and optionally opens the editor."
+    },
+    {
+     "id": "u199",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "getBoundFields walks the class hierarchy with reflection and computes the FieldsData maps of bound fields, returning them.",
+      "q2": "All methods serve one concept: creating reflective TypeAdapters for ordinary classes and records.",
+      "q3": "It works on java.lang.reflect Field/Class metadata and its own BoundField/FieldsData holders; no behaviour belongs to other classes.",
+      "q4": "No switch over a kind value; complexity is a while over superclasses containing a for over fields with record/access checks."
+     },
+     "note": "getBoundFields: collects serializable and deserializable fields of a type and its superclasses into BoundFields, handling records, access filters and duplicate names."
+    },
+    {
+     "id": "u200",
+     "q1": true,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "test computes and returns a boolean deciding whether a recipient should receive the level-up broadcast.",
+      "q2": "The class is a single predicate for level-up broadcast recipients.",
+      "q3": "It decides on other objects' fields via chains like mmoBroadcastingPlayer.getPlayer().getWorld(), mcMMO.p.getGeneralConfig().isLevelUpBroadcastsPartyMembersOnly() and mmoListeningPlayer.getParty().",
+      "q4": "No switch; complexity is nested if guards on party, world, distance and visibility."
+     },
+     "note": "test: returns whether the listener (player or console) should receive the broadcaster's level-up message based on party, world, distance and visibility config."
+    }
+   ]
+  },
+  "ttft_ms": 1323,
+  "type": "result",
+  "duration_ms": 191329,
+  "uuid": "dd6f5a61-6c8b-432e-88c6-ced94a011d1d",
+  "ttft_stream_ms": 1089,
+  "time_to_request_ms": 116,
+  "first_content_frame_ms": 1089,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

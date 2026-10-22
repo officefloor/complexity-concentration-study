@@ -1,0 +1,440 @@
+{
+ "batch": 1,
+ "ids": [
+  "u021",
+  "u022",
+  "u023",
+  "u024",
+  "u025",
+  "u026",
+  "u027",
+  "u028",
+  "u029",
+  "u030",
+  "u031",
+  "u032",
+  "u033",
+  "u034",
+  "u035",
+  "u036",
+  "u037",
+  "u038",
+  "u039",
+  "u040"
+ ],
+ "model": "claude-fable-5-1",
+ "claude_version": "2.1.307 (Claude Code)",
+ "scripts_commit": "3b9e92236d85fc2b2f66e941af818bed4accbb85",
+ "scripts": [
+  "paper/scripts/fp_reading.py",
+  "paper/scripts/false_positives.py",
+  "paper/scripts/common.py"
+ ],
+ "started_utc": "2026-10-22T09:43:43Z",
+ "returncode": 0,
+ "command": [
+  "claude",
+  "-p",
+  "<prompt>",
+  "--model",
+  "claude-fable-5-1",
+  "--tools",
+  "Read",
+  "--permission-mode",
+  "dontAsk",
+  "--safe-mode",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json",
+  "--json-schema",
+  "{\"type\": \"object\", \"required\": [\"readings\"], \"properties\": {\"readings\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"id\", \"q1\", \"q2\", \"q3\", \"q4\", \"evidence\", \"note\"], \"properties\": {\"id\": {\"type\": \"string\"}, \"q1\": {\"type\": \"boolean\"}, \"q2\": {\"type\": \"boolean\"}, \"q3\": {\"type\": \"boolean\"}, \"q4\": {\"type\": \"boolean\"}, \"evidence\": {\"type\": \"object\", \"required\": [\"q1\", \"q2\", \"q3\", \"q4\"], \"properties\": {\"q1\": {\"type\": \"string\"}, \"q2\": {\"type\": \"string\"}, \"q3\": {\"type\": \"string\"}, \"q4\": {\"type\": \"string\"}}}, \"note\": {\"type\": \"string\"}}}}}}"
+ ],
+ "prompt": "You are a blind code reader in an empirical software-engineering study. Work only from the files in the current directory.\n\n1. Read protocol.md first.\n2. Read batch.md. It names 20 Java files by id, their path in their repository, and their local copy under files/.\n3. For every file: read the whole file (use Read with offset and limit for files over 2000 lines, do not skip the tail). Identify the method with the highest cognitive complexity (the one with the most and deepest nested branches, loops and boolean chains) and name it. Then answer Q1, Q2, Q3 and Q4 from the protocol as true or false, each with one sentence of evidence from the file, and write a one-line note of the form \"methodName: what it does\". Do NOT derive or state the category; the mapping is applied later.\n4. Blindness: do not try to read anything outside the current directory and do not try to find out anything about these classes beyond the file itself.\n5. Answer with one entry per id of the batch, all 20 of them, in the required JSON form.\n",
+ "batch_md": "# Batch 1: 20 Java files to read under the protocol\n\n| id | class (path in its repository) | local file |\n|---|---|---|\n| u021 | rt/external/bouncycastle/bcprov/src/main/java/org/bouncycastle/crypto/generators/RSAKeyPairGenerator.java | files/u021.java |\n| u022 | src/class169/Code05_PastoralOddities1.java | files/u022.java |\n| u023 | 08 dubbo\u5fae\u4fe1\u5f00\u53d1/dubbo-admin-develop/dubbo-admin-server/src/main/java/org/apache/dubbo/admin/common/util/RouteUtils.java | files/u023.java |\n| u024 | 08 dubbo\u5fae\u4fe1\u5f00\u53d1/dubbo-oa- provider/src/main/java/com/mashibing/springboot/entity/Permission.java | files/u024.java |\n| u025 | backend/src/main/java/org/github/tess1o/geopulse/admin/service/GeocodingValidationService.java | files/u025.java |\n| u026 | km-core/src/main/java/com/xiaojukeji/know/streaming/km/core/service/topic/impl/TopicMetricServiceImpl.java | files/u026.java |\n| u027 | javassist-android/src/javassist/tools/web/Webserver.java | files/u027.java |\n| u028 | settings/src/main/java/fr/pilato/elasticsearch/crawler/fs/settings/Elasticsearch.java | files/u028.java |\n| u029 | src/com/jgaap/ui/JGAAP_UI_MainForm.java | files/u029.java |\n| u030 | resteasy-core/src/main/java/org/jboss/resteasy/core/interception/jaxrs/JaxrsInterceptorRegistryImpl.java | files/u030.java |\n| u031 | src/main/java/org/dataalgorithms/chap05/spark/RelativeFrequency.java | files/u031.java |\n| u032 | karate-profiling/src/main/java/io/karatelabs/profiling/JsCompare.java | files/u032.java |\n| u033 | src/main/java/org/dataalgorithms/chapB10/friendrecommendation/spark/SparkFriendRecommendation.java | files/u033.java |\n| u034 | src/com/jgaap/eventCullers/IndexOfDispersion.java | files/u034.java |\n| u035 | jetlinks-manager/device-manager/src/main/java/org/jetlinks/community/device/message/DeviceMessageSendLogInterceptor.java | files/u035.java |\n| u036 | squirrel-foundation/src/main/java/org/squirrelframework/foundation/fsm/impl/StateImpl.java | files/u036.java |\n| u037 | hadoop-tools/hadoop-dynamometer/hadoop-dynamometer-infra/src/main/java/org/apache/hadoop/tools/dynamometer/DynoInfraUtils.java | files/u037.java |\n| u038 | console/src/main/java/org/zstack/console/ManagementServerConsoleProxyBackend.java | files/u038.java |\n| u039 | src/main/java/org/dataalgorithms/chap14/sparkwithlambda/NaiveBayesClassifier.java | files/u039.java |\n| u040 | src/main/java/com/getjobs/application/service/ZhilianService.java | files/u040.java |\n",
+ "result": {
+  "duration_api_ms": 214195,
+  "stop_reason": "tool_use",
+  "session_id": "d87f9d6a-a2e2-458a-b006-e36f85560b48",
+  "total_cost_usd": 5.23185025,
+  "usage": {
+   "input_tokens": 98,
+   "cache_creation_input_tokens": 219158,
+   "cache_read_input_tokens": 97241,
+   "output_tokens": 16468,
+   "output_tokens_details": {
+    "thinking_tokens": 8124
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 219158,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "global",
+   "iterations": [
+    {
+     "input_tokens": 32,
+     "output_tokens": 14397,
+     "cache_read_input_tokens": 83259,
+     "cache_creation_input_tokens": 135899,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 135899
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-fable-5-1": {
+    "inputTokens": 98,
+    "outputTokens": 16468,
+    "cacheReadInputTokens": 97241,
+    "cacheCreationInputTokens": 219158,
+    "webSearchRequests": 0,
+    "costUSD": 5.23185025,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 64000,
+    "thinkingTokens": 8124,
+    "canonicalModel": "claude-fable-5-1",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 27,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "{\"readings\":[{\"id\":\"u021\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"generateKeyPair loops generating BigInteger primes p and q, tests mod/gcd/isProbablePrime, and derives n, phi, d, dP, dQ, qInv from them (lines 48-141).\",\"q2\":\"The class has only init and generateKeyPair; it generates an RSA key pair and nothing else.\",\"q3\":\"It reads strength, exponent, certainty and random from its own RSAKeyGenerationParameters (depth-1 getters) and does all arithmetic locally on BigIntegers.\",\"q4\":\"The complexity is nested for(;;) loops with continue/break guards, not a switch over a controlling value.\"},\"note\":\"generateKeyPair: generates RSA primes p,q meeting bit-length/coprimality constraints and computes modulus, private exponent and CRT factors.\"},{\"id\":\"u022\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"compute is a recursive parallel-binary-search over edge ranks that unions edges into a rollback DSU, finds the split index where oddnum reaches 0, and recurses on both halves (lines 83-142).\",\"q2\":\"Everything (find/union/undo, prepare, compute, main, FastReader) serves solving one competitive-programming problem on static arrays.\",\"q3\":\"It works only on its own static arrays edge, wsort, father, siz, rollback; no other objects' data is touched.\",\"q4\":\"The complexity is nested loops and recursion with if guards, not a switch over kinds.\"},\"note\":\"compute: overall-binary-search with rollback union-find to find, for each prefix of edges, the minimal max weight giving an all-odd-degree edge set.\"},{\"id\":\"u023\",\"q1\":true,\"q2\":false,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"parseRule runs a regex matcher over the rule string and builds the condition map from separators and content (lines 80-146), computing a value from its input.\",\"q2\":\"The class is both a rule parser/value object (parseRule, matchCondition, contidionToString, MatchPair) and a bag of DTO/store converters (convertTagroutetoStore, convertToAccessDTO, convertAccessDTOtoRoute, insertConditionRule), two unrelated concerns.\",\"q3\":\"The converters copy fields between plain DTO/store data holders (Route, TagRoute, AccessDTO) and the parser works on strings and its own MatchPair maps; no depth-2 getter chains on behaviour-bearing objects.\",\"q4\":\"parseRule's complexity is a single if/else-if chain on the separator token (\\\"\\\", \\\"&\\\", \\\"=\\\", \\\"!=\\\", \\\",\\\", else) with each case 2-6 lines (lines 95-143).\"},\"note\":\"parseRule: tokenises a route rule string with a regex and builds a key -> MatchPair(matches/unmatches) condition map.\"},{\"id\":\"u024\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"equals computes a boolean from the object's own seven fields via a chain of null-safe comparisons (lines 94-100).\",\"q2\":\"The class is a Serializable bean with getters/setters, equals, hashCode and toString for a permission row; one concept.\",\"q3\":\"It compares its own fields against another Permission's fields with depth-1 getters; no other classes' behaviour is involved.\",\"q4\":\"The complexity is one && chain of seven ternaries, not a switch over kinds; the file looks generator-produced (MyBatis-style bean).\"},\"note\":\"equals: null-safe field-by-field equality over id, uri, name, c, r, u, d.\"},{\"id\":\"u025\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"getEnabledProvidersWithContext reads enabled flags and API-key values from the ValidationContext and computes the list of providers that would be enabled (lines 266-318).\",\"q2\":\"Every method validates geocoding settings changes (provider toggle, primary/fallback provider, Photon language); one cohesive concern.\",\"q3\":\"It works on setting key/value strings from a context map and settings service with depth-1 lookups, though the comment admits it replicates each provider's isEnabled() logic rather than calling it.\",\"q4\":\"The complexity is six independent if blocks each guarding a nested null/blank/placeholder check, not a switch on one controlling value.\"},\"note\":\"getEnabledProvidersWithContext: builds the list of geocoding providers that would be enabled given pending setting changes (flag plus credential checks per provider).\"},{\"id\":\"u026\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"getMetricFromKafkaByTotalPartitionOfBrokerJmx mainly calls topicService, getJMXInfo, kafkaJMXClient.getClientWithCheck and jmxConnectorWrap.getAttribute in sequence, summing returned strings (lines 384-442).\",\"q2\":\"All methods collect, cache, query or page topic metrics (from Kafka JMX, local cache or ES); one concept of a topic metrics service.\",\"q3\":\"It inverts topic.getPartitionMap() into a broker->partitions map itself and uses chains like metricsResult.getData().get(0).getMetrics().entrySet() and jmxInfo.getJmxObjectName(), deciding on other objects' fields.\",\"q4\":\"The complexity is nested for loops with try/catch and early returns, not a switch over kinds.\"},\"note\":\"getMetricFromKafkaByTotalPartitionOfBrokerJmx: per broker, sums a JMX attribute over the topic's partitions and emits per-broker and total TopicMetrics.\"},{\"id\":\"u027\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"doReply parses the GET line, classifies the file type by suffix, validates the path, and streams the file or classpath resource with its own read loops (lines 237-315).\",\"q2\":\"The class is a tiny HTTP server that serves html/class/gif files (optionally through a ClassPool); ServiceThread merely delegates to process().\",\"q3\":\"It works on the request string, its own fields (htmlfileBase, classPool, debugDir) and streams; no getter chains on other project objects.\",\"q4\":\"The suffix if/else-if chain is only a prelude; the complexity comes from the subsequent branches, read loops and early returns.\"},\"note\":\"doReply: handles one HTTP GET by resolving the file type, serving a translated class file or a file from disk/classpath, else throwing BadHttpRequest.\"},{\"id\":\"u028\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"equals computes a boolean from the object's own seventeen fields via successive Objects.equals checks (lines 320-344).\",\"q2\":\"The class is a settings holder for Elasticsearch connection options with getters/setters, equals, hashCode and toString.\",\"q3\":\"It compares its own fields against another Elasticsearch instance's fields directly; no other classes' behaviour is involved.\",\"q4\":\"The complexity is a flat sequence of if-return-false guards over fields, not a switch over kinds.\"},\"note\":\"equals: field-by-field equality over the Elasticsearch settings (urls, index, bulk, retry, auth, template flags).\"},{\"id\":\"u029\",\"q1\":true,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"searchModuleList computes which module names match the search text (quoted exact match, alternative terms from JGAAP_SEARCH_TABLE, initials) and fills the list model from that (lines 3674-3837).\",\"q2\":\"The 4000-line form builds all Swing widgets (initComponents), handles every button/mouse event, keeps model lists of selected modules, loads/saves CSV batches, loads AAAC problems and runs the experiment; several concerns.\",\"q3\":\"Handlers reach through chains such as ((NeighborAnalysisDriver) temp).getDistanceFunction().getGUILayout(...) and SelectedCanonicizerList.get(i).getFirst().displayName(), and decide on JGAAP_API's lists.\",\"q4\":\"searchModuleList has two small switches on moduleType, but its complexity comes from the nested matching loops and boolean chains, not from the switch cases.\"},\"note\":\"searchModuleList: filters a module list box by search text (exact, alias and initials matching) and refreshes the description box; initComponents is generated layout code.\"},{\"id\":\"u030\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"AbstractInterceptorFactory.postMatch decides from PreMatching and name-binding annotations on the target class, method and Application whether to return a Match (lines 95-129).\",\"q2\":\"All methods register interceptor factories and compute sorted pre/post-match interceptor arrays; one registry concept.\",\"q3\":\"It inspects reflection metadata (Class, AccessibleObject annotations) and its own nameBound/order fields; no getter chains on behaviour-bearing project objects.\",\"q4\":\"The complexity is nested if/else branches with a loop and an &&/|| chain, not a switch over kinds.\"},\"note\":\"postMatch: returns a Match for the interceptor when it is not @PreMatching and all its name-binding annotations are present on the target class, method or Application.\"},{\"id\":\"u031\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"main's PairFlatMapFunction.call splits the line into tokens and emits (word,(neighbour,1)) pairs for every neighbour within the window via nested loops (lines 58-74).\",\"q2\":\"The class is one Spark job computing relative frequency of word neighbours; nothing else.\",\"q3\":\"It works on String tokens and Tuple2 values (plain data) and Spark RDD operations; no other objects' behaviour.\",\"q4\":\"The complexity is nested for loops with an if/else, not a switch over kinds.\"},\"note\":\"main (flatMapToPair call): builds a Spark pipeline that emits neighbour pairs within a window, sums per word, joins and computes relative frequency.\"},{\"id\":\"u032\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"appendMatrix filters pairs by signature/iterations, computes deltas, ratios, mean, sd and a log-geomean, and renders the markdown table (lines 261-413).\",\"q2\":\"The class reads digest files into Run records, pairs them by tag and derives the A/B table; one cohesive purpose stated in its javadoc.\",\"q3\":\"Run and Pair are records defined in the file (data holders); the method works on their fields and local lists, not on other classes' behaviour.\",\"q4\":\"The complexity is loops, lambdas and arithmetic guards, not a switch over kinds.\"},\"note\":\"appendMatrix: drops inconsistent pairs, prints per-workload A/B timing tables with mean\u00b1sd, and a cross-row geomean summary for one matrix.\"},{\"id\":\"u033\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"main's PairFlatMapFunction.call parses a person:friends record, sorts friends and emits direct (0) and second-degree (1) pairs via nested loops (lines 94-141).\",\"q2\":\"The class is one Spark job producing friend recommendations; helper methods buildSortedMap and getTopFriends serve the same job.\",\"q3\":\"It works on Strings, Longs and Tuple2 values (plain data) and RDD operations; no other objects' behaviour.\",\"q4\":\"The complexity is nested for loops with guards, not a switch over kinds.\"},\"note\":\"main (flatMapToPair call): Spark pipeline that emits friend-pair keys, drops direct friends, counts mutual friends and selects top-N recommendations per user.\"},{\"id\":\"u034\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"train builds per-set histograms, computes stddev^2/mean for every event over nested loops, sorts and takes the top N events (lines 31-81).\",\"q2\":\"The class is one event culler (index of dispersion) with its parameters and descriptions.\",\"q3\":\"It uses EventHistogram.getAbsoluteFrequency (depth 1) and Utils.stddev on its own frequency lists; no getter chains on other objects.\",\"q4\":\"The complexity is nested for loops and a few ifs, not a switch over kinds.\"},\"note\":\"train: ranks events by index of dispersion (variance/mean of per-document frequency) and keeps the N most (or least) informative.\"},{\"id\":\"u035\",\"q1\":false,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"convertProperty mainly calls device.getMetadata(), metadata.getPropertyOrNull(), getValueType().validate().assertSuccess() and message.addHeader/setProperties inside a doOnNext lambda (lines 101-131).\",\"q2\":\"Named a send-log interceptor, the class both publishes messages to the event bus (doPublish) and validates/converts function parameters and property values against device metadata; two concerns.\",\"q3\":\"It decides on and rewrites another object's data through chains like propertyMetadata.getValueType().validate(entry.getValue()).assertSuccess() and message.getHeader(Headers.force).\",\"q4\":\"prepareMessage is a short instanceof dispatch, but the most complex method is a loop with nested ifs, not a table.\"},\"note\":\"convertProperty: validates each written property against device metadata, marks manual-source replies, and writes the converted properties back into the message.\"},{\"id\":\"u036\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"internalFire executes the state's own event-processing step: fires in parallel sub-states, propagates results, fires matching transitions, handles final-state completion and bubbles to the parent (lines 358-451).\",\"q2\":\"The class is the state model of the FSM (transitions, actions, entry/exit, history, hierarchy); one concept.\",\"q3\":\"It operates on its own state hierarchy and transitions; the chains like stateContext.getStateMachineData().write() reach into a context parameter object rather than moving another class's behaviour.\",\"q4\":\"The complexity is deeply nested loops and ifs over transition results, not a switch over kinds (enterByHistory has a small switch but is not the most complex).\"},\"note\":\"internalFire: processes an event in this state, including parallel regions, transition firing, final-state completion events and delegation to the parent state.\"},{\"id\":\"u037\",\"q1\":false,\"q2\":false,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"waitForNameNodeReadiness orchestrates calls to waitForNameNodeJMXValue, fetchNameNodeJMXValue, parseStaleDataNodeList, dfs.getDataNodeStats and triggerDataNodeBlockReport inside a polling thread, deciding which to call and when (lines 286-403).\",\"q2\":\"The class is explicitly a 'collection of utilities': Hadoop tarball download, URI construction, NameNode readiness polling and JMX JSON parsing are unrelated concerns.\",\"q3\":\"It works on Properties, Configuration values and JMX JSON strings, not on getter chains of behaviour-bearing project objects.\",\"q4\":\"The complexity is a while loop with nested ifs, a for loop and try/catch, not a switch over kinds.\"},\"note\":\"waitForNameNodeReadiness: polls NameNode JMX until live datanodes, missing and under-replicated blocks cross thresholds, optionally running a thread that triggers block reports on stale datanodes.\"},{\"id\":\"u038\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"doConnectAgent's ChainTask.run persists a VO, builds and runs shell/iptables commands, sets up SshFileMd5Checker and AnsibleRunner and invokes runner.run with callbacks; it forwards to other objects in sequence (lines 128-269).\",\"q2\":\"All methods deploy, ping, reconnect or update the console proxy agent on the management server and dispatch its messages; one backend concept.\",\"q3\":\"It reads its own globals and sets fields on ConsoleProxyAgentVO and message/reply data holders; no depth-2 getter chains on behaviour-bearing objects.\",\"q4\":\"handleMessage/handleLocalMessage are small instanceof dispatches, but the most complex method is an orchestration with nested loops, ifs and try/catch.\"},\"note\":\"doConnectAgent (ChainTask.run): ensures the agent VO exists, configures iptables/ipset for VNC ports, then deploys the console proxy agent via Ansible and updates connection status.\"},{\"id\":\"u039\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"main's classification lambda multiplies class prior by attribute conditional probabilities for each class and keeps the argmax (lines 108-142).\",\"q2\":\"The class is one Spark job that classifies records with a Naive Bayes probability table; nothing else.\",\"q3\":\"It works on Strings, Tuple2 keys and Double values from a broadcast map (plain data); no other objects' behaviour.\",\"q4\":\"The complexity is nested for loops with if/else, not a switch over kinds.\"},\"note\":\"main (mapToPair lambda): computes the Naive Bayes posterior per class for each record and emits the best class.\"},{\"id\":\"u040\",\"q1\":true,\"q2\":false,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"getZhilianStats filters job rows by salary median, counts by status, groups by city/company/experience/degree/day and bins salaries into buckets, returning a computed StatsResponse (lines 339-464).\",\"q2\":\"The class loads/updates config, maps option names to codes, creates the zhilian_data table via raw DDL, does job CRUD and delivery marking, parses salaries, and computes dashboard stats and paged listings; several concerns.\",\"q3\":\"It works on ZhilianJobDataEntity and config entities, which are plain data holders, via depth-1 getters; no behaviour-bearing objects' fields are decided on.\",\"q4\":\"The complexity is many guard ifs, loops with nested ifs and an if/else-if bucket chain, not a dispatch over one controlling value.\"},\"note\":\"getZhilianStats: queries job records with filters, applies a salary-median range, and aggregates KPI counts, grouped chart series, daily trend and salary buckets.\"}]}",
+  "structured_output": {
+   "readings": [
+    {
+     "id": "u021",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "generateKeyPair loops generating BigInteger primes p and q, tests mod/gcd/isProbablePrime, and derives n, phi, d, dP, dQ, qInv from them (lines 48-141).",
+      "q2": "The class has only init and generateKeyPair; it generates an RSA key pair and nothing else.",
+      "q3": "It reads strength, exponent, certainty and random from its own RSAKeyGenerationParameters (depth-1 getters) and does all arithmetic locally on BigIntegers.",
+      "q4": "The complexity is nested for(;;) loops with continue/break guards, not a switch over a controlling value."
+     },
+     "note": "generateKeyPair: generates RSA primes p,q meeting bit-length/coprimality constraints and computes modulus, private exponent and CRT factors."
+    },
+    {
+     "id": "u022",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "compute is a recursive parallel-binary-search over edge ranks that unions edges into a rollback DSU, finds the split index where oddnum reaches 0, and recurses on both halves (lines 83-142).",
+      "q2": "Everything (find/union/undo, prepare, compute, main, FastReader) serves solving one competitive-programming problem on static arrays.",
+      "q3": "It works only on its own static arrays edge, wsort, father, siz, rollback; no other objects' data is touched.",
+      "q4": "The complexity is nested loops and recursion with if guards, not a switch over kinds."
+     },
+     "note": "compute: overall-binary-search with rollback union-find to find, for each prefix of edges, the minimal max weight giving an all-odd-degree edge set."
+    },
+    {
+     "id": "u023",
+     "q1": true,
+     "q2": false,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "parseRule runs a regex matcher over the rule string and builds the condition map from separators and content (lines 80-146), computing a value from its input.",
+      "q2": "The class is both a rule parser/value object (parseRule, matchCondition, contidionToString, MatchPair) and a bag of DTO/store converters (convertTagroutetoStore, convertToAccessDTO, convertAccessDTOtoRoute, insertConditionRule), two unrelated concerns.",
+      "q3": "The converters copy fields between plain DTO/store data holders (Route, TagRoute, AccessDTO) and the parser works on strings and its own MatchPair maps; no depth-2 getter chains on behaviour-bearing objects.",
+      "q4": "parseRule's complexity is a single if/else-if chain on the separator token (\"\", \"&\", \"=\", \"!=\", \",\", else) with each case 2-6 lines (lines 95-143)."
+     },
+     "note": "parseRule: tokenises a route rule string with a regex and builds a key -> MatchPair(matches/unmatches) condition map."
+    },
+    {
+     "id": "u024",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "equals computes a boolean from the object's own seven fields via a chain of null-safe comparisons (lines 94-100).",
+      "q2": "The class is a Serializable bean with getters/setters, equals, hashCode and toString for a permission row; one concept.",
+      "q3": "It compares its own fields against another Permission's fields with depth-1 getters; no other classes' behaviour is involved.",
+      "q4": "The complexity is one && chain of seven ternaries, not a switch over kinds; the file looks generator-produced (MyBatis-style bean)."
+     },
+     "note": "equals: null-safe field-by-field equality over id, uri, name, c, r, u, d."
+    },
+    {
+     "id": "u025",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "getEnabledProvidersWithContext reads enabled flags and API-key values from the ValidationContext and computes the list of providers that would be enabled (lines 266-318).",
+      "q2": "Every method validates geocoding settings changes (provider toggle, primary/fallback provider, Photon language); one cohesive concern.",
+      "q3": "It works on setting key/value strings from a context map and settings service with depth-1 lookups, though the comment admits it replicates each provider's isEnabled() logic rather than calling it.",
+      "q4": "The complexity is six independent if blocks each guarding a nested null/blank/placeholder check, not a switch on one controlling value."
+     },
+     "note": "getEnabledProvidersWithContext: builds the list of geocoding providers that would be enabled given pending setting changes (flag plus credential checks per provider)."
+    },
+    {
+     "id": "u026",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "getMetricFromKafkaByTotalPartitionOfBrokerJmx mainly calls topicService, getJMXInfo, kafkaJMXClient.getClientWithCheck and jmxConnectorWrap.getAttribute in sequence, summing returned strings (lines 384-442).",
+      "q2": "All methods collect, cache, query or page topic metrics (from Kafka JMX, local cache or ES); one concept of a topic metrics service.",
+      "q3": "It inverts topic.getPartitionMap() into a broker->partitions map itself and uses chains like metricsResult.getData().get(0).getMetrics().entrySet() and jmxInfo.getJmxObjectName(), deciding on other objects' fields.",
+      "q4": "The complexity is nested for loops with try/catch and early returns, not a switch over kinds."
+     },
+     "note": "getMetricFromKafkaByTotalPartitionOfBrokerJmx: per broker, sums a JMX attribute over the topic's partitions and emits per-broker and total TopicMetrics."
+    },
+    {
+     "id": "u027",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "doReply parses the GET line, classifies the file type by suffix, validates the path, and streams the file or classpath resource with its own read loops (lines 237-315).",
+      "q2": "The class is a tiny HTTP server that serves html/class/gif files (optionally through a ClassPool); ServiceThread merely delegates to process().",
+      "q3": "It works on the request string, its own fields (htmlfileBase, classPool, debugDir) and streams; no getter chains on other project objects.",
+      "q4": "The suffix if/else-if chain is only a prelude; the complexity comes from the subsequent branches, read loops and early returns."
+     },
+     "note": "doReply: handles one HTTP GET by resolving the file type, serving a translated class file or a file from disk/classpath, else throwing BadHttpRequest."
+    },
+    {
+     "id": "u028",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "equals computes a boolean from the object's own seventeen fields via successive Objects.equals checks (lines 320-344).",
+      "q2": "The class is a settings holder for Elasticsearch connection options with getters/setters, equals, hashCode and toString.",
+      "q3": "It compares its own fields against another Elasticsearch instance's fields directly; no other classes' behaviour is involved.",
+      "q4": "The complexity is a flat sequence of if-return-false guards over fields, not a switch over kinds."
+     },
+     "note": "equals: field-by-field equality over the Elasticsearch settings (urls, index, bulk, retry, auth, template flags)."
+    },
+    {
+     "id": "u029",
+     "q1": true,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "searchModuleList computes which module names match the search text (quoted exact match, alternative terms from JGAAP_SEARCH_TABLE, initials) and fills the list model from that (lines 3674-3837).",
+      "q2": "The 4000-line form builds all Swing widgets (initComponents), handles every button/mouse event, keeps model lists of selected modules, loads/saves CSV batches, loads AAAC problems and runs the experiment; several concerns.",
+      "q3": "Handlers reach through chains such as ((NeighborAnalysisDriver) temp).getDistanceFunction().getGUILayout(...) and SelectedCanonicizerList.get(i).getFirst().displayName(), and decide on JGAAP_API's lists.",
+      "q4": "searchModuleList has two small switches on moduleType, but its complexity comes from the nested matching loops and boolean chains, not from the switch cases."
+     },
+     "note": "searchModuleList: filters a module list box by search text (exact, alias and initials matching) and refreshes the description box; initComponents is generated layout code."
+    },
+    {
+     "id": "u030",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "AbstractInterceptorFactory.postMatch decides from PreMatching and name-binding annotations on the target class, method and Application whether to return a Match (lines 95-129).",
+      "q2": "All methods register interceptor factories and compute sorted pre/post-match interceptor arrays; one registry concept.",
+      "q3": "It inspects reflection metadata (Class, AccessibleObject annotations) and its own nameBound/order fields; no getter chains on behaviour-bearing project objects.",
+      "q4": "The complexity is nested if/else branches with a loop and an &&/|| chain, not a switch over kinds."
+     },
+     "note": "postMatch: returns a Match for the interceptor when it is not @PreMatching and all its name-binding annotations are present on the target class, method or Application."
+    },
+    {
+     "id": "u031",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "main's PairFlatMapFunction.call splits the line into tokens and emits (word,(neighbour,1)) pairs for every neighbour within the window via nested loops (lines 58-74).",
+      "q2": "The class is one Spark job computing relative frequency of word neighbours; nothing else.",
+      "q3": "It works on String tokens and Tuple2 values (plain data) and Spark RDD operations; no other objects' behaviour.",
+      "q4": "The complexity is nested for loops with an if/else, not a switch over kinds."
+     },
+     "note": "main (flatMapToPair call): builds a Spark pipeline that emits neighbour pairs within a window, sums per word, joins and computes relative frequency."
+    },
+    {
+     "id": "u032",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "appendMatrix filters pairs by signature/iterations, computes deltas, ratios, mean, sd and a log-geomean, and renders the markdown table (lines 261-413).",
+      "q2": "The class reads digest files into Run records, pairs them by tag and derives the A/B table; one cohesive purpose stated in its javadoc.",
+      "q3": "Run and Pair are records defined in the file (data holders); the method works on their fields and local lists, not on other classes' behaviour.",
+      "q4": "The complexity is loops, lambdas and arithmetic guards, not a switch over kinds."
+     },
+     "note": "appendMatrix: drops inconsistent pairs, prints per-workload A/B timing tables with mean\u00b1sd, and a cross-row geomean summary for one matrix."
+    },
+    {
+     "id": "u033",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "main's PairFlatMapFunction.call parses a person:friends record, sorts friends and emits direct (0) and second-degree (1) pairs via nested loops (lines 94-141).",
+      "q2": "The class is one Spark job producing friend recommendations; helper methods buildSortedMap and getTopFriends serve the same job.",
+      "q3": "It works on Strings, Longs and Tuple2 values (plain data) and RDD operations; no other objects' behaviour.",
+      "q4": "The complexity is nested for loops with guards, not a switch over kinds."
+     },
+     "note": "main (flatMapToPair call): Spark pipeline that emits friend-pair keys, drops direct friends, counts mutual friends and selects top-N recommendations per user."
+    },
+    {
+     "id": "u034",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "train builds per-set histograms, computes stddev^2/mean for every event over nested loops, sorts and takes the top N events (lines 31-81).",
+      "q2": "The class is one event culler (index of dispersion) with its parameters and descriptions.",
+      "q3": "It uses EventHistogram.getAbsoluteFrequency (depth 1) and Utils.stddev on its own frequency lists; no getter chains on other objects.",
+      "q4": "The complexity is nested for loops and a few ifs, not a switch over kinds."
+     },
+     "note": "train: ranks events by index of dispersion (variance/mean of per-document frequency) and keeps the N most (or least) informative."
+    },
+    {
+     "id": "u035",
+     "q1": false,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "convertProperty mainly calls device.getMetadata(), metadata.getPropertyOrNull(), getValueType().validate().assertSuccess() and message.addHeader/setProperties inside a doOnNext lambda (lines 101-131).",
+      "q2": "Named a send-log interceptor, the class both publishes messages to the event bus (doPublish) and validates/converts function parameters and property values against device metadata; two concerns.",
+      "q3": "It decides on and rewrites another object's data through chains like propertyMetadata.getValueType().validate(entry.getValue()).assertSuccess() and message.getHeader(Headers.force).",
+      "q4": "prepareMessage is a short instanceof dispatch, but the most complex method is a loop with nested ifs, not a table."
+     },
+     "note": "convertProperty: validates each written property against device metadata, marks manual-source replies, and writes the converted properties back into the message."
+    },
+    {
+     "id": "u036",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "internalFire executes the state's own event-processing step: fires in parallel sub-states, propagates results, fires matching transitions, handles final-state completion and bubbles to the parent (lines 358-451).",
+      "q2": "The class is the state model of the FSM (transitions, actions, entry/exit, history, hierarchy); one concept.",
+      "q3": "It operates on its own state hierarchy and transitions; the chains like stateContext.getStateMachineData().write() reach into a context parameter object rather than moving another class's behaviour.",
+      "q4": "The complexity is deeply nested loops and ifs over transition results, not a switch over kinds (enterByHistory has a small switch but is not the most complex)."
+     },
+     "note": "internalFire: processes an event in this state, including parallel regions, transition firing, final-state completion events and delegation to the parent state."
+    },
+    {
+     "id": "u037",
+     "q1": false,
+     "q2": false,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "waitForNameNodeReadiness orchestrates calls to waitForNameNodeJMXValue, fetchNameNodeJMXValue, parseStaleDataNodeList, dfs.getDataNodeStats and triggerDataNodeBlockReport inside a polling thread, deciding which to call and when (lines 286-403).",
+      "q2": "The class is explicitly a 'collection of utilities': Hadoop tarball download, URI construction, NameNode readiness polling and JMX JSON parsing are unrelated concerns.",
+      "q3": "It works on Properties, Configuration values and JMX JSON strings, not on getter chains of behaviour-bearing project objects.",
+      "q4": "The complexity is a while loop with nested ifs, a for loop and try/catch, not a switch over kinds."
+     },
+     "note": "waitForNameNodeReadiness: polls NameNode JMX until live datanodes, missing and under-replicated blocks cross thresholds, optionally running a thread that triggers block reports on stale datanodes."
+    },
+    {
+     "id": "u038",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "doConnectAgent's ChainTask.run persists a VO, builds and runs shell/iptables commands, sets up SshFileMd5Checker and AnsibleRunner and invokes runner.run with callbacks; it forwards to other objects in sequence (lines 128-269).",
+      "q2": "All methods deploy, ping, reconnect or update the console proxy agent on the management server and dispatch its messages; one backend concept.",
+      "q3": "It reads its own globals and sets fields on ConsoleProxyAgentVO and message/reply data holders; no depth-2 getter chains on behaviour-bearing objects.",
+      "q4": "handleMessage/handleLocalMessage are small instanceof dispatches, but the most complex method is an orchestration with nested loops, ifs and try/catch."
+     },
+     "note": "doConnectAgent (ChainTask.run): ensures the agent VO exists, configures iptables/ipset for VNC ports, then deploys the console proxy agent via Ansible and updates connection status."
+    },
+    {
+     "id": "u039",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "main's classification lambda multiplies class prior by attribute conditional probabilities for each class and keeps the argmax (lines 108-142).",
+      "q2": "The class is one Spark job that classifies records with a Naive Bayes probability table; nothing else.",
+      "q3": "It works on Strings, Tuple2 keys and Double values from a broadcast map (plain data); no other objects' behaviour.",
+      "q4": "The complexity is nested for loops with if/else, not a switch over kinds."
+     },
+     "note": "main (mapToPair lambda): computes the Naive Bayes posterior per class for each record and emits the best class."
+    },
+    {
+     "id": "u040",
+     "q1": true,
+     "q2": false,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "getZhilianStats filters job rows by salary median, counts by status, groups by city/company/experience/degree/day and bins salaries into buckets, returning a computed StatsResponse (lines 339-464).",
+      "q2": "The class loads/updates config, maps option names to codes, creates the zhilian_data table via raw DDL, does job CRUD and delivery marking, parses salaries, and computes dashboard stats and paged listings; several concerns.",
+      "q3": "It works on ZhilianJobDataEntity and config entities, which are plain data holders, via depth-1 getters; no behaviour-bearing objects' fields are decided on.",
+      "q4": "The complexity is many guard ifs, loops with nested ifs and an if/else-if bucket chain, not a dispatch over one controlling value."
+     },
+     "note": "getZhilianStats: queries job records with filters, applies a salary-median range, and aggregates KPI counts, grouped chart series, daily trend and salary buckets."
+    }
+   ]
+  },
+  "ttft_ms": 1798,
+  "type": "result",
+  "duration_ms": 214440,
+  "uuid": "16df09c1-c6de-4e49-ad34-dcaea798d2de",
+  "ttft_stream_ms": 1089,
+  "time_to_request_ms": 158,
+  "first_content_frame_ms": 1090,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

@@ -1,0 +1,440 @@
+{
+ "batch": 3,
+ "ids": [
+  "u061",
+  "u062",
+  "u063",
+  "u064",
+  "u065",
+  "u066",
+  "u067",
+  "u068",
+  "u069",
+  "u070",
+  "u071",
+  "u072",
+  "u073",
+  "u074",
+  "u075",
+  "u076",
+  "u077",
+  "u078",
+  "u079",
+  "u080"
+ ],
+ "model": "claude-fable-5-1",
+ "claude_version": "2.1.307 (Claude Code)",
+ "scripts_commit": "3b9e92236d85fc2b2f66e941af818bed4accbb85",
+ "scripts": [
+  "paper/scripts/fp_reading.py",
+  "paper/scripts/false_positives.py",
+  "paper/scripts/common.py"
+ ],
+ "started_utc": "2026-10-22T09:43:43Z",
+ "returncode": 0,
+ "command": [
+  "claude",
+  "-p",
+  "<prompt>",
+  "--model",
+  "claude-fable-5-1",
+  "--tools",
+  "Read",
+  "--permission-mode",
+  "dontAsk",
+  "--safe-mode",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json",
+  "--json-schema",
+  "{\"type\": \"object\", \"required\": [\"readings\"], \"properties\": {\"readings\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"id\", \"q1\", \"q2\", \"q3\", \"q4\", \"evidence\", \"note\"], \"properties\": {\"id\": {\"type\": \"string\"}, \"q1\": {\"type\": \"boolean\"}, \"q2\": {\"type\": \"boolean\"}, \"q3\": {\"type\": \"boolean\"}, \"q4\": {\"type\": \"boolean\"}, \"evidence\": {\"type\": \"object\", \"required\": [\"q1\", \"q2\", \"q3\", \"q4\"], \"properties\": {\"q1\": {\"type\": \"string\"}, \"q2\": {\"type\": \"string\"}, \"q3\": {\"type\": \"string\"}, \"q4\": {\"type\": \"string\"}}}, \"note\": {\"type\": \"string\"}}}}}}"
+ ],
+ "prompt": "You are a blind code reader in an empirical software-engineering study. Work only from the files in the current directory.\n\n1. Read protocol.md first.\n2. Read batch.md. It names 20 Java files by id, their path in their repository, and their local copy under files/.\n3. For every file: read the whole file (use Read with offset and limit for files over 2000 lines, do not skip the tail). Identify the method with the highest cognitive complexity (the one with the most and deepest nested branches, loops and boolean chains) and name it. Then answer Q1, Q2, Q3 and Q4 from the protocol as true or false, each with one sentence of evidence from the file, and write a one-line note of the form \"methodName: what it does\". Do NOT derive or state the category; the mapping is applied later.\n4. Blindness: do not try to read anything outside the current directory and do not try to find out anything about these classes beyond the file itself.\n5. Answer with one entry per id of the batch, all 20 of them, in the required JSON form.\n",
+ "batch_md": "# Batch 3: 20 Java files to read under the protocol\n\n| id | class (path in its repository) | local file |\n|---|---|---|\n| u061 | atlas-gradle-plugin/dexpatch/src/main/java/com/taobao/android/dx/ssa/SsaConverter.java | files/u061.java |\n| u062 | resteasy-client/src/main/java/org/jboss/resteasy/client/jaxrs/internal/proxy/processors/FormProcessor.java | files/u062.java |\n| u063 | library/rtsp/src/main/java/com/google/android/exoplayer2/source/rtsp/SessionDescriptionParser.java | files/u063.java |\n| u064 | hollow/src/main/java/com/netflix/hollow/tools/combine/HollowCombiner.java | files/u064.java |\n| u065 | src/class142/Code05_Balance.java | files/u065.java |\n| u066 | tika/src/main/java/fr/pilato/elasticsearch/crawler/fs/tika/TikaDocParser.java | files/u066.java |\n| u067 | miaosha-v2/miaosha-web/src/main/java/com/geekq/miaosha/interceptor/LoginInterceptor.java | files/u067.java |\n| u068 | app/src/main/java/org/telegram/android/util/CustomBufferedInputStream.java | files/u068.java |\n| u069 | rt/libcore/luni/src/main/java/org/apache/harmony/xml/dom/NodeImpl.java | files/u069.java |\n| u070 | library/java/org/chromium/net/urlconnection/CronetHttpURLConnection.java | files/u070.java |\n| u071 | jetlinks-components/io-component/src/main/java/org/jetlinks/community/io/utils/ThumbnailUtils.java | files/u071.java |\n| u072 | application/src/main/java/org/opentripplanner/netex/loader/parser/SiteFrameParser.java | files/u072.java |\n| u073 | code-slicer/joern/projects/extensions/joern-fuzzyc/src/main/java/parsing/Functions/builder/ParameterListBuilder.java | files/u073.java |\n| u074 | app/src/main/java/com/github/tvbox/osc/util/XWalkUtils.java | files/u074.java |\n| u075 | portal/src/main/java/org/zstack/portal/managementnode/ManagementNodeManagerImpl.java | files/u075.java |\n| u076 | pig-visual/pig-monitor/src/main/java/com/pig4cloud/pig/monitor/service/impl/MonitorStatService.java | files/u076.java |\n| u077 | pig-upms/pig-upms-biz/src/main/java/com/pig4cloud/pig/admin/handler/ClarityFetchTaskHandler.java | files/u077.java |\n| u078 | sandbox-api/src/main/java/com/alibaba/jvm/sandbox/api/util/BehaviorDescriptor.java | files/u078.java |\n| u079 | ui/photoview/src/uk/co/senab/photoview/PhotoViewAttacher.java | files/u079.java |\n| u080 | application/src/main/java/org/opentripplanner/netex/mapping/FlexStopsMapper.java | files/u080.java |\n",
+ "result": {
+  "duration_api_ms": 363868,
+  "stop_reason": "tool_use",
+  "session_id": "ccbff294-1164-4f17-8179-e72c9d38b844",
+  "total_cost_usd": 4.01970725,
+  "usage": {
+   "input_tokens": 130,
+   "cache_creation_input_tokens": 141076,
+   "cache_read_input_tokens": 121749,
+   "output_tokens": 23329,
+   "output_tokens_details": {
+    "thinking_tokens": 14028
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 141076,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "global",
+   "iterations": [
+    {
+     "input_tokens": 32,
+     "output_tokens": 21546,
+     "cache_read_input_tokens": 74427,
+     "cache_creation_input_tokens": 66649,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 66649
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-fable-5-1": {
+    "inputTokens": 130,
+    "outputTokens": 23329,
+    "cacheReadInputTokens": 121749,
+    "cacheCreationInputTokens": 141076,
+    "webSearchRequests": 0,
+    "costUSD": 4.01970725,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 64000,
+    "thinkingTokens": 14028,
+    "canonicalModel": "claude-fable-5-1",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "{\"readings\":[{\"id\":\"u061\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"placePhiFunctions builds defsites/phisites BitSets per register and runs the dominance-frontier worklist (Appel 19.6) with nested for/while/while/if to decide where to insert phi instructions.\",\"q2\":\"Every method (edgeSplit*, needsNewSuccessor, placePhiFunctions, convertToSsaMethod) serves one concept: converting a ROP method into edge-split SSA form.\",\"q3\":\"It operates on the SsaMethod/SsaBasicBlock intermediate representation it is converting, an IR structure akin to a syntax tree, and keeps the algorithmic state (defsites, phisites, worklist) locally.\",\"q4\":\"The complexity is nested loops over blocks, registers and dominance frontiers, with no switch or case chain over kinds.\"},\"note\":\"placePhiFunctions: places phi functions in an SSA method using the dominance-frontier worklist algorithm\"},{\"id\":\"u062\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"populateMap scans the class's declared fields and getter methods via reflection and fills the processor's own fieldMap, getters and getterHashes, recursing into superclasses.\",\"q2\":\"All methods serve one concept: turning a form-annotated parameter object's fields and getters into WebTarget/ClientInvocation processing (the deprecated static hash helpers are leftovers of the same job).\",\"q3\":\"It decides on reflective Field/Method metadata (annotations, modifiers), which are JDK data objects, and the values it extracts are forwarded to processors; no behaviour-bearing foreign object is being driven by getter chains.\",\"q4\":\"populateMap is two filtering loops with early continues and a try/catch, not a switch over kinds; the small getTypeString if-chain is not the top method.\"},\"note\":\"populateMap: reflectively collects annotated fields and getters of a form class (and superclasses) into processor maps\"},{\"id\":\"u063\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"parse splits the SDP string into lines, matches each with SDP_LINE_PATTERN and ATTRIBUTE_PATTERN, and builds a SessionDescription from the parsed values, i.e. a text parser.\",\"q2\":\"The class is a final, package-private, static-only parser of SDP text into SessionDescription; parseMediaDescriptionLine and addMediaDescriptionToSession are parts of that one parse.\",\"q3\":\"It works on its own input string and populates its module's SessionDescription/MediaDescription builders (data holders), with no getter chains on other objects.\",\"q4\":\"The bulk of parse's complexity is the switch over sdpType with about fourteen one-letter cases (v, o, s, i, u, e, p, c, b, t, k, a, m, r/z), each case one to six lines, inside the line loop.\"},\"note\":\"parse: parses an SDP message string line by line into a SessionDescription via a switch on the line's type letter\"},{\"id\":\"u064\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"combine implements the combiner's own iterative procedure: pick primary keys not yet processed, select the types to copy this round, build per-input primary-key indexes and exclude duplicate record keys, then copy ordinals across threads until all output types are processed.\",\"q2\":\"Constructors, primary-key handling, ignored types, combine, copyOrdinal and the inner HollowCombinerCopier all serve one concept: merging several read state engines into one write state engine.\",\"q3\":\"It copies records between engines through HollowRecordCopier and reads inputs[i].getTypeState(...) and typeState.getListener(...).getPopulatedOrdinals(), but the dedup/dependency-ordering logic is the combiner's own concern on its own inputs/output fields, not behaviour belonging to the engines.\",\"q4\":\"combine's complexity comes from a while loop containing nested for/if/for/for/while loops and a thread lambda, with no switch or case chain.\"},\"note\":\"combine: copies records from all input read states into the output write state in schema-dependency order, deduplicating by primary keys and remapping ordinals\"},{\"id\":\"u065\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"compute initialises dmin/dmax from the relation matrix s, runs Floyd-Warshall over three nested loops to tighten bounds, then counts pairs (i,j) satisfying boolean chains of bound comparisons into ans1/ans2/ans3.\",\"q2\":\"The file is one competitive-programming solution: static arrays, compute, and a main that reads input and prints the three answers.\",\"q3\":\"All data are the class's own static arrays and scalars; no other object is touched.\",\"q4\":\"The initial if/else-if over '=', '+', '-' is four short cases but the complexity is dominated by the triple Floyd loop and the counting loops with && and || chains.\"},\"note\":\"compute: Floyd-Warshall bound propagation on weight differences then counts pairs that make the balance left-heavy, equal or right-heavy\"},{\"id\":\"u066\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"The private six-argument generate mainly sequences calls: chooses in-memory vs temp-file buffering, calls transferTo, delegates text extraction to tikaInstance via extractParsedContent, then issues some thirty setMeta calls copying Tika metadata into doc.getMeta() setters and sets the attachment; the result lands in the passed Doc, not in computed own state.\",\"q2\":\"All methods (generate, extractParsedContent, extractAttempt, finalizeAttempt, setMeta, logging helpers) serve one concept: turning a binary document into a filled FSCrawler Doc for this job's settings.\",\"q3\":\"The chains fsSettings.getFs().isX() and doc.getFile()/doc.getMeta().setX are on settings and bean DTOs, and Tika Metadata is a data holder, so by the convention this copying is not foreign behaviour.\",\"q4\":\"The complexity is many separate guard conditions (indexedChars, buffering mode, isIndexContent, isStoreSource, lang-detect lambda, raw metadata) rather than one switch over kinds.\"},\"note\":\"generate (private, 6 args): buffers the input (memory or temp file) for checksum/attachment, runs Tika extraction, copies metadata into the Doc and stores the source\"},{\"id\":\"u067\",\"q1\":false,\"q2\":false,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"preHandle forwards to getUser/userService, reads the RequireLogin annotation, then calls redisService.get/set/incr and render, deciding which to call; it computes no own state.\",\"q2\":\"The class both resolves the logged-in user from token/cookie (getUser, getCookieValue, UserContext) and enforces per-URI access-count rate limiting via Redis (seconds/maxCount), two separable concerns in one interceptor.\",\"q3\":\"It reads request parameters/cookies and annotation attributes (plain data) and uses services, with no getter chains or copying between behaviour-bearing objects.\",\"q4\":\"preHandle is nested if/else guards (handler type, annotation null, needLogin, user null, count null/less/else), not a case chain over one controlling value.\"},\"note\":\"preHandle: sets the current user from token/cookie and enforces RequireLogin login and Redis-based request-count limits before a handler\"},{\"id\":\"u068\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"read(byte[],int,int) copies from the own buffer, then loops reading either directly from the source or via fillbuf, tracking pos/count/markpos and the remaining required count to compute the returned byte count.\",\"q2\":\"Every method (available, close, fillbuf, mark, read, reset, skip) implements buffered-input-stream semantics over buf/pos/count/markpos.\",\"q3\":\"It works on its own buffer and position fields and the wrapped InputStream's read/available, with no getter chains or copying between other objects.\",\"q4\":\"The complexity is a while(true) loop with nested if/else and ternaries on buffer state, not a switch over kinds.\"},\"note\":\"read(byte[],int,int): fills the caller's array from the internal buffer and the source stream, bypassing the buffer when unmarked and the request is large\"},{\"id\":\"u069\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"lookupNamespaceURI walks from the namespacing element up through containing elements, checking each node's own prefix/namespace and its xmlns/xmlns:prefix attributes with nested for/if/for/if and ternaries, and returns the resolved URI.\",\"q2\":\"All methods implement the W3C Node contract for a DOM node (children stubs, names, base URI, namespace lookup, equality, user data).\",\"q3\":\"It traverses the DOM tree of Node objects it is itself part of (ancestors, attributes), a tree structure akin to a syntax tree, so the lookups are its own namespace-resolution behaviour rather than borrowed foreign data.\",\"q4\":\"Several methods (setNodeValue, getBaseURI, setTextContent, getNamespacingElement) switch over getNodeType(), but the top method lookupNamespaceURI is a nested traversal loop, not a case table.\"},\"note\":\"lookupNamespaceURI: resolves a namespace prefix (or default namespace) by walking ancestor elements and their xmlns attributes\"},{\"id\":\"u070\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"startRequest derives the Cronet request from the connection's own state (doOutput, method, mOutputStream, mRequestHeaders, useCaches, traffic tag/uid), adding default Content-Length/Content-Type headers and setting method, mRequest and connected, i.e. the connection's own protocol step.\",\"q2\":\"All methods serve one concept: implementing HttpURLConnection semantics on top of a Cronet UrlRequest (request headers, output streams, response blocking, header maps, callback).\",\"q3\":\"It works almost entirely on its own fields (mRequestHeaders, mResponseInfo, mOutputStream, connected); the only depth-2 chain is mOutputStream.getUploadDataProvider().getLength().\",\"q4\":\"startRequest is a sequence of separate if guards (doOutput, GET\u2192POST, output stream present, Content-Length, Content-Type, caches, traffic stats) plus a header loop, not a case chain over one value.\"},\"note\":\"startRequest: builds and starts the Cronet UrlRequest from the connection's method, headers, upload stream and traffic-stats settings\"},{\"id\":\"u071\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"generateThumbnailFunction's switchOnFirst lambda parses the thumb spec into either width_height integers or a percentage scale, validates them (parts.length == 2, 0 < scale < 1) and returns the corresponding thumbnail flux or an error.\",\"q2\":\"Every method (generateThumbnailFunction, two generateThumbnail overloads, generateThumbnailInternal, initPipedOutputStream, closeStream) serves one concept: producing thumbnail image streams.\",\"q3\":\"It works on its own thumb string and DataBuffer streams and uses Thumbnails as a library; no getter chains or copying between other objects.\",\"q4\":\"The complexity is nested if guards on signal value, thumb format and scale range, not a case chain over kinds.\"},\"note\":\"generateThumbnailFunction: returns a function that, on first signal, parses the thumb spec (W_H or percent) and scales the image flux accordingly\"},{\"id\":\"u072\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"parse takes the site frame and populates the parser's own collections (stopPlaces, multiModalStopPlaces, quays, tariffZones, parkings, ...) through its own parseX methods, guarded by null checks and feature flags, then warns on unmapped sections.\",\"q2\":\"All methods serve one concept: extracting site entities from a NeTEx Site frame into the parser's collections and handing them to the entity index.\",\"q3\":\"The chains frame.getStopPlaces().getStopPlace_() etc. are on generated JAXB model objects (data holders), so by the convention they are not foreign data.\",\"q4\":\"parse's complexity is separate if conditions guarding calls (five guards with && on feature flags), explicitly not a dispatch table; parseStopPlaces has one if/else.\"},\"note\":\"parse: collects stop places, groups, flexible stops, tariff zones, quays and parkings from a NeTEx Site frame into the parser's collections\"},{\"id\":\"u073\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"determineCompleteType loops down nested parameter_id contexts until the one holding the name, wrapping the accumulated type string in parentheses with pointer and suffix tokens, and returns the complete C type string.\",\"q2\":\"createNew, addParameter and determineCompleteType all serve one concept: building a ParameterList AST node from the parser's parameter declarations.\",\"q3\":\"It reads ANTLR parse-tree contexts (parameter_id.ptrs(), type_suffix(), parameter_name()), which are syntax-tree data holders, to compute its own string.\",\"q4\":\"The complexity is a while loop with two ifs inside and two ifs after, not a switch over kinds.\"},\"note\":\"determineCompleteType: reconstructs a parameter's complete C type string from nested parameter_id parse-tree contexts (pointers, suffixes)\"},{\"id\":\"u074\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"unzipXWalkZip iterates the zip entries, finds XWalkRuntimeLib.apk, deletes stale temp/final files, copies the entry bytes in a read/write loop to a temp file, renames it, and deletes the archive, i.e. an extraction procedure over its own inputs.\",\"q2\":\"All methods (downUrl, saveZipFile, xWalkLibExist, tryUseXWalk, checkEmbedded, unzipXWalkZip, getRuntimeAbi, extractXWalkLib, path helpers) serve one concept: provisioning and initialising the Crosswalk (XWalk) runtime.\",\"q3\":\"It works on files, zip entries and reflection results it obtains itself; there are no getter chains or copying between other behaviour-bearing objects.\",\"q4\":\"unzipXWalkZip is while/if-else/if/if/if/while nesting over zip entries; the small switch on ABI strings in getRuntimeAbi is not the top method.\"},\"note\":\"unzipXWalkZip: extracts XWalkRuntimeLib.apk from the downloaded Crosswalk zip into the app cache and deletes the zip\"},{\"id\":\"u075\",\"q1\":true,\"q2\":false,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"checkAllNodesHealth (inside the heartbeat Task in startHeartbeat) queries running nodes, drops non-ZStack UUIDs, compares each heartbeat against the DB clock and the computed delta to fill its own suspects list, detects time regression, and reconciles the hash ring, i.e. the liveness-detection procedure.\",\"q2\":\"The class bootstraps the node via a flow chain (start), handles bus messages (handleMessage), runs DB heartbeat and peer failure detection (startHeartbeat), propagates node join/left events, installs shutdown hooks and debug-signal dumps, and orchestrates stop: several distinct concerns.\",\"q3\":\"It decides on ManagementNodeVO rows (data holders) and its own node/suspects state; the only depth-2 chain is destinationMaker.getNodeInfo(nodeUuid).getNodeIP().\",\"q4\":\"The complexity is a for loop over nodes with several if/continue guards and two forEach lambdas, with no switch over kinds; message dispatch in handleLocalMessage is tiny.\"},\"note\":\"checkAllNodesHealth (heartbeat task in startHeartbeat): scans ManagementNodeVO heartbeats, marks stale peers as suspects, fires time-regression events and reconciles the hash ring\"},{\"id\":\"u076\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"service(url) only matches the url against about fifteen path patterns, extracts ids with StringUtils.subString, and returns the result of the matching getXxx helper; it computes nothing itself.\",\"q2\":\"The Javadoc and methods describe one concept: aggregating Druid monitoring data (datasource, SQL, wall, web URI, session, spring stats) across service instances discovered from the registry.\",\"q3\":\"It copies ServiceInstance host/port/serviceId into ServiceNode and node name/address into ContentBean, but these are DTOs/data holders, and the aggregation logic is this service's own.\",\"q4\":\"service is one long if chain over url prefixes/suffixes (serviceList.json, /datasource.json, /datasource-, /connectionInfo-, /sql.json, /wall.json, /serviceId, /weburi.json, /weburi-, /webapp.json, /websession.json, /websession-, /spring.json, /spring-detail.json), each branch one to four lines.\"},\"note\":\"service: routes a Druid console URL to the matching stat-aggregation helper by prefix/suffix matching and returns its JSON\"},{\"id\":\"u077\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"parseResponse decodes the Clarity JSON array into a SysClarityData entity, reading metricName and the first information object and converting counts and rankings into entity fields.\",\"q2\":\"fetchAndSave, updateStatus, parseResponse and toJsonRanking all serve one concept: fetching Clarity insights and persisting them as a SysClarityData row.\",\"q3\":\"It reads JSONObject values and sets fields on a SysClarityData entity, both plain data holders, and the two mappers are used as repositories.\",\"q4\":\"parseResponse's complexity is mainly the switch on metricName with nine cases (Traffic, ScrollDepth, DeadClickCount, RageClickCount, Device, PopularPages, ReferrerUrl, PageTitle, Browser), each one to three lines, inside a loop with two null guards.\"},\"note\":\"parseResponse: maps the Clarity API metrics array into SysClarityData fields via a switch on metricName\"},{\"id\":\"u078\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"Type.getDescriptor(StringBuilder, Class) encodes a Class into its JVM descriptor: loops peeling array dimensions, maps primitives to their letter, and writes L<internal name>; for objects, replacing dots with slashes.\",\"q2\":\"The class (with its embedded ASM Type copy) does one thing: compute the JVM descriptor string of a Constructor or Method.\",\"q3\":\"It works on java.lang.Class and reflection metadata (data) to build its own StringBuilder; no getter chains on behaviour-bearing objects.\",\"q4\":\"Over half of the method's complexity is the nine-way if/else-if chain over d == Integer.TYPE, Void.TYPE, Boolean.TYPE, ... each case a single char assignment, wrapped in a while/if/else-if/else for arrays and objects.\"},\"note\":\"Type.getDescriptor(StringBuilder, Class): appends the JVM type descriptor of a class (primitive letter, [ for arrays, L...; for objects)\"},{\"id\":\"u079\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"onTouch handles the touch protocol over the attacher's own zoom state: on ACTION_DOWN it disallows parent intercept and cancels the fling, on UP/CANCEL it snaps back when getScale() < mMinScale by posting an AnimatedZoomRunnable, then feeds the detectors and computes the returned handled flag.\",\"q2\":\"All methods (scale bounds, matrix bookkeeping, checkMatrixBounds, updateBaseMatrix, gesture callbacks, fling and zoom runnables) serve one concept: zoom/pan gesture control of an ImageView's display matrix.\",\"q3\":\"It reads the ImageView's drawable, bounds, padding and parent, but the complexity lives in its own matrices (mBaseMatrix, mSuppMatrix), scale limits and edge state; the one depth-2 chain is imageView.getDrawable().getIntrinsicWidth().\",\"q4\":\"onTouch's switch on ev.getAction() has only two cases, and the rest of its complexity is separate && guards around detector calls; checkMatrixBounds' switches on mScaleType are small.\"},\"note\":\"onTouch: handles touch events for the zoomable ImageView (parent intercept, fling cancel, snap-back below min scale, delegate to tap and scale/drag detectors)\"},{\"id\":\"u080\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"map iterates the flexible stop place's areas, skips unsupported or invalid geometries with issues, chooses per area between finding regular stops inside the geometry and creating an AreaStop, and returns a built GroupStop (or null).\",\"q2\":\"map, mapFlexArea, findStopsInFlexArea, mapGeometry, mapTransitMode and the key-list helpers all serve one concept: mapping NeTEx FlexibleStopPlace into OTP stop locations.\",\"q3\":\"The chains flexibleStopPlace.getAreas().getFlexibleAreaOrFlexibleAreaRefOrHailAndRideArea() and getName().getValue() are on generated JAXB model objects (data holders), and the output is built via the site repository builder.\",\"q4\":\"map's complexity is a for loop with instanceof/continue, null/continue and an if/else on shouldAddStopsFromArea, not a case chain over kinds.\"},\"note\":\"map: converts a NeTEx FlexibleStopPlace's areas into regular stops or AreaStops and groups them into a GroupStop\"}]}",
+  "structured_output": {
+   "readings": [
+    {
+     "id": "u061",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "placePhiFunctions builds defsites/phisites BitSets per register and runs the dominance-frontier worklist (Appel 19.6) with nested for/while/while/if to decide where to insert phi instructions.",
+      "q2": "Every method (edgeSplit*, needsNewSuccessor, placePhiFunctions, convertToSsaMethod) serves one concept: converting a ROP method into edge-split SSA form.",
+      "q3": "It operates on the SsaMethod/SsaBasicBlock intermediate representation it is converting, an IR structure akin to a syntax tree, and keeps the algorithmic state (defsites, phisites, worklist) locally.",
+      "q4": "The complexity is nested loops over blocks, registers and dominance frontiers, with no switch or case chain over kinds."
+     },
+     "note": "placePhiFunctions: places phi functions in an SSA method using the dominance-frontier worklist algorithm"
+    },
+    {
+     "id": "u062",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "populateMap scans the class's declared fields and getter methods via reflection and fills the processor's own fieldMap, getters and getterHashes, recursing into superclasses.",
+      "q2": "All methods serve one concept: turning a form-annotated parameter object's fields and getters into WebTarget/ClientInvocation processing (the deprecated static hash helpers are leftovers of the same job).",
+      "q3": "It decides on reflective Field/Method metadata (annotations, modifiers), which are JDK data objects, and the values it extracts are forwarded to processors; no behaviour-bearing foreign object is being driven by getter chains.",
+      "q4": "populateMap is two filtering loops with early continues and a try/catch, not a switch over kinds; the small getTypeString if-chain is not the top method."
+     },
+     "note": "populateMap: reflectively collects annotated fields and getters of a form class (and superclasses) into processor maps"
+    },
+    {
+     "id": "u063",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "parse splits the SDP string into lines, matches each with SDP_LINE_PATTERN and ATTRIBUTE_PATTERN, and builds a SessionDescription from the parsed values, i.e. a text parser.",
+      "q2": "The class is a final, package-private, static-only parser of SDP text into SessionDescription; parseMediaDescriptionLine and addMediaDescriptionToSession are parts of that one parse.",
+      "q3": "It works on its own input string and populates its module's SessionDescription/MediaDescription builders (data holders), with no getter chains on other objects.",
+      "q4": "The bulk of parse's complexity is the switch over sdpType with about fourteen one-letter cases (v, o, s, i, u, e, p, c, b, t, k, a, m, r/z), each case one to six lines, inside the line loop."
+     },
+     "note": "parse: parses an SDP message string line by line into a SessionDescription via a switch on the line's type letter"
+    },
+    {
+     "id": "u064",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "combine implements the combiner's own iterative procedure: pick primary keys not yet processed, select the types to copy this round, build per-input primary-key indexes and exclude duplicate record keys, then copy ordinals across threads until all output types are processed.",
+      "q2": "Constructors, primary-key handling, ignored types, combine, copyOrdinal and the inner HollowCombinerCopier all serve one concept: merging several read state engines into one write state engine.",
+      "q3": "It copies records between engines through HollowRecordCopier and reads inputs[i].getTypeState(...) and typeState.getListener(...).getPopulatedOrdinals(), but the dedup/dependency-ordering logic is the combiner's own concern on its own inputs/output fields, not behaviour belonging to the engines.",
+      "q4": "combine's complexity comes from a while loop containing nested for/if/for/for/while loops and a thread lambda, with no switch or case chain."
+     },
+     "note": "combine: copies records from all input read states into the output write state in schema-dependency order, deduplicating by primary keys and remapping ordinals"
+    },
+    {
+     "id": "u065",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "compute initialises dmin/dmax from the relation matrix s, runs Floyd-Warshall over three nested loops to tighten bounds, then counts pairs (i,j) satisfying boolean chains of bound comparisons into ans1/ans2/ans3.",
+      "q2": "The file is one competitive-programming solution: static arrays, compute, and a main that reads input and prints the three answers.",
+      "q3": "All data are the class's own static arrays and scalars; no other object is touched.",
+      "q4": "The initial if/else-if over '=', '+', '-' is four short cases but the complexity is dominated by the triple Floyd loop and the counting loops with && and || chains."
+     },
+     "note": "compute: Floyd-Warshall bound propagation on weight differences then counts pairs that make the balance left-heavy, equal or right-heavy"
+    },
+    {
+     "id": "u066",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "The private six-argument generate mainly sequences calls: chooses in-memory vs temp-file buffering, calls transferTo, delegates text extraction to tikaInstance via extractParsedContent, then issues some thirty setMeta calls copying Tika metadata into doc.getMeta() setters and sets the attachment; the result lands in the passed Doc, not in computed own state.",
+      "q2": "All methods (generate, extractParsedContent, extractAttempt, finalizeAttempt, setMeta, logging helpers) serve one concept: turning a binary document into a filled FSCrawler Doc for this job's settings.",
+      "q3": "The chains fsSettings.getFs().isX() and doc.getFile()/doc.getMeta().setX are on settings and bean DTOs, and Tika Metadata is a data holder, so by the convention this copying is not foreign behaviour.",
+      "q4": "The complexity is many separate guard conditions (indexedChars, buffering mode, isIndexContent, isStoreSource, lang-detect lambda, raw metadata) rather than one switch over kinds."
+     },
+     "note": "generate (private, 6 args): buffers the input (memory or temp file) for checksum/attachment, runs Tika extraction, copies metadata into the Doc and stores the source"
+    },
+    {
+     "id": "u067",
+     "q1": false,
+     "q2": false,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "preHandle forwards to getUser/userService, reads the RequireLogin annotation, then calls redisService.get/set/incr and render, deciding which to call; it computes no own state.",
+      "q2": "The class both resolves the logged-in user from token/cookie (getUser, getCookieValue, UserContext) and enforces per-URI access-count rate limiting via Redis (seconds/maxCount), two separable concerns in one interceptor.",
+      "q3": "It reads request parameters/cookies and annotation attributes (plain data) and uses services, with no getter chains or copying between behaviour-bearing objects.",
+      "q4": "preHandle is nested if/else guards (handler type, annotation null, needLogin, user null, count null/less/else), not a case chain over one controlling value."
+     },
+     "note": "preHandle: sets the current user from token/cookie and enforces RequireLogin login and Redis-based request-count limits before a handler"
+    },
+    {
+     "id": "u068",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "read(byte[],int,int) copies from the own buffer, then loops reading either directly from the source or via fillbuf, tracking pos/count/markpos and the remaining required count to compute the returned byte count.",
+      "q2": "Every method (available, close, fillbuf, mark, read, reset, skip) implements buffered-input-stream semantics over buf/pos/count/markpos.",
+      "q3": "It works on its own buffer and position fields and the wrapped InputStream's read/available, with no getter chains or copying between other objects.",
+      "q4": "The complexity is a while(true) loop with nested if/else and ternaries on buffer state, not a switch over kinds."
+     },
+     "note": "read(byte[],int,int): fills the caller's array from the internal buffer and the source stream, bypassing the buffer when unmarked and the request is large"
+    },
+    {
+     "id": "u069",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "lookupNamespaceURI walks from the namespacing element up through containing elements, checking each node's own prefix/namespace and its xmlns/xmlns:prefix attributes with nested for/if/for/if and ternaries, and returns the resolved URI.",
+      "q2": "All methods implement the W3C Node contract for a DOM node (children stubs, names, base URI, namespace lookup, equality, user data).",
+      "q3": "It traverses the DOM tree of Node objects it is itself part of (ancestors, attributes), a tree structure akin to a syntax tree, so the lookups are its own namespace-resolution behaviour rather than borrowed foreign data.",
+      "q4": "Several methods (setNodeValue, getBaseURI, setTextContent, getNamespacingElement) switch over getNodeType(), but the top method lookupNamespaceURI is a nested traversal loop, not a case table."
+     },
+     "note": "lookupNamespaceURI: resolves a namespace prefix (or default namespace) by walking ancestor elements and their xmlns attributes"
+    },
+    {
+     "id": "u070",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "startRequest derives the Cronet request from the connection's own state (doOutput, method, mOutputStream, mRequestHeaders, useCaches, traffic tag/uid), adding default Content-Length/Content-Type headers and setting method, mRequest and connected, i.e. the connection's own protocol step.",
+      "q2": "All methods serve one concept: implementing HttpURLConnection semantics on top of a Cronet UrlRequest (request headers, output streams, response blocking, header maps, callback).",
+      "q3": "It works almost entirely on its own fields (mRequestHeaders, mResponseInfo, mOutputStream, connected); the only depth-2 chain is mOutputStream.getUploadDataProvider().getLength().",
+      "q4": "startRequest is a sequence of separate if guards (doOutput, GET\u2192POST, output stream present, Content-Length, Content-Type, caches, traffic stats) plus a header loop, not a case chain over one value."
+     },
+     "note": "startRequest: builds and starts the Cronet UrlRequest from the connection's method, headers, upload stream and traffic-stats settings"
+    },
+    {
+     "id": "u071",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "generateThumbnailFunction's switchOnFirst lambda parses the thumb spec into either width_height integers or a percentage scale, validates them (parts.length == 2, 0 < scale < 1) and returns the corresponding thumbnail flux or an error.",
+      "q2": "Every method (generateThumbnailFunction, two generateThumbnail overloads, generateThumbnailInternal, initPipedOutputStream, closeStream) serves one concept: producing thumbnail image streams.",
+      "q3": "It works on its own thumb string and DataBuffer streams and uses Thumbnails as a library; no getter chains or copying between other objects.",
+      "q4": "The complexity is nested if guards on signal value, thumb format and scale range, not a case chain over kinds."
+     },
+     "note": "generateThumbnailFunction: returns a function that, on first signal, parses the thumb spec (W_H or percent) and scales the image flux accordingly"
+    },
+    {
+     "id": "u072",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "parse takes the site frame and populates the parser's own collections (stopPlaces, multiModalStopPlaces, quays, tariffZones, parkings, ...) through its own parseX methods, guarded by null checks and feature flags, then warns on unmapped sections.",
+      "q2": "All methods serve one concept: extracting site entities from a NeTEx Site frame into the parser's collections and handing them to the entity index.",
+      "q3": "The chains frame.getStopPlaces().getStopPlace_() etc. are on generated JAXB model objects (data holders), so by the convention they are not foreign data.",
+      "q4": "parse's complexity is separate if conditions guarding calls (five guards with && on feature flags), explicitly not a dispatch table; parseStopPlaces has one if/else."
+     },
+     "note": "parse: collects stop places, groups, flexible stops, tariff zones, quays and parkings from a NeTEx Site frame into the parser's collections"
+    },
+    {
+     "id": "u073",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "determineCompleteType loops down nested parameter_id contexts until the one holding the name, wrapping the accumulated type string in parentheses with pointer and suffix tokens, and returns the complete C type string.",
+      "q2": "createNew, addParameter and determineCompleteType all serve one concept: building a ParameterList AST node from the parser's parameter declarations.",
+      "q3": "It reads ANTLR parse-tree contexts (parameter_id.ptrs(), type_suffix(), parameter_name()), which are syntax-tree data holders, to compute its own string.",
+      "q4": "The complexity is a while loop with two ifs inside and two ifs after, not a switch over kinds."
+     },
+     "note": "determineCompleteType: reconstructs a parameter's complete C type string from nested parameter_id parse-tree contexts (pointers, suffixes)"
+    },
+    {
+     "id": "u074",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "unzipXWalkZip iterates the zip entries, finds XWalkRuntimeLib.apk, deletes stale temp/final files, copies the entry bytes in a read/write loop to a temp file, renames it, and deletes the archive, i.e. an extraction procedure over its own inputs.",
+      "q2": "All methods (downUrl, saveZipFile, xWalkLibExist, tryUseXWalk, checkEmbedded, unzipXWalkZip, getRuntimeAbi, extractXWalkLib, path helpers) serve one concept: provisioning and initialising the Crosswalk (XWalk) runtime.",
+      "q3": "It works on files, zip entries and reflection results it obtains itself; there are no getter chains or copying between other behaviour-bearing objects.",
+      "q4": "unzipXWalkZip is while/if-else/if/if/if/while nesting over zip entries; the small switch on ABI strings in getRuntimeAbi is not the top method."
+     },
+     "note": "unzipXWalkZip: extracts XWalkRuntimeLib.apk from the downloaded Crosswalk zip into the app cache and deletes the zip"
+    },
+    {
+     "id": "u075",
+     "q1": true,
+     "q2": false,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "checkAllNodesHealth (inside the heartbeat Task in startHeartbeat) queries running nodes, drops non-ZStack UUIDs, compares each heartbeat against the DB clock and the computed delta to fill its own suspects list, detects time regression, and reconciles the hash ring, i.e. the liveness-detection procedure.",
+      "q2": "The class bootstraps the node via a flow chain (start), handles bus messages (handleMessage), runs DB heartbeat and peer failure detection (startHeartbeat), propagates node join/left events, installs shutdown hooks and debug-signal dumps, and orchestrates stop: several distinct concerns.",
+      "q3": "It decides on ManagementNodeVO rows (data holders) and its own node/suspects state; the only depth-2 chain is destinationMaker.getNodeInfo(nodeUuid).getNodeIP().",
+      "q4": "The complexity is a for loop over nodes with several if/continue guards and two forEach lambdas, with no switch over kinds; message dispatch in handleLocalMessage is tiny."
+     },
+     "note": "checkAllNodesHealth (heartbeat task in startHeartbeat): scans ManagementNodeVO heartbeats, marks stale peers as suspects, fires time-regression events and reconciles the hash ring"
+    },
+    {
+     "id": "u076",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "service(url) only matches the url against about fifteen path patterns, extracts ids with StringUtils.subString, and returns the result of the matching getXxx helper; it computes nothing itself.",
+      "q2": "The Javadoc and methods describe one concept: aggregating Druid monitoring data (datasource, SQL, wall, web URI, session, spring stats) across service instances discovered from the registry.",
+      "q3": "It copies ServiceInstance host/port/serviceId into ServiceNode and node name/address into ContentBean, but these are DTOs/data holders, and the aggregation logic is this service's own.",
+      "q4": "service is one long if chain over url prefixes/suffixes (serviceList.json, /datasource.json, /datasource-, /connectionInfo-, /sql.json, /wall.json, /serviceId, /weburi.json, /weburi-, /webapp.json, /websession.json, /websession-, /spring.json, /spring-detail.json), each branch one to four lines."
+     },
+     "note": "service: routes a Druid console URL to the matching stat-aggregation helper by prefix/suffix matching and returns its JSON"
+    },
+    {
+     "id": "u077",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "parseResponse decodes the Clarity JSON array into a SysClarityData entity, reading metricName and the first information object and converting counts and rankings into entity fields.",
+      "q2": "fetchAndSave, updateStatus, parseResponse and toJsonRanking all serve one concept: fetching Clarity insights and persisting them as a SysClarityData row.",
+      "q3": "It reads JSONObject values and sets fields on a SysClarityData entity, both plain data holders, and the two mappers are used as repositories.",
+      "q4": "parseResponse's complexity is mainly the switch on metricName with nine cases (Traffic, ScrollDepth, DeadClickCount, RageClickCount, Device, PopularPages, ReferrerUrl, PageTitle, Browser), each one to three lines, inside a loop with two null guards."
+     },
+     "note": "parseResponse: maps the Clarity API metrics array into SysClarityData fields via a switch on metricName"
+    },
+    {
+     "id": "u078",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "Type.getDescriptor(StringBuilder, Class) encodes a Class into its JVM descriptor: loops peeling array dimensions, maps primitives to their letter, and writes L<internal name>; for objects, replacing dots with slashes.",
+      "q2": "The class (with its embedded ASM Type copy) does one thing: compute the JVM descriptor string of a Constructor or Method.",
+      "q3": "It works on java.lang.Class and reflection metadata (data) to build its own StringBuilder; no getter chains on behaviour-bearing objects.",
+      "q4": "Over half of the method's complexity is the nine-way if/else-if chain over d == Integer.TYPE, Void.TYPE, Boolean.TYPE, ... each case a single char assignment, wrapped in a while/if/else-if/else for arrays and objects."
+     },
+     "note": "Type.getDescriptor(StringBuilder, Class): appends the JVM type descriptor of a class (primitive letter, [ for arrays, L...; for objects)"
+    },
+    {
+     "id": "u079",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "onTouch handles the touch protocol over the attacher's own zoom state: on ACTION_DOWN it disallows parent intercept and cancels the fling, on UP/CANCEL it snaps back when getScale() < mMinScale by posting an AnimatedZoomRunnable, then feeds the detectors and computes the returned handled flag.",
+      "q2": "All methods (scale bounds, matrix bookkeeping, checkMatrixBounds, updateBaseMatrix, gesture callbacks, fling and zoom runnables) serve one concept: zoom/pan gesture control of an ImageView's display matrix.",
+      "q3": "It reads the ImageView's drawable, bounds, padding and parent, but the complexity lives in its own matrices (mBaseMatrix, mSuppMatrix), scale limits and edge state; the one depth-2 chain is imageView.getDrawable().getIntrinsicWidth().",
+      "q4": "onTouch's switch on ev.getAction() has only two cases, and the rest of its complexity is separate && guards around detector calls; checkMatrixBounds' switches on mScaleType are small."
+     },
+     "note": "onTouch: handles touch events for the zoomable ImageView (parent intercept, fling cancel, snap-back below min scale, delegate to tap and scale/drag detectors)"
+    },
+    {
+     "id": "u080",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "map iterates the flexible stop place's areas, skips unsupported or invalid geometries with issues, chooses per area between finding regular stops inside the geometry and creating an AreaStop, and returns a built GroupStop (or null).",
+      "q2": "map, mapFlexArea, findStopsInFlexArea, mapGeometry, mapTransitMode and the key-list helpers all serve one concept: mapping NeTEx FlexibleStopPlace into OTP stop locations.",
+      "q3": "The chains flexibleStopPlace.getAreas().getFlexibleAreaOrFlexibleAreaRefOrHailAndRideArea() and getName().getValue() are on generated JAXB model objects (data holders), and the output is built via the site repository builder.",
+      "q4": "map's complexity is a for loop with instanceof/continue, null/continue and an if/else on shouldAddStopsFromArea, not a case chain over kinds."
+     },
+     "note": "map: converts a NeTEx FlexibleStopPlace's areas into regular stops or AreaStops and groups them into a GroupStop"
+    }
+   ]
+  },
+  "ttft_ms": 4602,
+  "type": "result",
+  "duration_ms": 364566,
+  "uuid": "a05a72b0-b80b-4d97-a1b6-a54c1e07aa14",
+  "ttft_stream_ms": 2817,
+  "time_to_request_ms": 147,
+  "first_content_frame_ms": 2818,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

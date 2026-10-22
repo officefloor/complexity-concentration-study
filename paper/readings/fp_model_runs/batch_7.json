@@ -1,0 +1,440 @@
+{
+ "batch": 7,
+ "ids": [
+  "u141",
+  "u142",
+  "u143",
+  "u144",
+  "u145",
+  "u146",
+  "u147",
+  "u148",
+  "u149",
+  "u150",
+  "u151",
+  "u152",
+  "u153",
+  "u154",
+  "u155",
+  "u156",
+  "u157",
+  "u158",
+  "u159",
+  "u160"
+ ],
+ "model": "claude-fable-5-1",
+ "claude_version": "2.1.307 (Claude Code)",
+ "scripts_commit": "3b9e92236d85fc2b2f66e941af818bed4accbb85",
+ "scripts": [
+  "paper/scripts/fp_reading.py",
+  "paper/scripts/false_positives.py",
+  "paper/scripts/common.py"
+ ],
+ "started_utc": "2026-10-22T09:49:49Z",
+ "returncode": 0,
+ "command": [
+  "claude",
+  "-p",
+  "<prompt>",
+  "--model",
+  "claude-fable-5-1",
+  "--tools",
+  "Read",
+  "--permission-mode",
+  "dontAsk",
+  "--safe-mode",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json",
+  "--json-schema",
+  "{\"type\": \"object\", \"required\": [\"readings\"], \"properties\": {\"readings\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"id\", \"q1\", \"q2\", \"q3\", \"q4\", \"evidence\", \"note\"], \"properties\": {\"id\": {\"type\": \"string\"}, \"q1\": {\"type\": \"boolean\"}, \"q2\": {\"type\": \"boolean\"}, \"q3\": {\"type\": \"boolean\"}, \"q4\": {\"type\": \"boolean\"}, \"evidence\": {\"type\": \"object\", \"required\": [\"q1\", \"q2\", \"q3\", \"q4\"], \"properties\": {\"q1\": {\"type\": \"string\"}, \"q2\": {\"type\": \"string\"}, \"q3\": {\"type\": \"string\"}, \"q4\": {\"type\": \"string\"}}}, \"note\": {\"type\": \"string\"}}}}}}"
+ ],
+ "prompt": "You are a blind code reader in an empirical software-engineering study. Work only from the files in the current directory.\n\n1. Read protocol.md first.\n2. Read batch.md. It names 20 Java files by id, their path in their repository, and their local copy under files/.\n3. For every file: read the whole file (use Read with offset and limit for files over 2000 lines, do not skip the tail). Identify the method with the highest cognitive complexity (the one with the most and deepest nested branches, loops and boolean chains) and name it. Then answer Q1, Q2, Q3 and Q4 from the protocol as true or false, each with one sentence of evidence from the file, and write a one-line note of the form \"methodName: what it does\". Do NOT derive or state the category; the mapping is applied later.\n4. Blindness: do not try to read anything outside the current directory and do not try to find out anything about these classes beyond the file itself.\n5. Answer with one entry per id of the batch, all 20 of them, in the required JSON form.\n",
+ "batch_md": "# Batch 7: 20 Java files to read under the protocol\n\n| id | class (path in its repository) | local file |\n|---|---|---|\n| u141 | application/src/ext/java/org/opentripplanner/ext/carpooling/updater/CarpoolSiriMapper.java | files/u141.java |\n| u142 | src/main/java/com/weapp/websocket/ChatWebSocketHandler.java | files/u142.java |\n| u143 | atlas-update/src/main/java/com/taobao/atlas/dexmerge/MergeTool.java | files/u143.java |\n| u144 | hadoop-hdfs-project/hadoop-hdfs-rbf/src/main/java/org/apache/hadoop/hdfs/server/federation/router/Router.java | files/u144.java |\n| u145 | javassist-android/src/javassist/bytecode/CodeIterator.java | files/u145.java |\n| u146 | app/src/main/java/org/telegram/android/kernel/AuthKernel.java | files/u146.java |\n| u147 | firetweet.component.twitter4j/src/main/java/twitter4j/internal/json/ActivityJSONImpl.java | files/u147.java |\n| u148 | sia-gateway-base/src/main/java/com/creditease/gateway/helper/JvmToolHelper.java | files/u148.java |\n| u149 | jetlinks-components/timescaledb-component/src/main/java/org/jetlinks/community/timescaledb/thing/TimescaleDBRowModeQueryOperations.java | files/u149.java |\n| u150 | code-slicer/joern/projects/extensions/joern-php/src/main/java/cg/PHPCGFactory.java | files/u150.java |\n| u151 | security/resteasy-crypto/src/main/java/org/jboss/resteasy/security/doseta/DKIMSignature.java | files/u151.java |\n| u152 | core/src/main/java/org/modelmapper/internal/TypePair.java | files/u152.java |\n| u153 | src/main/java/com/getjobs/application/service/LiepinService.java | files/u153.java |\n| u154 | hazelcast/src/main/java/com/hazelcast/aggregation/impl/IntegerSumAggregator.java | files/u154.java |\n| u155 | backend/src/main/java/org/github/tess1o/geopulse/streaming/service/TripClassificationDetailsService.java | files/u155.java |\n| u156 | km-collector/src/main/java/com/xiaojukeji/know/streaming/km/collector/service/CollectThreadPoolService.java | files/u156.java |\n| u157 | Java/step-builder/src/main/java/com/iluwatar/stepbuilder/Character.java | files/u157.java |\n| u158 | incubator/binding-amqp/src/main/java/io/aklivity/zilla/runtime/binding/amqp/internal/stream/AmqpServerFactory.java | files/u158.java |\n| u159 | src/main/java/osmedile/intellij/stringmanip/utils/ActionUtils.java | files/u159.java |\n| u160 | src/class069/Code05_ScrambleString.java | files/u160.java |\n",
+ "result": {
+  "duration_api_ms": 368896,
+  "stop_reason": "tool_use",
+  "session_id": "f1f8d37e-8fe2-4426-a2fd-19f7e65dd2b0",
+  "total_cost_usd": 6.3758455,
+  "usage": {
+   "input_tokens": 130,
+   "cache_creation_input_tokens": 244131,
+   "cache_read_input_tokens": 305702,
+   "output_tokens": 28310,
+   "output_tokens_details": {
+    "thinking_tokens": 18335
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 244131,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "global",
+   "iterations": [
+    {
+     "input_tokens": 32,
+     "output_tokens": 26199,
+     "cache_read_input_tokens": 188302,
+     "cache_creation_input_tokens": 61185,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 61185
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-fable-5-1": {
+    "inputTokens": 130,
+    "outputTokens": 28310,
+    "cacheReadInputTokens": 305702,
+    "cacheCreationInputTokens": 244131,
+    "webSearchRequests": 0,
+    "costUSD": 6.3758455,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 64000,
+    "thinkingTokens": 18335,
+    "canonicalModel": "claude-fable-5-1",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 27,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "{\"readings\":[{\"id\":\"u141\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"mapSiriToCarpoolTrip takes the SIRI journey, filters cancelled calls, validates ordering/timing/duration bounds and builds and returns a CarpoolTrip from the computed stops, start/end times and capacity.\",\"q2\":\"Every method (tripId, mapSiriToCarpoolTrip, extractTotalCapacity, extractOnboardCount, extractDeviationBudget, toFlexibleArea, toPolygon, toWgsCoordinate) serves the single job of mapping a SIRI EstimatedVehicleJourney to a CarpoolTrip.\",\"q3\":\"The getter chains it walks (journey.getEstimatedCalls().getEstimatedCalls(), gmlPolygon.getExterior().getAbstractRing().getValue()) are on SIRI/GML JAXB message DTOs, i.e. plain data holders, and the result is built via CarpoolStop/CarpoolTripBuilder value objects.\",\"q4\":\"The complexity is a sequence of validation guards (size < 2, null times, end not after start, duration caps) plus a stop-building loop, not a switch over one controlling value.\"},\"note\":\"mapSiriToCarpoolTrip: validates a SIRI EstimatedVehicleJourney and maps its non-cancelled calls into a CarpoolTrip with stops, times, capacity and contact info\"},{\"id\":\"u142\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"sendChatMessage loops over the static session list and, for each non-matching open session, builds a map and forwards it via session.sendMessage(new TextMessage(...)); it computes nothing beyond deciding which session to call.\",\"q2\":\"All methods (handleTextMessage, afterConnectionEstablished, handleTransportError, afterConnectionClosed, isUserConnected, sendChatMessage) concern one thing: a WebSocket chat handler over a session registry.\",\"q3\":\"Both isUserConnected and sendChatMessage decide on the depth-2 chain session.getAttributes().get(\\\"user\\\").equals(userName) of the behaviour-bearing WebSocketSession, then call its isOpen()/sendMessage().\",\"q4\":\"The nesting is for-loop, if not-same-user, if isOpen, try/catch, a chain of guards rather than a switch over message kinds.\"},\"note\":\"sendChatMessage: iterates registered WebSocket sessions and sends a JSON {user,content} text message to the first open session belonging to another user\"},{\"id\":\"u143\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"createNewBundleInternal iterates the source zip entries, decides per entry whether to copy, skip, or binary-patch a .so via PatchUtils, writes the patch entries, then merges or copies classes.dex into the output zip it produces.\",\"q2\":\"All methods (mergePrepare, createNewMainApkInternal, createNewBundleInternal, writePatch, writeSourceApkDex, readPatchClasses, processDex, write, closeQuitely) serve one concept: merging a patch into an Android bundle/APK.\",\"q3\":\"It works on its own inputs (ZipFile, List<ZipEntry>, File) and static merge state (classes, noPatchDexIndex); the few reads of MergeExcutorServices.os and sZipPatch are static config, not getter chains on behaviour-bearing objects.\",\"q4\":\"The complexity comes from a while loop with nested if/else blocks and && chains over entry names and OS, plus a for loop and an isDiff block; the only switch (on patchVersion) is in a different, smaller method.\"},\"note\":\"createNewBundleInternal: writes a new bundle zip by copying unchanged source entries, applying .so binary patches, adding patch entries and merging the patch classes.dex with the original dex\"},{\"id\":\"u144\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"createNamenodeHeartbeatServices reads conf keys, splits namenode strings, calls DomainNameResolverFactory.newInstance and DFSUtilClient.getResolvedAddressesForNnId, and for each result calls createNamenodeHeartbeatService to construct and collect services; it orchestrates calls rather than computing a value.\",\"q2\":\"The class is a CompositeService whose methods all initialize, start/stop, create or expose the Router's sub-services (RPC, admin, HTTP, state store, heartbeat, metrics, quota, safemode).\",\"q3\":\"It mostly reads its own Configuration and constructs/holds its own sub-services; depth-2 chains such as getRpcServer().getRouterSecurityManager().verifyToken() and stateStore.getRegisteredRecordStore(...).setQuotaManager(...) are isolated, not the bulk of the class.\",\"q4\":\"The complexity is nested if/for/if-else-if blocks over config flags and namenode id splitting, not a switch over one controlling value with short cases.\"},\"note\":\"createNamenodeHeartbeatServices: builds the collection of NamenodeHeartbeatService objects for the local namenode and each configured nsId.nnId, resolving hostnames when DNS resolution is enabled\"},{\"id\":\"u145\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"insertGap2 copies bytecode into newcode while inserting NOPs at 'where' and recomputing branch offsets for if/goto, GOTO_W/JSR_W, TABLESWITCH and LOOKUPSWITCH instructions via newOffset, a pure byte-array rewriting algorithm.\",\"q2\":\"Every method (begin, next, nextOpcode, insert*, insertGap*, append, changeLdcToLdcW, makeJumpList, makeExapndedCode, the Branch/Switcher helpers) serves one concept: iterating over and editing a Code_attribute's bytecode.\",\"q3\":\"It operates on its own bytecode byte[] and position fields; the few calls into CodeAttribute/ExceptionTable (shiftPc, getAttribute) are single-level and incidental.\",\"q4\":\"Although insertGap2 has an if/else-if chain over instruction kinds, the TABLESWITCH and LOOKUPSWITCH cases contain alignment checks, padding copies and offset-rewriting loops, so the cases are not short dispatch arms.\"},\"note\":\"insertGap2: rebuilds the bytecode array with a NOP gap inserted at a position, rewriting all 16/32-bit branch offsets and tableswitch/lookupswitch targets to stay valid\"},{\"id\":\"u146\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"tryLoadObsolete deserializes four legacy files via CompatObjectInputStream and forwards each loaded value into storage (updateDCInfo, putAuthKey, setAuthenticated, setPrimaryDc, doAuth, resetAuth); it returns nothing and computes no value of its own.\",\"q2\":\"The methods (tryLoadGeneral, tryLoadObsolete, checkState, logIn, logOut, isLoggedIn, getApiStorage) all concern one concept: loading and maintaining the API auth/storage state.\",\"q3\":\"The class copies fields from CompatDcConfig/CompatDcKey/CompatCredentials objects into ApiStorage, logs via depth-2 chains like storage.getObj().getUid() and storage.getObj().getKeys(), and logIn uses the depth-3 chain kernel.getStorageKernel().getModel().onUsers(users).\",\"q4\":\"The complexity is a sequence of if-exists/try/catch/else blocks and a V3-then-V2-then-V1 fallback, not a switch over one controlling value.\"},\"note\":\"tryLoadObsolete: migrates legacy DC, key, session and auth files (trying V3, V2 then V1 formats) into the ApiStorage, resetting auth when anything is missing or fails\"},{\"id\":\"u147\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"init parses the JSONObject into the object's own fields (action, positions, createdAt, sizes) and builds the sources/targets/targetObjects arrays depending on the action, i.e. a deserializer populating its own state.\",\"q2\":\"The class is a JSON-backed Activity implementation: a constructor, getters, compareTo, toString, init and the createActivityList factory all serve that single concept.\",\"q3\":\"It reads from org.json JSONObject/JSONArray, which are plain data holders, and writes into its own fields; there are no getter chains on behaviour-bearing objects.\",\"q4\":\"The two if/else-if/else chains over action each contain a for loop constructing an array of UserJSONImpl/StatusJSONImpl/UserListJSONImpl, and there is an unconditional sources loop, so the complexity is loops inside branches rather than a short-case dispatch table.\"},\"note\":\"init: populates the Activity fields from the JSON object, choosing user/status/userList arrays for targets and target_objects according to the action type\"},{\"id\":\"u148\",\"q1\":true,\"q2\":false,\"q3\":true,\"q4\":true,\"evidence\":{\"q1\":\"getHeapPoolName lowercases the pool name it receives and returns a short canonical label (code/old/eden/surv/perm/compressed) computed from substring tests on that string.\",\"q2\":\"The class mixes unrelated concerns: reflective tools.jar attach API (isVMAlive, getAllJVMProcesses, initJVMToolJarClassLoader, startVMAgent), OS detection (isWindows, getLineSeperator), JMX/MXBean metric readers (readGCUsage, readHeapPoolUsage, readThreadUsage, readCPUUsage) and getCurrentProcId.\",\"q3\":\"Most methods pull attributes out of MBeans/MXBeans (gcmb.getCollectionCount(), mpmb.getUsage().getUsed(), mbsc.getAttribute(on, attr)) and copy them into LinkedHashMaps, i.e. copying other objects' data.\",\"q4\":\"getHeapPoolName's complexity is a single if/else-if chain over the kind of pool name, each arm just returning a string literal.\"},\"note\":\"getHeapPoolName: classifies a JVM memory pool name into a short key (code, old, eden, surv, perm, compressed) by substring matching\"},{\"id\":\"u149\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"doAggregation mainly configures a QueryOperator (groupBy, select, where) with columns built by TimescaleDBUtils and then wires a reactive fetch/groupBy/flatMap pipeline that copies results into ThingsDataUtils.prepareAggregationData's map; it forwards to other objects rather than computing the aggregate itself.\",\"q2\":\"The class's methods (doQuery, doQueryPage, doAggregation, convertToTimeSeriesData, createAggFunction) all serve one concept: row-mode thing-data queries against TimescaleDB.\",\"q3\":\"Apart from the single depth-4 chain database.getMetadata().getFeatureNow(...).getProperties().getFunctionSchema(), it works on request/context/PropertyAggregation DTOs and its own DatabaseOperator, not on other objects' behaviour-bearing fields.\",\"q4\":\"doAggregation's complexity is if-interval, if/else on property count with a loop, and lambdas with conditionals; the only switch (createAggFunction over Aggregation) is a separate, simpler method.\"},\"note\":\"doAggregation: builds a grouped TimescaleDB aggregation query (by property and optional time bucket) and merges the fetched rows into the prepared time-bucket result map\"},{\"id\":\"u150\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"createNonStaticMethodCallEdges resolves each recorded method call against the class's own nonStaticMethodDefs map (unique match, or $this-> match by enclosing class), adds edges to the CG and computes mapped/ambiguous statistics.\",\"q2\":\"All members (addFunctionDef, addFunctionCall, the four create*CallEdges methods, addCallEdge, reset, newInstance) serve one concept: building a PHP call graph from collected definitions and calls.\",\"q3\":\"The objects it inspects (CallExpressionBase, Identifier, StringExpression, Variable, Method) are AST nodes, i.e. syntax-tree data holders, and the resolution state lives in the class's own maps.\",\"q4\":\"The complexity is nested if/else over containsKey, size()==1, a three-term && chain and an inner for loop with break, not a switch over one controlling value with short cases.\"},\"note\":\"createNonStaticMethodCallEdges: maps each non-static method call to a known method definition (unique name, or $this-> call matched by enclosing class), adds call-graph edges and prints mapping statistics\"},{\"id\":\"u151\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"sign builds the h= header list, hashes the body, concatenates attributes into the DKIM header string, feeds it to a java.security.Signature and stores the Base64 signature and headerValue in its own fields.\",\"q2\":\"The class models one DKIM-Signature header: attribute getters/setters, expiration/staleness checks, sign and verify all operate on the same attributes map and signature.\",\"q3\":\"It works on its own attributes, headers and signature fields; the headers Map passed in is a plain data holder read via get(name).\",\"q4\":\"The complexity is sequential guards and loops (key null check, header concatenation loop, body hash, attribute join loop), not a switch over one controlling value.\"},\"note\":\"sign: computes the DKIM signature over selected headers and body hash, writing the attribute string and Base64 signature into headerValue\"},{\"id\":\"u152\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"equals compares its own sourceType, destinationType and name fields against the other TypePair and returns the boolean result.\",\"q2\":\"TypePair is a small immutable value object (of, equals, hashCode, toString, two getters, computeHashCode) representing a source/destination type pair.\",\"q3\":\"It reads only its own fields and the same fields of another TypePair instance.\",\"q4\":\"The complexity is a few null/instanceof guards and an && conjunction, not a switch.\"},\"note\":\"equals: value equality over sourceType, destinationType and optional name\"},{\"id\":\"u153\",\"q1\":true,\"q2\":false,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"getLiepinStats loads matching LiepinEntity rows, filters them by parsed salary median, and computes KPI counts, grouped counts for nine charts and salary buckets into a StatsResponse it returns.\",\"q2\":\"The class spans table DDL/migration (ensureTableExists), snapshot persistence and JDBC batch insert, config CRUD (getFirstConfig, saveOrUpdateFirstSelective), option lookups (getOptionsByType, normalizeCityToName), salary parsing and stats/list analytics, which its own comment calls unified management of all Liepin data.\",\"q3\":\"The objects it reads and copies (LiepinEntity, LiepinConfigEntity, LiepinOptionEntity) are MyBatis entity DTOs with no behaviour, so the field copying is not foreign data.\",\"q4\":\"The complexity is a mix of status/filter guards, a salary-filter loop with nested if/else, stream groupings and a bucket loop, not a single switch over one controlling value.\"},\"note\":\"getLiepinStats: filters stored Liepin jobs by status/location/experience/degree/keyword/salary-median and aggregates them into KPIs, chart series and salary buckets\"},{\"id\":\"u154\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"equals compares identity, class, super.equals and its own sum field to return a boolean.\",\"q2\":\"The class is one integer-sum Aggregator with accumulate/combine/aggregate, serialization and equals/hashCode.\",\"q3\":\"It works on its own sum and attributePath fields and the same fields of another IntegerSumAggregator.\",\"q4\":\"The complexity is three guard ifs (one with ||), not a switch.\"},\"note\":\"equals: equality over the superclass state and the accumulated sum\"},{\"id\":\"u155\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"explainClassification derives avg/max speed and a speedSource from the statistics, runs the priority chain of check* methods with early stopping, applies verifyAndCorrectClassification and returns the computed list of ClassificationStep values.\",\"q2\":\"Every method (getTripClassificationDetails, buildTripStatistics, isGpsReliable, buildThresholds, explainClassification, check*, verifyAndCorrectClassification, generateFinalReason) serves one concept: explaining why a trip received its transport classification.\",\"q3\":\"The inputs it decides on (TimelineConfig getters, TimelineTripEntity fields, the TripStatistics record) are configuration/entity/record data holders; the only depth-2 chain is trip.getUser().getId() in the ownership check.\",\"q4\":\"The complexity is a chain of if(!foundMatch){check...}else{skipped} blocks plus nested GPS-reliability conditions with && chains, not a switch over one value with short cases.\"},\"note\":\"explainClassification: replicates the classifier's priority order (flight, boat, train, bicycle, running, motor vehicle, walk, unknown) to produce step-by-step threshold-check explanations with early stopping and post-verification\"},{\"id\":\"u156\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"moveShardClusterToSuitableThreadPool walks the shard\u2192cluster map it receives, recreates a pool for single-cluster overflow shards, and reassigns clusters to pools chosen by selectAndEmptySuitableThreadPool, updating the class's own cache state.\",\"q2\":\"All methods (init, selectSuitableFutureUtil, getShardId, flush, reBalancePhysicalClusterShard, moveShardClusterToSuitableThreadPool, selectAndEmptySuitableThreadPool, modifyPhysicalClusterIdAndShardIdCache, closeOldAndCreateNew) concern one thing: sharding collector clusters across FutureWaitUtil thread pools.\",\"q3\":\"It operates on its own static maps/cache and the lists it builds; calls into FutureWaitUtil are single-level (getExecutorQueueSize, purgeExecutor, shutdownNow).\",\"q4\":\"The complexity is a for loop with a (||,||,&&) guard, a null guard and an inner for loop with early return, not a switch over one controlling value.\"},\"note\":\"moveShardClusterToSuitableThreadPool: for each overloaded shard, either recreates its pool (single cluster) or moves all but one of its clusters to idle/not-busy pools until none are available\"},{\"id\":\"u157\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"toString builds and returns a description string from its own name, fighterClass/wizardClass, weapon/spell and abilities fields using nested ternaries.\",\"q2\":\"Character is a plain bean of six fields with getters/setters and toString for the step-builder example.\",\"q3\":\"It reads only its own fields.\",\"q4\":\"The complexity is three ternaries in a string append chain, not a switch.\"},\"note\":\"toString: formats the character's class, name, weapon or spell and abilities into a sentence\"},{\"id\":\"u158\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"AmqpServerStream.onDecodeTransfer computes stream flags (init/fin/incomplete) and transfer flags from the transfer fields, decrements link credit, decodes the message fragment into payload and extension and advances the protocol state (fragmented, deliveryCount) before forwarding data to the application, i.e. a protocol state-machine step.\",\"q2\":\"The whole file (frame decoders, encoders, AmqpServer/AmqpSession/AmqpServerStream state, AmqpMessageEncoder/Decoder) implements one concept: the AMQP 1.0 server binding between network and application streams.\",\"q3\":\"It operates on flyweight codec structures (AmqpTransferFW, OctetsFW, DirectBufferEx) and its own session/link state fields; there are no getter chains on behaviour-bearing foreign objects.\",\"q4\":\"onDecodeTransfer's complexity is nested if/else on fragmented/more/aborted, ternary flag setting and a four-arm error-check chain with && and || conditions, not a switch over one value with short cases.\"},\"note\":\"AmqpServer.AmqpSession.AmqpServerStream.onDecodeTransfer: turns an incoming AMQP transfer frame into application DATA with computed flags, checking link credit, durability, max message size and fragment consistency\"},{\"id\":\"u159\",\"q1\":false,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"javaHandling inspects PsiElement/PsiJavaToken types from PsiUtilBase, then calls selectionModel.setSelection and editor.getCaretModel().moveToOffset or falls back to selectLineAtCaret; it decides which IDE calls to make rather than computing a value of its own.\",\"q2\":\"The class bundles caret-selection logic (selectSomethingUnderCaret, commentHandling, javaHandling, propertiesHandling, genericHandling) with unrelated helpers safeParse, fixPresentation and countSelections.\",\"q3\":\"It works on other objects' data via depth-2 chains such as editor.getCaretModel().getOffset(), elementAtCaret.getTextRange().getLength(), comment.getTokenType().toString(), and decides on javaToken.getTokenType() and selectionModel.getSelectionStart()/End().\",\"q4\":\"javaHandling's complexity is sequential instanceof/steppedLeft guards and nested ifs around a single selection branch, not a switch with short cases.\"},\"note\":\"javaHandling: selects the Java token (or string literal content) under the caret, stepping left over whitespace, and moves the caret into the selection or falls back to selecting the line\"},{\"id\":\"u160\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"isScramble4 fills a three-dimensional boolean dp table bottom-up over the two char arrays and returns dp[0][0][n], a pure dynamic-programming routine.\",\"q2\":\"The class holds four progressively optimized solutions (recursive, 3-parameter recursive, memoized, bottom-up) to the single scramble-string problem.\",\"q3\":\"It works only on the char arrays and dp table it creates from its String parameters.\",\"q4\":\"The complexity is five nested for loops with && conditions and breaks, not a switch over one controlling value.\"},\"note\":\"isScramble4: bottom-up DP over (l1, l2, len) deciding whether s2 is a scramble of s1 by trying non-crossed and crossed splits\"}]}",
+  "structured_output": {
+   "readings": [
+    {
+     "id": "u141",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "mapSiriToCarpoolTrip takes the SIRI journey, filters cancelled calls, validates ordering/timing/duration bounds and builds and returns a CarpoolTrip from the computed stops, start/end times and capacity.",
+      "q2": "Every method (tripId, mapSiriToCarpoolTrip, extractTotalCapacity, extractOnboardCount, extractDeviationBudget, toFlexibleArea, toPolygon, toWgsCoordinate) serves the single job of mapping a SIRI EstimatedVehicleJourney to a CarpoolTrip.",
+      "q3": "The getter chains it walks (journey.getEstimatedCalls().getEstimatedCalls(), gmlPolygon.getExterior().getAbstractRing().getValue()) are on SIRI/GML JAXB message DTOs, i.e. plain data holders, and the result is built via CarpoolStop/CarpoolTripBuilder value objects.",
+      "q4": "The complexity is a sequence of validation guards (size < 2, null times, end not after start, duration caps) plus a stop-building loop, not a switch over one controlling value."
+     },
+     "note": "mapSiriToCarpoolTrip: validates a SIRI EstimatedVehicleJourney and maps its non-cancelled calls into a CarpoolTrip with stops, times, capacity and contact info"
+    },
+    {
+     "id": "u142",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "sendChatMessage loops over the static session list and, for each non-matching open session, builds a map and forwards it via session.sendMessage(new TextMessage(...)); it computes nothing beyond deciding which session to call.",
+      "q2": "All methods (handleTextMessage, afterConnectionEstablished, handleTransportError, afterConnectionClosed, isUserConnected, sendChatMessage) concern one thing: a WebSocket chat handler over a session registry.",
+      "q3": "Both isUserConnected and sendChatMessage decide on the depth-2 chain session.getAttributes().get(\"user\").equals(userName) of the behaviour-bearing WebSocketSession, then call its isOpen()/sendMessage().",
+      "q4": "The nesting is for-loop, if not-same-user, if isOpen, try/catch, a chain of guards rather than a switch over message kinds."
+     },
+     "note": "sendChatMessage: iterates registered WebSocket sessions and sends a JSON {user,content} text message to the first open session belonging to another user"
+    },
+    {
+     "id": "u143",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "createNewBundleInternal iterates the source zip entries, decides per entry whether to copy, skip, or binary-patch a .so via PatchUtils, writes the patch entries, then merges or copies classes.dex into the output zip it produces.",
+      "q2": "All methods (mergePrepare, createNewMainApkInternal, createNewBundleInternal, writePatch, writeSourceApkDex, readPatchClasses, processDex, write, closeQuitely) serve one concept: merging a patch into an Android bundle/APK.",
+      "q3": "It works on its own inputs (ZipFile, List<ZipEntry>, File) and static merge state (classes, noPatchDexIndex); the few reads of MergeExcutorServices.os and sZipPatch are static config, not getter chains on behaviour-bearing objects.",
+      "q4": "The complexity comes from a while loop with nested if/else blocks and && chains over entry names and OS, plus a for loop and an isDiff block; the only switch (on patchVersion) is in a different, smaller method."
+     },
+     "note": "createNewBundleInternal: writes a new bundle zip by copying unchanged source entries, applying .so binary patches, adding patch entries and merging the patch classes.dex with the original dex"
+    },
+    {
+     "id": "u144",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "createNamenodeHeartbeatServices reads conf keys, splits namenode strings, calls DomainNameResolverFactory.newInstance and DFSUtilClient.getResolvedAddressesForNnId, and for each result calls createNamenodeHeartbeatService to construct and collect services; it orchestrates calls rather than computing a value.",
+      "q2": "The class is a CompositeService whose methods all initialize, start/stop, create or expose the Router's sub-services (RPC, admin, HTTP, state store, heartbeat, metrics, quota, safemode).",
+      "q3": "It mostly reads its own Configuration and constructs/holds its own sub-services; depth-2 chains such as getRpcServer().getRouterSecurityManager().verifyToken() and stateStore.getRegisteredRecordStore(...).setQuotaManager(...) are isolated, not the bulk of the class.",
+      "q4": "The complexity is nested if/for/if-else-if blocks over config flags and namenode id splitting, not a switch over one controlling value with short cases."
+     },
+     "note": "createNamenodeHeartbeatServices: builds the collection of NamenodeHeartbeatService objects for the local namenode and each configured nsId.nnId, resolving hostnames when DNS resolution is enabled"
+    },
+    {
+     "id": "u145",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "insertGap2 copies bytecode into newcode while inserting NOPs at 'where' and recomputing branch offsets for if/goto, GOTO_W/JSR_W, TABLESWITCH and LOOKUPSWITCH instructions via newOffset, a pure byte-array rewriting algorithm.",
+      "q2": "Every method (begin, next, nextOpcode, insert*, insertGap*, append, changeLdcToLdcW, makeJumpList, makeExapndedCode, the Branch/Switcher helpers) serves one concept: iterating over and editing a Code_attribute's bytecode.",
+      "q3": "It operates on its own bytecode byte[] and position fields; the few calls into CodeAttribute/ExceptionTable (shiftPc, getAttribute) are single-level and incidental.",
+      "q4": "Although insertGap2 has an if/else-if chain over instruction kinds, the TABLESWITCH and LOOKUPSWITCH cases contain alignment checks, padding copies and offset-rewriting loops, so the cases are not short dispatch arms."
+     },
+     "note": "insertGap2: rebuilds the bytecode array with a NOP gap inserted at a position, rewriting all 16/32-bit branch offsets and tableswitch/lookupswitch targets to stay valid"
+    },
+    {
+     "id": "u146",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "tryLoadObsolete deserializes four legacy files via CompatObjectInputStream and forwards each loaded value into storage (updateDCInfo, putAuthKey, setAuthenticated, setPrimaryDc, doAuth, resetAuth); it returns nothing and computes no value of its own.",
+      "q2": "The methods (tryLoadGeneral, tryLoadObsolete, checkState, logIn, logOut, isLoggedIn, getApiStorage) all concern one concept: loading and maintaining the API auth/storage state.",
+      "q3": "The class copies fields from CompatDcConfig/CompatDcKey/CompatCredentials objects into ApiStorage, logs via depth-2 chains like storage.getObj().getUid() and storage.getObj().getKeys(), and logIn uses the depth-3 chain kernel.getStorageKernel().getModel().onUsers(users).",
+      "q4": "The complexity is a sequence of if-exists/try/catch/else blocks and a V3-then-V2-then-V1 fallback, not a switch over one controlling value."
+     },
+     "note": "tryLoadObsolete: migrates legacy DC, key, session and auth files (trying V3, V2 then V1 formats) into the ApiStorage, resetting auth when anything is missing or fails"
+    },
+    {
+     "id": "u147",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "init parses the JSONObject into the object's own fields (action, positions, createdAt, sizes) and builds the sources/targets/targetObjects arrays depending on the action, i.e. a deserializer populating its own state.",
+      "q2": "The class is a JSON-backed Activity implementation: a constructor, getters, compareTo, toString, init and the createActivityList factory all serve that single concept.",
+      "q3": "It reads from org.json JSONObject/JSONArray, which are plain data holders, and writes into its own fields; there are no getter chains on behaviour-bearing objects.",
+      "q4": "The two if/else-if/else chains over action each contain a for loop constructing an array of UserJSONImpl/StatusJSONImpl/UserListJSONImpl, and there is an unconditional sources loop, so the complexity is loops inside branches rather than a short-case dispatch table."
+     },
+     "note": "init: populates the Activity fields from the JSON object, choosing user/status/userList arrays for targets and target_objects according to the action type"
+    },
+    {
+     "id": "u148",
+     "q1": true,
+     "q2": false,
+     "q3": true,
+     "q4": true,
+     "evidence": {
+      "q1": "getHeapPoolName lowercases the pool name it receives and returns a short canonical label (code/old/eden/surv/perm/compressed) computed from substring tests on that string.",
+      "q2": "The class mixes unrelated concerns: reflective tools.jar attach API (isVMAlive, getAllJVMProcesses, initJVMToolJarClassLoader, startVMAgent), OS detection (isWindows, getLineSeperator), JMX/MXBean metric readers (readGCUsage, readHeapPoolUsage, readThreadUsage, readCPUUsage) and getCurrentProcId.",
+      "q3": "Most methods pull attributes out of MBeans/MXBeans (gcmb.getCollectionCount(), mpmb.getUsage().getUsed(), mbsc.getAttribute(on, attr)) and copy them into LinkedHashMaps, i.e. copying other objects' data.",
+      "q4": "getHeapPoolName's complexity is a single if/else-if chain over the kind of pool name, each arm just returning a string literal."
+     },
+     "note": "getHeapPoolName: classifies a JVM memory pool name into a short key (code, old, eden, surv, perm, compressed) by substring matching"
+    },
+    {
+     "id": "u149",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "doAggregation mainly configures a QueryOperator (groupBy, select, where) with columns built by TimescaleDBUtils and then wires a reactive fetch/groupBy/flatMap pipeline that copies results into ThingsDataUtils.prepareAggregationData's map; it forwards to other objects rather than computing the aggregate itself.",
+      "q2": "The class's methods (doQuery, doQueryPage, doAggregation, convertToTimeSeriesData, createAggFunction) all serve one concept: row-mode thing-data queries against TimescaleDB.",
+      "q3": "Apart from the single depth-4 chain database.getMetadata().getFeatureNow(...).getProperties().getFunctionSchema(), it works on request/context/PropertyAggregation DTOs and its own DatabaseOperator, not on other objects' behaviour-bearing fields.",
+      "q4": "doAggregation's complexity is if-interval, if/else on property count with a loop, and lambdas with conditionals; the only switch (createAggFunction over Aggregation) is a separate, simpler method."
+     },
+     "note": "doAggregation: builds a grouped TimescaleDB aggregation query (by property and optional time bucket) and merges the fetched rows into the prepared time-bucket result map"
+    },
+    {
+     "id": "u150",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "createNonStaticMethodCallEdges resolves each recorded method call against the class's own nonStaticMethodDefs map (unique match, or $this-> match by enclosing class), adds edges to the CG and computes mapped/ambiguous statistics.",
+      "q2": "All members (addFunctionDef, addFunctionCall, the four create*CallEdges methods, addCallEdge, reset, newInstance) serve one concept: building a PHP call graph from collected definitions and calls.",
+      "q3": "The objects it inspects (CallExpressionBase, Identifier, StringExpression, Variable, Method) are AST nodes, i.e. syntax-tree data holders, and the resolution state lives in the class's own maps.",
+      "q4": "The complexity is nested if/else over containsKey, size()==1, a three-term && chain and an inner for loop with break, not a switch over one controlling value with short cases."
+     },
+     "note": "createNonStaticMethodCallEdges: maps each non-static method call to a known method definition (unique name, or $this-> call matched by enclosing class), adds call-graph edges and prints mapping statistics"
+    },
+    {
+     "id": "u151",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "sign builds the h= header list, hashes the body, concatenates attributes into the DKIM header string, feeds it to a java.security.Signature and stores the Base64 signature and headerValue in its own fields.",
+      "q2": "The class models one DKIM-Signature header: attribute getters/setters, expiration/staleness checks, sign and verify all operate on the same attributes map and signature.",
+      "q3": "It works on its own attributes, headers and signature fields; the headers Map passed in is a plain data holder read via get(name).",
+      "q4": "The complexity is sequential guards and loops (key null check, header concatenation loop, body hash, attribute join loop), not a switch over one controlling value."
+     },
+     "note": "sign: computes the DKIM signature over selected headers and body hash, writing the attribute string and Base64 signature into headerValue"
+    },
+    {
+     "id": "u152",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "equals compares its own sourceType, destinationType and name fields against the other TypePair and returns the boolean result.",
+      "q2": "TypePair is a small immutable value object (of, equals, hashCode, toString, two getters, computeHashCode) representing a source/destination type pair.",
+      "q3": "It reads only its own fields and the same fields of another TypePair instance.",
+      "q4": "The complexity is a few null/instanceof guards and an && conjunction, not a switch."
+     },
+     "note": "equals: value equality over sourceType, destinationType and optional name"
+    },
+    {
+     "id": "u153",
+     "q1": true,
+     "q2": false,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "getLiepinStats loads matching LiepinEntity rows, filters them by parsed salary median, and computes KPI counts, grouped counts for nine charts and salary buckets into a StatsResponse it returns.",
+      "q2": "The class spans table DDL/migration (ensureTableExists), snapshot persistence and JDBC batch insert, config CRUD (getFirstConfig, saveOrUpdateFirstSelective), option lookups (getOptionsByType, normalizeCityToName), salary parsing and stats/list analytics, which its own comment calls unified management of all Liepin data.",
+      "q3": "The objects it reads and copies (LiepinEntity, LiepinConfigEntity, LiepinOptionEntity) are MyBatis entity DTOs with no behaviour, so the field copying is not foreign data.",
+      "q4": "The complexity is a mix of status/filter guards, a salary-filter loop with nested if/else, stream groupings and a bucket loop, not a single switch over one controlling value."
+     },
+     "note": "getLiepinStats: filters stored Liepin jobs by status/location/experience/degree/keyword/salary-median and aggregates them into KPIs, chart series and salary buckets"
+    },
+    {
+     "id": "u154",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "equals compares identity, class, super.equals and its own sum field to return a boolean.",
+      "q2": "The class is one integer-sum Aggregator with accumulate/combine/aggregate, serialization and equals/hashCode.",
+      "q3": "It works on its own sum and attributePath fields and the same fields of another IntegerSumAggregator.",
+      "q4": "The complexity is three guard ifs (one with ||), not a switch."
+     },
+     "note": "equals: equality over the superclass state and the accumulated sum"
+    },
+    {
+     "id": "u155",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "explainClassification derives avg/max speed and a speedSource from the statistics, runs the priority chain of check* methods with early stopping, applies verifyAndCorrectClassification and returns the computed list of ClassificationStep values.",
+      "q2": "Every method (getTripClassificationDetails, buildTripStatistics, isGpsReliable, buildThresholds, explainClassification, check*, verifyAndCorrectClassification, generateFinalReason) serves one concept: explaining why a trip received its transport classification.",
+      "q3": "The inputs it decides on (TimelineConfig getters, TimelineTripEntity fields, the TripStatistics record) are configuration/entity/record data holders; the only depth-2 chain is trip.getUser().getId() in the ownership check.",
+      "q4": "The complexity is a chain of if(!foundMatch){check...}else{skipped} blocks plus nested GPS-reliability conditions with && chains, not a switch over one value with short cases."
+     },
+     "note": "explainClassification: replicates the classifier's priority order (flight, boat, train, bicycle, running, motor vehicle, walk, unknown) to produce step-by-step threshold-check explanations with early stopping and post-verification"
+    },
+    {
+     "id": "u156",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "moveShardClusterToSuitableThreadPool walks the shard\u2192cluster map it receives, recreates a pool for single-cluster overflow shards, and reassigns clusters to pools chosen by selectAndEmptySuitableThreadPool, updating the class's own cache state.",
+      "q2": "All methods (init, selectSuitableFutureUtil, getShardId, flush, reBalancePhysicalClusterShard, moveShardClusterToSuitableThreadPool, selectAndEmptySuitableThreadPool, modifyPhysicalClusterIdAndShardIdCache, closeOldAndCreateNew) concern one thing: sharding collector clusters across FutureWaitUtil thread pools.",
+      "q3": "It operates on its own static maps/cache and the lists it builds; calls into FutureWaitUtil are single-level (getExecutorQueueSize, purgeExecutor, shutdownNow).",
+      "q4": "The complexity is a for loop with a (||,||,&&) guard, a null guard and an inner for loop with early return, not a switch over one controlling value."
+     },
+     "note": "moveShardClusterToSuitableThreadPool: for each overloaded shard, either recreates its pool (single cluster) or moves all but one of its clusters to idle/not-busy pools until none are available"
+    },
+    {
+     "id": "u157",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "toString builds and returns a description string from its own name, fighterClass/wizardClass, weapon/spell and abilities fields using nested ternaries.",
+      "q2": "Character is a plain bean of six fields with getters/setters and toString for the step-builder example.",
+      "q3": "It reads only its own fields.",
+      "q4": "The complexity is three ternaries in a string append chain, not a switch."
+     },
+     "note": "toString: formats the character's class, name, weapon or spell and abilities into a sentence"
+    },
+    {
+     "id": "u158",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "AmqpServerStream.onDecodeTransfer computes stream flags (init/fin/incomplete) and transfer flags from the transfer fields, decrements link credit, decodes the message fragment into payload and extension and advances the protocol state (fragmented, deliveryCount) before forwarding data to the application, i.e. a protocol state-machine step.",
+      "q2": "The whole file (frame decoders, encoders, AmqpServer/AmqpSession/AmqpServerStream state, AmqpMessageEncoder/Decoder) implements one concept: the AMQP 1.0 server binding between network and application streams.",
+      "q3": "It operates on flyweight codec structures (AmqpTransferFW, OctetsFW, DirectBufferEx) and its own session/link state fields; there are no getter chains on behaviour-bearing foreign objects.",
+      "q4": "onDecodeTransfer's complexity is nested if/else on fragmented/more/aborted, ternary flag setting and a four-arm error-check chain with && and || conditions, not a switch over one value with short cases."
+     },
+     "note": "AmqpServer.AmqpSession.AmqpServerStream.onDecodeTransfer: turns an incoming AMQP transfer frame into application DATA with computed flags, checking link credit, durability, max message size and fragment consistency"
+    },
+    {
+     "id": "u159",
+     "q1": false,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "javaHandling inspects PsiElement/PsiJavaToken types from PsiUtilBase, then calls selectionModel.setSelection and editor.getCaretModel().moveToOffset or falls back to selectLineAtCaret; it decides which IDE calls to make rather than computing a value of its own.",
+      "q2": "The class bundles caret-selection logic (selectSomethingUnderCaret, commentHandling, javaHandling, propertiesHandling, genericHandling) with unrelated helpers safeParse, fixPresentation and countSelections.",
+      "q3": "It works on other objects' data via depth-2 chains such as editor.getCaretModel().getOffset(), elementAtCaret.getTextRange().getLength(), comment.getTokenType().toString(), and decides on javaToken.getTokenType() and selectionModel.getSelectionStart()/End().",
+      "q4": "javaHandling's complexity is sequential instanceof/steppedLeft guards and nested ifs around a single selection branch, not a switch with short cases."
+     },
+     "note": "javaHandling: selects the Java token (or string literal content) under the caret, stepping left over whitespace, and moves the caret into the selection or falls back to selecting the line"
+    },
+    {
+     "id": "u160",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "isScramble4 fills a three-dimensional boolean dp table bottom-up over the two char arrays and returns dp[0][0][n], a pure dynamic-programming routine.",
+      "q2": "The class holds four progressively optimized solutions (recursive, 3-parameter recursive, memoized, bottom-up) to the single scramble-string problem.",
+      "q3": "It works only on the char arrays and dp table it creates from its String parameters.",
+      "q4": "The complexity is five nested for loops with && conditions and breaks, not a switch over one controlling value."
+     },
+     "note": "isScramble4: bottom-up DP over (l1, l2, len) deciding whether s2 is a scramble of s1 by trying non-crossed and crossed splits"
+    }
+   ]
+  },
+  "ttft_ms": 24851,
+  "type": "result",
+  "duration_ms": 371204,
+  "uuid": "fda7e046-4821-4acc-97ac-cb70a91418ea",
+  "ttft_stream_ms": 24552,
+  "time_to_request_ms": 1718,
+  "first_content_frame_ms": 24553,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

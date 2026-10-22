@@ -1,0 +1,440 @@
+{
+ "batch": 6,
+ "ids": [
+  "u121",
+  "u122",
+  "u123",
+  "u124",
+  "u125",
+  "u126",
+  "u127",
+  "u128",
+  "u129",
+  "u130",
+  "u131",
+  "u132",
+  "u133",
+  "u134",
+  "u135",
+  "u136",
+  "u137",
+  "u138",
+  "u139",
+  "u140"
+ ],
+ "model": "claude-fable-5-1",
+ "claude_version": "2.1.307 (Claude Code)",
+ "scripts_commit": "3b9e92236d85fc2b2f66e941af818bed4accbb85",
+ "scripts": [
+  "paper/scripts/fp_reading.py",
+  "paper/scripts/false_positives.py",
+  "paper/scripts/common.py"
+ ],
+ "started_utc": "2026-10-22T09:48:02Z",
+ "returncode": 0,
+ "command": [
+  "claude",
+  "-p",
+  "<prompt>",
+  "--model",
+  "claude-fable-5-1",
+  "--tools",
+  "Read",
+  "--permission-mode",
+  "dontAsk",
+  "--safe-mode",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json",
+  "--json-schema",
+  "{\"type\": \"object\", \"required\": [\"readings\"], \"properties\": {\"readings\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"id\", \"q1\", \"q2\", \"q3\", \"q4\", \"evidence\", \"note\"], \"properties\": {\"id\": {\"type\": \"string\"}, \"q1\": {\"type\": \"boolean\"}, \"q2\": {\"type\": \"boolean\"}, \"q3\": {\"type\": \"boolean\"}, \"q4\": {\"type\": \"boolean\"}, \"evidence\": {\"type\": \"object\", \"required\": [\"q1\", \"q2\", \"q3\", \"q4\"], \"properties\": {\"q1\": {\"type\": \"string\"}, \"q2\": {\"type\": \"string\"}, \"q3\": {\"type\": \"string\"}, \"q4\": {\"type\": \"string\"}}}, \"note\": {\"type\": \"string\"}}}}}}"
+ ],
+ "prompt": "You are a blind code reader in an empirical software-engineering study. Work only from the files in the current directory.\n\n1. Read protocol.md first.\n2. Read batch.md. It names 20 Java files by id, their path in their repository, and their local copy under files/.\n3. For every file: read the whole file (use Read with offset and limit for files over 2000 lines, do not skip the tail). Identify the method with the highest cognitive complexity (the one with the most and deepest nested branches, loops and boolean chains) and name it. Then answer Q1, Q2, Q3 and Q4 from the protocol as true or false, each with one sentence of evidence from the file, and write a one-line note of the form \"methodName: what it does\". Do NOT derive or state the category; the mapping is applied later.\n4. Blindness: do not try to read anything outside the current directory and do not try to find out anything about these classes beyond the file itself.\n5. Answer with one entry per id of the batch, all 20 of them, in the required JSON form.\n",
+ "batch_md": "# Batch 6: 20 Java files to read under the protocol\n\n| id | class (path in its repository) | local file |\n|---|---|---|\n| u121 | sandbox-core/src/main/java/com/alibaba/jvm/sandbox/core/server/jetty/servlet/ModuleHttpServlet.java | files/u121.java |\n| u122 | sia-gateway-admin/src/main/java/com/creditease/gateway/admin/filter/CorsFilter.java | files/u122.java |\n| u123 | hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/qjournal/server/JournalNodeSyncer.java | files/u123.java |\n| u124 | app/src/main/java/io/hefuyi/zhihudaily/widget/CirclePageIndicator.java | files/u124.java |\n| u125 | hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/webapp/RMAppLogAggregationStatusBlock.java | files/u125.java |\n| u126 | iotdb-core/datanode/src/main/java/org/apache/iotdb/db/subscription/broker/consensus/ConsensusLogToTabletConverter.java | files/u126.java |\n| u127 | pmd-java/src/main/java/net/sourceforge/pmd/lang/java/symbols/table/coreimpl/MostlySingularMultimap.java | files/u127.java |\n| u128 | hazelcast/src/main/java/com/hazelcast/internal/partition/operation/MigrationRequestOperation.java | files/u128.java |\n| u129 | javassist-android/src/javassist/bytecode/stackmap/BasicBlock.java | files/u129.java |\n| u130 | code-slicer/joern/projects/extensions/jpanlib/src/main/java/cfg/CFG.java | files/u130.java |\n| u131 | firetweet.component.twitter4j/src/main/java/twitter4j/TwitterBaseImpl.java | files/u131.java |\n| u132 | runtime/engine/src/main/java/io/aklivity/zilla/runtime/engine/internal/stream/Target.java | files/u132.java |\n| u133 | sia-gateway-service/src/main/java/com/creditease/gateway/service/abstractlist/AbstractPostAlarmInfo.java | files/u133.java |\n| u134 | app/src/main/java/ml/docilealligator/infinityforreddit/activities/CustomThemePreviewActivity.java | files/u134.java |\n| u135 | atlas-gradle-plugin/atlas-plugin/src/main/java/com/taobao/android/builder/dependency/parser/helper/DependencyResolver.java | files/u135.java |\n| u136 | iotdb-core/datanode/src/main/java/org/apache/iotdb/db/storageengine/dataregion/compaction/execute/recover/CompactionRecoverTask.java | files/u136.java |\n| u137 | sia-gateway-admin/src/main/java/com/creditease/gateway/admin/controller/AdminRouteController.java | files/u137.java |\n| u138 | hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/util/MergeSort.java | files/u138.java |\n| u139 | miaosha-v2/miaosha-service/src/main/java/com/geekq/miaosha/redis/redismanager/RedisLock.java | files/u139.java |\n| u140 | app/src/main/java/org/telegram/android/fragments/ProfileFragment.java | files/u140.java |\n",
+ "result": {
+  "duration_api_ms": 262026,
+  "stop_reason": "tool_use",
+  "session_id": "bab0761c-b6b0-48ab-b9c0-ff7d019d40b5",
+  "total_cost_usd": 3.836281,
+  "usage": {
+   "input_tokens": 162,
+   "cache_creation_input_tokens": 150666,
+   "cache_read_input_tokens": 267564,
+   "output_tokens": 15089,
+   "output_tokens_details": {
+    "thinking_tokens": 7436
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 150666,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "global",
+   "iterations": [
+    {
+     "input_tokens": 32,
+     "output_tokens": 8341,
+     "cache_read_input_tokens": 125500,
+     "cache_creation_input_tokens": 30522,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 30522
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-fable-5-1": {
+    "inputTokens": 162,
+    "outputTokens": 15089,
+    "cacheReadInputTokens": 267564,
+    "cacheCreationInputTokens": 150666,
+    "webSearchRequests": 0,
+    "costUSD": 3.836281,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 64000,
+    "thinkingTokens": 7436,
+    "canonicalModel": "claude-fable-5-1",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "{\"readings\":[{\"id\":\"u121\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"generateParameterObjectArray does not compute anything itself; each branch just pulls req, resp, req.getParameterMap() or resp.getWriter() and drops it into the array slot.\",\"q2\":\"Every method (doGet/doPost, parseUniqueId, matchingModuleMethod, generateParameterObjectArray) serves routing an HTTP request to an annotated module method.\",\"q3\":\"It works on reflection objects (Method, Class, ParameterizedType) and the servlet request, with no getter chains deeper than one and no copying between behaviour-bearing objects.\",\"q4\":\"The complexity is a seven-way if/else-if chain over parameterType via isAssignableFrom with each case two or three lines.\"},\"note\":\"generateParameterObjectArray: builds the argument array for a reflective module-method call by matching each parameter type to request, response, parameter map, query string, writer or output stream\"},{\"id\":\"u122\",\"q1\":false,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"doFilter mainly decides whether to call chain.doFilter, sendRedirect, checkLogin or cleanSession and in what order; it returns no computed value.\",\"q2\":\"The class sets CORS headers, performs session/login authentication with double-check state, and carries an unused getPostData request-body logger, which are unrelated concerns.\",\"q3\":\"Its decisions rest on HttpSession attributes, request headers/parameters and shiroSession lookups, reading and writing another object's session attributes throughout.\",\"q4\":\"The branching is a seven-term boolean guard followed by nested if/else on openLogFlag, login URL and session ids, not one switch over a controlling value.\"},\"note\":\"doFilter: adds CORS headers then decides per request whether to pass through, redirect to login, or validate the jsessionid against Shiro and clean the session\"},{\"id\":\"u123\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"startSyncJournalsDaemon's lambda is the syncer's own control loop over its own state (shouldSync, journalSyncInterval, journal formatted) with nested interrupt/exception handling that decides to break, return or continue.\",\"q2\":\"All methods (format with syncer, get other JN proxies, compute missing logs, download segment) serve one job: keeping this journal in sync with other JournalNodes.\",\"q3\":\"The few chains like journal.getStorage().getEditsSyncDir() are incidental; the core logic (getMissingLogList, download, retry loop) operates on its own lists and files.\",\"q4\":\"The complexity comes from nested while/try/catch/if on shouldSync and InterruptedException, not from a switch over kinds of one value.\"},\"note\":\"startSyncJournalsDaemon: starts a daemon thread that waits for the journal to be formatted, then repeatedly syncs edit logs with other JournalNodes, handling interrupts and errors\"},{\"id\":\"u124\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"onTouchEvent implements the drag/tap gesture state machine over its own fields (mIsDragging, mLastMotionX, mActivePointerId, mCurrentPage) and computes page targets from touch coordinates.\",\"q2\":\"Every method concerns drawing and interacting with the circle page indicator (paint setters, onDraw, onMeasure, touch handling, page callbacks, saved state).\",\"q3\":\"It only reads mViewPager.getAdapter().getCount() for the page count; all decisions use its own state and touch event values.\",\"q4\":\"Although there is a switch on the action, the ACTION_MOVE and ACTION_UP cases contain nested ifs, boolean chains and arithmetic, so the complexity is the gesture logic rather than a short-case table.\"},\"note\":\"onTouchEvent: handles touch down/move/up/pointer events to fake-drag the ViewPager or jump to the previous/next page on tap\"},{\"id\":\"u125\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"render only emits HTML via Hamlet builder calls; it computes nothing beyond null-to-N/A ternaries.\",\"q2\":\"The single method renders the log-aggregation status block for one application.\",\"q3\":\"It reaches through rm.getRMContext().getRMApps().get(appId), rmApp.getLogAggregationStatusForAppReport().name() and report.getValue().getLogAggregationStatus(), deciding on other objects' fields.\",\"q4\":\"The branching is nested null checks and a loop over reports, not a switch over a controlling value.\"},\"note\":\"render: writes an HTML description table of LogAggregationStatus values and a per-node table of the application's log aggregation reports\"},{\"id\":\"u126\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"deserializeToInsertNode decodes each IConsensusRequest buffer into a PlanNode, collects SearchNode fragments, merges them and returns the resulting InsertNode.\",\"q2\":\"All methods convert WAL InsertNode variants to Tablets with pattern/column filtering, a single cohesive concern.\",\"q3\":\"It operates on plan nodes and tablets as data (arrays of measurements, values, bitmaps) and builds new Tablets rather than steering other behaviour-bearing objects.\",\"q4\":\"The convert method has a switch over PlanNodeType, but the highest-complexity method is the loop/try/instanceof/merge decoder, not a table.\"},\"note\":\"deserializeToInsertNode: deserializes the consensus request fragments of an IndexedConsensusRequest, merges SearchNode fragments, and returns the resulting InsertNode or null\"},{\"id\":\"u127\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"Builder.absorb merges another builder's map into its own map, appending single values or VList values via appendSingle and updating isSingular.\",\"q2\":\"The class and its Builder implement one unmodifiable multimap optimised for the single-value case.\",\"q3\":\"All work is on the class's own Map<K,Object> and VList representation; nothing reaches into other objects' fields.\",\"q4\":\"The complexity is a loop with a compute lambda containing null/instanceof branching and an inner loop, not a case table.\"},\"note\":\"absorb: merges all entries of another Builder into this one without duplicates, converting single values to VLists when needed\"},{\"id\":\"u128\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"createNextReplicaFragmentMigrationState steps the migration state machine over its own namespacesContext iterator and chunk/fragment flags to produce the next ReplicaFragmentMigrationState.\",\"q2\":\"Every method serves transferring one partition's replica data from source to destination in fragments/chunks.\",\"q3\":\"It mainly uses its own fields (namespacesContext, namespaceToSuppliers, flags); the few migrationInfo getters are single-depth reads of a value object.\",\"q4\":\"The complexity is a sequence of guard ifs and a drain loop choosing the next state, not a switch over kinds of one value.\"},\"note\":\"createNextReplicaFragmentMigrationState: returns the next chunked, non-fragmented, fragmented or all-in-one migration state, or null when all namespaces are done\"},{\"id\":\"u129\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"Maker.makeMarks scans bytecode via CodeIterator, decodes branch offsets and switch tables and builds the Mark table that later becomes basic blocks.\",\"q2\":\"The whole file is about building basic blocks from bytecode (Mark, Maker, Catch, find, toString).\",\"q3\":\"It reads raw bytecode bytes through CodeIterator and the exception table, computing its own Mark/BasicBlock structures.\",\"q4\":\"The complexity is mainly an if/else-if/switch chain over the opcode op, with most cases one or two lines (TABLESWITCH/LOOKUPSWITCH have small loops).\"},\"note\":\"makeMarks: walks the bytecode between begin and end, creating Marks for every branch instruction, branch target, return/throw and exception handler\"},{\"id\":\"u130\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"appendCFG splices another CFG into this graph by rewiring edges from this exit to the other's entry successors and from the other's exit predecessors to this exit.\",\"q2\":\"All methods maintain a control flow graph and its break/continue/return/goto/label bookkeeping, one cohesive concept.\",\"q3\":\"It works on its own vertices and edges and on another instance of the same class; CFGEdge/CFGNode are plain graph data.\",\"q4\":\"The complexity is nested for loops over incoming/outgoing edges, not a case table.\"},\"note\":\"appendCFG: appends another CFG sequentially after this one by connecting predecessors of this exit to successors of the other entry\"},{\"id\":\"u131\",\"q1\":false,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"httpResponseReceived extracts status and rate-limit info from the event and forwards it to each listener's callbacks; it computes nothing of its own.\",\"q2\":\"The class mixes OAuth/xAuth token acquisition, HTTP get/post with monitoring, rate-limit listener dispatch, parameter helpers, file validation and Java serialization.\",\"q3\":\"It decides on event.getTwitterException().getRateLimitStatus()/getStatusCode() and res.getStatusCode(), and getOAuthAccessToken reads basicAuth.getUserId()/getPassword() to drive other auth objects.\",\"q4\":\"The branching is nested ifs on te != null, rateLimitStatus != null and status codes with loops, not a switch over one value's kinds.\"},\"note\":\"httpResponseReceived: on each HTTP response, builds a RateLimitStatusEvent and notifies listeners, additionally calling onRateLimitReached for 420/503\"},{\"id\":\"u132\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"handleWriteReply forwards each frame to streamsBuffer.test and removes map entries; it computes no value of its own.\",\"q2\":\"The class writes stream frames to one target streams buffer and cleans up stream/throttle/correlation maps for that target.\",\"q3\":\"It operates on its own maps (streams, throttles, correlations, streamSets) keyed by stream id.\",\"q4\":\"The complexity is two switch statements over msgTypeId (BeginFW, DataFW, EndFW, AbortFW, FlushFW / WindowFW, ResetFW, SignalFW, ChallengeFW, RedirectFW) with short cases.\"},\"note\":\"handleWriteReply: dispatches a reply-stream frame by message type to the streams buffer and removes finished stream/throttle/correlation entries\"},{\"id\":\"u133\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"post orchestrates calls to alarmRepository.reportAlarm, getEmailByZuulGroupName, initEmailTemplate, postAction and afterPost, deciding only which path to take.\",\"q2\":\"All methods serve sending a rate-limited alarm email (check count, build template, send, record count).\",\"q3\":\"It reads AlarmEmailVO fields (a value object) and its own static count map; no getter chains or copying between behaviour-bearing objects.\",\"q4\":\"The branching is an if/else-if/else on pressCheckRule and getFlag inside a try, not a case table.\"},\"note\":\"post: reports the alarm, checks the per-key send count against the max, builds and sends the email, and returns a result enum\"},{\"id\":\"u134\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"onCreate mainly calls theme, window, binding and listener setters; its only own computation is choosing system UI visibility flags.\",\"q2\":\"Everything in the class sets up the theme-preview activity (night mode, system bars, insets, fonts, tabs, pager).\",\"q3\":\"It reads customTheme.isLightStatusBar/isLightNavBar/colour fields and mSharedPreferences values to drive window and view objects, and applyCustomTheme copies customTheme fields into binding views.\",\"q4\":\"There is a switch over systemThemeType, but the complexity is dominated by nested ifs on SDK version, light bars and immersive flags plus anonymous listeners.\"},\"note\":\"onCreate: applies the night-mode theme, computes system-bar visibility flags, inflates the preview layout, installs inset and app-bar listeners and wires the tabs/pager\"},{\"id\":\"u135\",\"q1\":true,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"resolveDependency recursively walks the resolved component graph with circle checking to build the ResolvedDependencyInfo tree.\",\"q2\":\"All methods serve resolving and arbitrating the dependency tree for a bundle.\",\"q3\":\"It chains ((ResolvedDependencyResult)dep).getSelected().getModuleVersion().getGroup() and copies moduleVersion/resolvedArtifact fields into ResolvedDependencyInfo via setters.\",\"q4\":\"The complexity is nested loops, skips and recursion, not a switch over kinds of one value.\"},\"note\":\"resolveDependency: recursively resolves a component's artifacts into ResolvedDependencyInfo nodes, skipping provided/duplicate deps and detecting circular dependencies\"},{\"id\":\"u136\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"doCompaction runs the recovery procedure over its own log file: analyse log, check source files, choose the all-exist or some-lost handling, then delete the log on success.\",\"q2\":\"All methods serve recovering a data region from an interrupted compaction using its log.\",\"q3\":\"It works with TsFileIdentifier/TsFileResource file lookups and java.io.File; no deep getter chains or copying between behaviour-bearing objects.\",\"q4\":\"The branching is try/if/for/finally with nested ifs, not a switch over one controlling value.\"},\"note\":\"doCompaction: reads the compaction log, checks whether all source files exist, deletes targets or remaining sources accordingly, and removes the log on success\"},{\"id\":\"u137\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"uploadRouteFile sequences calls to file.getBytes, adminService.getAllGroupSet, JsonHelper.toObject, BeanUtils.populate, routeService.getRouteMap/inspectRepeat/addRoute and builds a result map.\",\"q2\":\"All endpoints are route-administration operations (add, list, query, update, delete, publish, down, download, upload).\",\"q3\":\"It reads RouteObj DTO fields and service results, with no getter chains deeper than one and no behaviour that belongs elsewhere beyond DTO use.\",\"q4\":\"The highest-complexity method is loops and guard ifs over uploaded routes; the repeated switch(r) blocks are in simpler methods.\"},\"note\":\"uploadRouteFile: parses an uploaded JSON route list, filters by allowed zuul group, skips existing ids, adds the rest and returns success/fail id lists\"},{\"id\":\"u138\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"mergeSort is a textbook merge sort with insertion-sort base case over the given int arrays and comparator.\",\"q2\":\"The class is only the merge sort algorithm and its swap helper.\",\"q3\":\"It operates on the int arrays passed in and two reusable IntWritables of its own.\",\"q4\":\"The complexity is nested loops and comparisons, not a case table.\"},\"note\":\"mergeSort: sorts dest[low..high) using recursive merge sort with insertion sort for small ranges and a comparator on IntWritables\"},{\"id\":\"u139\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"releaseLock is a retry loop of Jedis calls (watch, get, multi, del, exec, unwatch) with no computation of its own.\",\"q2\":\"The class only acquires and releases a Redis lock.\",\"q3\":\"It calls Jedis methods but reads no other object's fields or getter chains.\",\"q4\":\"The branching is a while(true) with nested ifs and continue, not a switch over kinds of one value.\"},\"note\":\"releaseLock: loops watching the key and, when the stored value matches, deletes it inside a transaction, retrying if the transaction was aborted\"},{\"id\":\"u140\",\"q1\":false,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"bindUi forwards user data into views and listener setters (avatarView, onlineView, phoneView, notifications) rather than computing a value.\",\"q2\":\"The fragment displays the profile and also manages notification sound/LED settings, contact-book lookups via ContentResolver, blocking and contact removal RPCs.\",\"q3\":\"It chains ((TLLocalAvatarPhoto) user.getPhoto()).getPreviewLocation(), application.getNotificationSettings().isEnabledForUser(userId) and application.getEngine().getUsersEngine().getContactsForUid(userId) to decide what to show.\",\"q4\":\"The branching is many separate ifs on user fields plus anonymous listeners, not a switch over one controlling value.\"},\"note\":\"bindUi: fills avatar, name, online status, phone, media count and notification toggles from the User object and wires the click listeners\"}]}",
+  "structured_output": {
+   "readings": [
+    {
+     "id": "u121",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "generateParameterObjectArray does not compute anything itself; each branch just pulls req, resp, req.getParameterMap() or resp.getWriter() and drops it into the array slot.",
+      "q2": "Every method (doGet/doPost, parseUniqueId, matchingModuleMethod, generateParameterObjectArray) serves routing an HTTP request to an annotated module method.",
+      "q3": "It works on reflection objects (Method, Class, ParameterizedType) and the servlet request, with no getter chains deeper than one and no copying between behaviour-bearing objects.",
+      "q4": "The complexity is a seven-way if/else-if chain over parameterType via isAssignableFrom with each case two or three lines."
+     },
+     "note": "generateParameterObjectArray: builds the argument array for a reflective module-method call by matching each parameter type to request, response, parameter map, query string, writer or output stream"
+    },
+    {
+     "id": "u122",
+     "q1": false,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "doFilter mainly decides whether to call chain.doFilter, sendRedirect, checkLogin or cleanSession and in what order; it returns no computed value.",
+      "q2": "The class sets CORS headers, performs session/login authentication with double-check state, and carries an unused getPostData request-body logger, which are unrelated concerns.",
+      "q3": "Its decisions rest on HttpSession attributes, request headers/parameters and shiroSession lookups, reading and writing another object's session attributes throughout.",
+      "q4": "The branching is a seven-term boolean guard followed by nested if/else on openLogFlag, login URL and session ids, not one switch over a controlling value."
+     },
+     "note": "doFilter: adds CORS headers then decides per request whether to pass through, redirect to login, or validate the jsessionid against Shiro and clean the session"
+    },
+    {
+     "id": "u123",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "startSyncJournalsDaemon's lambda is the syncer's own control loop over its own state (shouldSync, journalSyncInterval, journal formatted) with nested interrupt/exception handling that decides to break, return or continue.",
+      "q2": "All methods (format with syncer, get other JN proxies, compute missing logs, download segment) serve one job: keeping this journal in sync with other JournalNodes.",
+      "q3": "The few chains like journal.getStorage().getEditsSyncDir() are incidental; the core logic (getMissingLogList, download, retry loop) operates on its own lists and files.",
+      "q4": "The complexity comes from nested while/try/catch/if on shouldSync and InterruptedException, not from a switch over kinds of one value."
+     },
+     "note": "startSyncJournalsDaemon: starts a daemon thread that waits for the journal to be formatted, then repeatedly syncs edit logs with other JournalNodes, handling interrupts and errors"
+    },
+    {
+     "id": "u124",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "onTouchEvent implements the drag/tap gesture state machine over its own fields (mIsDragging, mLastMotionX, mActivePointerId, mCurrentPage) and computes page targets from touch coordinates.",
+      "q2": "Every method concerns drawing and interacting with the circle page indicator (paint setters, onDraw, onMeasure, touch handling, page callbacks, saved state).",
+      "q3": "It only reads mViewPager.getAdapter().getCount() for the page count; all decisions use its own state and touch event values.",
+      "q4": "Although there is a switch on the action, the ACTION_MOVE and ACTION_UP cases contain nested ifs, boolean chains and arithmetic, so the complexity is the gesture logic rather than a short-case table."
+     },
+     "note": "onTouchEvent: handles touch down/move/up/pointer events to fake-drag the ViewPager or jump to the previous/next page on tap"
+    },
+    {
+     "id": "u125",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "render only emits HTML via Hamlet builder calls; it computes nothing beyond null-to-N/A ternaries.",
+      "q2": "The single method renders the log-aggregation status block for one application.",
+      "q3": "It reaches through rm.getRMContext().getRMApps().get(appId), rmApp.getLogAggregationStatusForAppReport().name() and report.getValue().getLogAggregationStatus(), deciding on other objects' fields.",
+      "q4": "The branching is nested null checks and a loop over reports, not a switch over a controlling value."
+     },
+     "note": "render: writes an HTML description table of LogAggregationStatus values and a per-node table of the application's log aggregation reports"
+    },
+    {
+     "id": "u126",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "deserializeToInsertNode decodes each IConsensusRequest buffer into a PlanNode, collects SearchNode fragments, merges them and returns the resulting InsertNode.",
+      "q2": "All methods convert WAL InsertNode variants to Tablets with pattern/column filtering, a single cohesive concern.",
+      "q3": "It operates on plan nodes and tablets as data (arrays of measurements, values, bitmaps) and builds new Tablets rather than steering other behaviour-bearing objects.",
+      "q4": "The convert method has a switch over PlanNodeType, but the highest-complexity method is the loop/try/instanceof/merge decoder, not a table."
+     },
+     "note": "deserializeToInsertNode: deserializes the consensus request fragments of an IndexedConsensusRequest, merges SearchNode fragments, and returns the resulting InsertNode or null"
+    },
+    {
+     "id": "u127",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "Builder.absorb merges another builder's map into its own map, appending single values or VList values via appendSingle and updating isSingular.",
+      "q2": "The class and its Builder implement one unmodifiable multimap optimised for the single-value case.",
+      "q3": "All work is on the class's own Map<K,Object> and VList representation; nothing reaches into other objects' fields.",
+      "q4": "The complexity is a loop with a compute lambda containing null/instanceof branching and an inner loop, not a case table."
+     },
+     "note": "absorb: merges all entries of another Builder into this one without duplicates, converting single values to VLists when needed"
+    },
+    {
+     "id": "u128",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "createNextReplicaFragmentMigrationState steps the migration state machine over its own namespacesContext iterator and chunk/fragment flags to produce the next ReplicaFragmentMigrationState.",
+      "q2": "Every method serves transferring one partition's replica data from source to destination in fragments/chunks.",
+      "q3": "It mainly uses its own fields (namespacesContext, namespaceToSuppliers, flags); the few migrationInfo getters are single-depth reads of a value object.",
+      "q4": "The complexity is a sequence of guard ifs and a drain loop choosing the next state, not a switch over kinds of one value."
+     },
+     "note": "createNextReplicaFragmentMigrationState: returns the next chunked, non-fragmented, fragmented or all-in-one migration state, or null when all namespaces are done"
+    },
+    {
+     "id": "u129",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "Maker.makeMarks scans bytecode via CodeIterator, decodes branch offsets and switch tables and builds the Mark table that later becomes basic blocks.",
+      "q2": "The whole file is about building basic blocks from bytecode (Mark, Maker, Catch, find, toString).",
+      "q3": "It reads raw bytecode bytes through CodeIterator and the exception table, computing its own Mark/BasicBlock structures.",
+      "q4": "The complexity is mainly an if/else-if/switch chain over the opcode op, with most cases one or two lines (TABLESWITCH/LOOKUPSWITCH have small loops)."
+     },
+     "note": "makeMarks: walks the bytecode between begin and end, creating Marks for every branch instruction, branch target, return/throw and exception handler"
+    },
+    {
+     "id": "u130",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "appendCFG splices another CFG into this graph by rewiring edges from this exit to the other's entry successors and from the other's exit predecessors to this exit.",
+      "q2": "All methods maintain a control flow graph and its break/continue/return/goto/label bookkeeping, one cohesive concept.",
+      "q3": "It works on its own vertices and edges and on another instance of the same class; CFGEdge/CFGNode are plain graph data.",
+      "q4": "The complexity is nested for loops over incoming/outgoing edges, not a case table."
+     },
+     "note": "appendCFG: appends another CFG sequentially after this one by connecting predecessors of this exit to successors of the other entry"
+    },
+    {
+     "id": "u131",
+     "q1": false,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "httpResponseReceived extracts status and rate-limit info from the event and forwards it to each listener's callbacks; it computes nothing of its own.",
+      "q2": "The class mixes OAuth/xAuth token acquisition, HTTP get/post with monitoring, rate-limit listener dispatch, parameter helpers, file validation and Java serialization.",
+      "q3": "It decides on event.getTwitterException().getRateLimitStatus()/getStatusCode() and res.getStatusCode(), and getOAuthAccessToken reads basicAuth.getUserId()/getPassword() to drive other auth objects.",
+      "q4": "The branching is nested ifs on te != null, rateLimitStatus != null and status codes with loops, not a switch over one value's kinds."
+     },
+     "note": "httpResponseReceived: on each HTTP response, builds a RateLimitStatusEvent and notifies listeners, additionally calling onRateLimitReached for 420/503"
+    },
+    {
+     "id": "u132",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "handleWriteReply forwards each frame to streamsBuffer.test and removes map entries; it computes no value of its own.",
+      "q2": "The class writes stream frames to one target streams buffer and cleans up stream/throttle/correlation maps for that target.",
+      "q3": "It operates on its own maps (streams, throttles, correlations, streamSets) keyed by stream id.",
+      "q4": "The complexity is two switch statements over msgTypeId (BeginFW, DataFW, EndFW, AbortFW, FlushFW / WindowFW, ResetFW, SignalFW, ChallengeFW, RedirectFW) with short cases."
+     },
+     "note": "handleWriteReply: dispatches a reply-stream frame by message type to the streams buffer and removes finished stream/throttle/correlation entries"
+    },
+    {
+     "id": "u133",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "post orchestrates calls to alarmRepository.reportAlarm, getEmailByZuulGroupName, initEmailTemplate, postAction and afterPost, deciding only which path to take.",
+      "q2": "All methods serve sending a rate-limited alarm email (check count, build template, send, record count).",
+      "q3": "It reads AlarmEmailVO fields (a value object) and its own static count map; no getter chains or copying between behaviour-bearing objects.",
+      "q4": "The branching is an if/else-if/else on pressCheckRule and getFlag inside a try, not a case table."
+     },
+     "note": "post: reports the alarm, checks the per-key send count against the max, builds and sends the email, and returns a result enum"
+    },
+    {
+     "id": "u134",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "onCreate mainly calls theme, window, binding and listener setters; its only own computation is choosing system UI visibility flags.",
+      "q2": "Everything in the class sets up the theme-preview activity (night mode, system bars, insets, fonts, tabs, pager).",
+      "q3": "It reads customTheme.isLightStatusBar/isLightNavBar/colour fields and mSharedPreferences values to drive window and view objects, and applyCustomTheme copies customTheme fields into binding views.",
+      "q4": "There is a switch over systemThemeType, but the complexity is dominated by nested ifs on SDK version, light bars and immersive flags plus anonymous listeners."
+     },
+     "note": "onCreate: applies the night-mode theme, computes system-bar visibility flags, inflates the preview layout, installs inset and app-bar listeners and wires the tabs/pager"
+    },
+    {
+     "id": "u135",
+     "q1": true,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "resolveDependency recursively walks the resolved component graph with circle checking to build the ResolvedDependencyInfo tree.",
+      "q2": "All methods serve resolving and arbitrating the dependency tree for a bundle.",
+      "q3": "It chains ((ResolvedDependencyResult)dep).getSelected().getModuleVersion().getGroup() and copies moduleVersion/resolvedArtifact fields into ResolvedDependencyInfo via setters.",
+      "q4": "The complexity is nested loops, skips and recursion, not a switch over kinds of one value."
+     },
+     "note": "resolveDependency: recursively resolves a component's artifacts into ResolvedDependencyInfo nodes, skipping provided/duplicate deps and detecting circular dependencies"
+    },
+    {
+     "id": "u136",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "doCompaction runs the recovery procedure over its own log file: analyse log, check source files, choose the all-exist or some-lost handling, then delete the log on success.",
+      "q2": "All methods serve recovering a data region from an interrupted compaction using its log.",
+      "q3": "It works with TsFileIdentifier/TsFileResource file lookups and java.io.File; no deep getter chains or copying between behaviour-bearing objects.",
+      "q4": "The branching is try/if/for/finally with nested ifs, not a switch over one controlling value."
+     },
+     "note": "doCompaction: reads the compaction log, checks whether all source files exist, deletes targets or remaining sources accordingly, and removes the log on success"
+    },
+    {
+     "id": "u137",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "uploadRouteFile sequences calls to file.getBytes, adminService.getAllGroupSet, JsonHelper.toObject, BeanUtils.populate, routeService.getRouteMap/inspectRepeat/addRoute and builds a result map.",
+      "q2": "All endpoints are route-administration operations (add, list, query, update, delete, publish, down, download, upload).",
+      "q3": "It reads RouteObj DTO fields and service results, with no getter chains deeper than one and no behaviour that belongs elsewhere beyond DTO use.",
+      "q4": "The highest-complexity method is loops and guard ifs over uploaded routes; the repeated switch(r) blocks are in simpler methods."
+     },
+     "note": "uploadRouteFile: parses an uploaded JSON route list, filters by allowed zuul group, skips existing ids, adds the rest and returns success/fail id lists"
+    },
+    {
+     "id": "u138",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "mergeSort is a textbook merge sort with insertion-sort base case over the given int arrays and comparator.",
+      "q2": "The class is only the merge sort algorithm and its swap helper.",
+      "q3": "It operates on the int arrays passed in and two reusable IntWritables of its own.",
+      "q4": "The complexity is nested loops and comparisons, not a case table."
+     },
+     "note": "mergeSort: sorts dest[low..high) using recursive merge sort with insertion sort for small ranges and a comparator on IntWritables"
+    },
+    {
+     "id": "u139",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "releaseLock is a retry loop of Jedis calls (watch, get, multi, del, exec, unwatch) with no computation of its own.",
+      "q2": "The class only acquires and releases a Redis lock.",
+      "q3": "It calls Jedis methods but reads no other object's fields or getter chains.",
+      "q4": "The branching is a while(true) with nested ifs and continue, not a switch over kinds of one value."
+     },
+     "note": "releaseLock: loops watching the key and, when the stored value matches, deletes it inside a transaction, retrying if the transaction was aborted"
+    },
+    {
+     "id": "u140",
+     "q1": false,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "bindUi forwards user data into views and listener setters (avatarView, onlineView, phoneView, notifications) rather than computing a value.",
+      "q2": "The fragment displays the profile and also manages notification sound/LED settings, contact-book lookups via ContentResolver, blocking and contact removal RPCs.",
+      "q3": "It chains ((TLLocalAvatarPhoto) user.getPhoto()).getPreviewLocation(), application.getNotificationSettings().isEnabledForUser(userId) and application.getEngine().getUsersEngine().getContactsForUid(userId) to decide what to show.",
+      "q4": "The branching is many separate ifs on user fields plus anonymous listeners, not a switch over one controlling value."
+     },
+     "note": "bindUi: fills avatar, name, online status, phone, media count and notification toggles from the User object and wires the click listeners"
+    }
+   ]
+  },
+  "ttft_ms": 4388,
+  "type": "result",
+  "duration_ms": 275846,
+  "uuid": "739b7432-79a3-498a-aed1-5f287e0a3297",
+  "ttft_stream_ms": 4153,
+  "time_to_request_ms": 928,
+  "first_content_frame_ms": 4153,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}

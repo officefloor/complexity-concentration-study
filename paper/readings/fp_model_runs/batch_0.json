@@ -1,0 +1,440 @@
+{
+ "batch": 0,
+ "ids": [
+  "u001",
+  "u002",
+  "u003",
+  "u004",
+  "u005",
+  "u006",
+  "u007",
+  "u008",
+  "u009",
+  "u010",
+  "u011",
+  "u012",
+  "u013",
+  "u014",
+  "u015",
+  "u016",
+  "u017",
+  "u018",
+  "u019",
+  "u020"
+ ],
+ "model": "claude-fable-5-1",
+ "claude_version": "2.1.307 (Claude Code)",
+ "scripts_commit": "3b9e92236d85fc2b2f66e941af818bed4accbb85",
+ "scripts": [
+  "paper/scripts/fp_reading.py",
+  "paper/scripts/false_positives.py",
+  "paper/scripts/common.py"
+ ],
+ "started_utc": "2026-10-22T09:43:43Z",
+ "returncode": 0,
+ "command": [
+  "claude",
+  "-p",
+  "<prompt>",
+  "--model",
+  "claude-fable-5-1",
+  "--tools",
+  "Read",
+  "--permission-mode",
+  "dontAsk",
+  "--safe-mode",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json",
+  "--json-schema",
+  "{\"type\": \"object\", \"required\": [\"readings\"], \"properties\": {\"readings\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"id\", \"q1\", \"q2\", \"q3\", \"q4\", \"evidence\", \"note\"], \"properties\": {\"id\": {\"type\": \"string\"}, \"q1\": {\"type\": \"boolean\"}, \"q2\": {\"type\": \"boolean\"}, \"q3\": {\"type\": \"boolean\"}, \"q4\": {\"type\": \"boolean\"}, \"evidence\": {\"type\": \"object\", \"required\": [\"q1\", \"q2\", \"q3\", \"q4\"], \"properties\": {\"q1\": {\"type\": \"string\"}, \"q2\": {\"type\": \"string\"}, \"q3\": {\"type\": \"string\"}, \"q4\": {\"type\": \"string\"}}}, \"note\": {\"type\": \"string\"}}}}}}"
+ ],
+ "prompt": "You are a blind code reader in an empirical software-engineering study. Work only from the files in the current directory.\n\n1. Read protocol.md first.\n2. Read batch.md. It names 20 Java files by id, their path in their repository, and their local copy under files/.\n3. For every file: read the whole file (use Read with offset and limit for files over 2000 lines, do not skip the tail). Identify the method with the highest cognitive complexity (the one with the most and deepest nested branches, loops and boolean chains) and name it. Then answer Q1, Q2, Q3 and Q4 from the protocol as true or false, each with one sentence of evidence from the file, and write a one-line note of the form \"methodName: what it does\". Do NOT derive or state the category; the mapping is applied later.\n4. Blindness: do not try to read anything outside the current directory and do not try to find out anything about these classes beyond the file itself.\n5. Answer with one entry per id of the batch, all 20 of them, in the required JSON form.\n",
+ "batch_md": "# Batch 0: 20 Java files to read under the protocol\n\n| id | class (path in its repository) | local file |\n|---|---|---|\n| u001 | kitty-cloud-common/src/main/java/com/cxytiandi/kittycloud/common/utils/RSAUtils.java | files/u001.java |\n| u002 | jetlinks-components/things-component/src/main/java/org/jetlinks/community/things/data/operations/AbstractSaveOperations.java | files/u002.java |\n| u003 | plugin/src/main/java/com/Acrobot/ChestShop/Updater/Updater.java | files/u003.java |\n| u004 | src/main/java/com/gmail/nossr50/commands/party/PartyCommand.java | files/u004.java |\n| u005 | src/com/jgaap/eventDrivers/StanfordPartOfSpeechEventDriver.java | files/u005.java |\n| u006 | app/src/main/java/ml/docilealligator/infinityforreddit/video/videoautoplay/widget/Container.java | files/u006.java |\n| u007 | soapui/src/main/java/com/eviware/soapui/security/scan/InvalidTypesSecurityScan.java | files/u007.java |\n| u008 | 14\u4e8c\u671f\u82f1\u96c4\u4f20\u8bf4/Java_\u6e38\u620f\u5f00\u53d1\u5165\u95e8-\u7b2c\u56db\u8bfe/herostory4/src/main/java/org/tinygame/herostory/util/PackageUtil.java | files/u008.java |\n| u009 | hollow/src/main/java/com/netflix/hollow/api/objects/provider/HollowObjectCacheProvider.java | files/u009.java |\n| u010 | runtime/binding-grpc-kafka/src/main/java/io/aklivity/zilla/runtime/binding/grpc/kafka/internal/config/GrpcKafkaWithResolver.java | files/u010.java |\n| u011 | src/main/java/hu/akarnokd/rxjava3/interop/RxJavaInterop.java | files/u011.java |\n| u012 | src/com/jgaap/distances/KendallCorrelationDistance.java | files/u012.java |\n| u013 | hazelcast/src/main/java/com/hazelcast/cp/internal/raft/impl/log/RaftLog.java | files/u013.java |\n| u014 | app/src/main/java/ml/docilealligator/infinityforreddit/adapters/SubredditListingRecyclerViewAdapter.java | files/u014.java |\n| u015 | lectures/14-recursion/code/src/com/kunal/backtracking/NKnights.java | files/u015.java |\n| u016 | app/src/main/java/overlayutil/IndoorRouteOverlay.java | files/u016.java |\n| u017 | km-collector/src/main/java/com/xiaojukeji/know/streaming/km/collector/metric/kafka/ZookeeperMetricCollector.java | files/u017.java |\n| u018 | app/src/main/java/org/telegram/android/views/MessageMediaView.java | files/u018.java |\n| u019 | rt/external/apache-xml/src/main/java/org/apache/xml/utils/TreeWalker.java | files/u019.java |\n| u020 | rt/external/apache-http/src/org/apache/commons/logging/LogFactory.java | files/u020.java |\n",
+ "result": {
+  "duration_api_ms": 256570,
+  "stop_reason": "tool_use",
+  "session_id": "595fc95c-dc82-48ed-be95-1f7c4429d5d1",
+  "total_cost_usd": 4.30779825,
+  "usage": {
+   "input_tokens": 98,
+   "cache_creation_input_tokens": 169147,
+   "cache_read_input_tokens": 94113,
+   "output_tokens": 18007,
+   "output_tokens_details": {
+    "thinking_tokens": 9836
+   },
+   "server_tool_use": {
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+   },
+   "service_tier": "standard",
+   "cache_creation": {
+    "ephemeral_1h_input_tokens": 169147,
+    "ephemeral_5m_input_tokens": 0
+   },
+   "inference_geo": "global",
+   "iterations": [
+    {
+     "input_tokens": 32,
+     "output_tokens": 16340,
+     "cache_read_input_tokens": 80170,
+     "cache_creation_input_tokens": 88977,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 88977
+     },
+     "type": "message"
+    }
+   ],
+   "speed": "standard",
+   "fallback_credit": null
+  },
+  "modelUsage": {
+   "claude-fable-5-1": {
+    "inputTokens": 98,
+    "outputTokens": 18007,
+    "cacheReadInputTokens": 94113,
+    "cacheCreationInputTokens": 169147,
+    "webSearchRequests": 0,
+    "costUSD": 4.30779825,
+    "contextWindow": 1000000,
+    "maxOutputTokens": 64000,
+    "thinkingTokens": 9836,
+    "canonicalModel": "claude-fable-5-1",
+    "provider": "firstParty",
+    "costBasis": "list"
+   }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+   "spawned": 0,
+   "requested": {
+    "background": 0,
+    "foreground": 0,
+    "unset": 0
+   },
+   "started_in_background": 0,
+   "max_depth": 0,
+   "spawned_by_subagents": 0,
+   "completed": 0,
+   "failed": 0,
+   "killed": {
+    "parent": 0,
+    "user": 0,
+    "system": 0
+   },
+   "refused": {
+    "depth_limit": 0,
+    "concurrency_limit": 0,
+    "budget": 0
+   },
+   "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "{\"readings\":[{\"id\":\"u001\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"asc_to_bcd takes a byte and returns its hex-digit value by range comparisons and arithmetic; the sibling helpers (ASCII_To_BCD, bcd2Str, splitString, splitArray) likewise compute arrays and strings from their own arguments.\",\"q2\":\"Every method serves RSA encryption/decryption with hex (BCD) encoding of the ciphertext: key construction, block splitting, encrypt, decrypt, hex conversion.\",\"q3\":\"The class works on its own byte arrays and strings plus JDK Cipher/KeyFactory objects; the only chain is publicKey.getModulus().bitLength() on a JDK key.\",\"q4\":\"The if/else chain in asc_to_bcd tests numeric character ranges ('0'-'9', 'A'-'F', 'a'-'f') and subtracts offsets; it is a digit conversion, not a dispatch over kinds of one value, and the other complex methods are loops with boundary conditions.\"},\"note\":\"asc_to_bcd: converts one ASCII hex character to its 4-bit numeric value by range comparisons\"},{\"id\":\"u002\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"createEventData takes an event message and metadata and builds and returns the column map (json-string vs map vs scalar, strict-mode pruning of undeclared fields, id/timestamp columns).\",\"q2\":\"All methods convert ThingMessages into (metric, TimeSeriesData) tuples and hand them to doSave: log data, event data, property data, error recording.\",\"q3\":\"It reads message fields (getData, getEvent, getTimestamp) and settings flags (settings.getEvent().isUsingJsonString()), which are data/config holders, and the computed map is the class's own output rather than behaviour borrowed from them.\",\"q4\":\"The complexity is nested ifs over several independent settings (isUsingJsonString, instanceof Map, isStrict, instanceof ObjectType, eventIsAllInOne), not one switch over one controlling value.\"},\"note\":\"createEventData: builds the time-series column map for a thing event message according to storage settings and metadata\"},{\"id\":\"u003\",\"q1\":true,\"q2\":false,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"unzip iterates the zip entries, writes each to disk, then walks the extracted directories comparing file names against the existing plugin folder to move or delete each file; it is a file-extraction/merge procedure over its own path arguments.\",\"q2\":\"The class loads and saves an Updater config.yml, calls the Modrinth JSON API, parses and compares semantic versions, downloads with progress and SHA checks, and unzips and merges plugin data folders; zip extraction and folder merging is a separate concern from version checking.\",\"q3\":\"Nearly all data handled is JDK File/URL/Zip/JSON objects; the few plugin.getServer().getUpdateFolderFile() chains fetch a target folder rather than drive decisions.\",\"q4\":\"The branching in unzip is nested loops and null/exists/name checks, with no switch or case chain over one controlling value.\"},\"note\":\"unzip: extracts a downloaded zip, moves plugin jars to the update folder and merges contained data folders into the plugins directory\"},{\"id\":\"u004\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"onTabComplete only picks which constant list to pass to StringUtil.copyPartialMatches (or which subcommand to query) and returns that call's result; onCommand likewise forwards to one of 17 CommandExecutor fields.\",\"q2\":\"The class is the /party command router: it validates the sender, dispatches to subcommand executors, and tab-completes their arguments.\",\"q3\":\"Most branches test args and the PartySubcommandType enum; the one deep chain mmoPlayer.getParty().getLeader().getUniqueId() is a single guard, not the bulk of the work.\",\"q4\":\"The complexity is a switch on args.length nested with a switch on the PartySubcommandType enum (and three enum switches in onCommand), each case a one-line return.\"},\"note\":\"onTabComplete: returns tab-completion candidates for /party by switching on argument position and subcommand type\"},{\"id\":\"u005\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"createEventSet lazily instantiates the tagger (double-checked locking), tags the given text, and builds and returns an EventSet of the part-of-speech tags from the nested sentence/word loops.\",\"q2\":\"The class is a single EventDriver that produces part-of-speech events from text; its other methods are only display name, tooltip and GUI flag.\",\"q3\":\"It reads taggedWord.tag() from Stanford TaggedWord result objects (data holders) and adds them to its own EventSet.\",\"q4\":\"The branching is a null-check lock pattern plus try/catch and two loops; there is no switch or case chain.\"},\"note\":\"createEventSet: tags the text with the Stanford MaxentTagger and emits one Event per word's part-of-speech tag\"},{\"id\":\"u006\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"onScrollStateChanged loops over players and children deciding whether to call playerManager.pause/release/detachPlayer/attachPlayer/initialize/play on each; it returns nothing and computes no value of its own.\",\"q2\":\"Everything in the file (lifecycle hooks, scroll handling, PlaybackInfo caching, state save/restore, the Behavior and data observer helpers) serves one concept: a RecyclerView that manages auto-playback of its ToroPlayer children.\",\"q3\":\"The decisions rest on other objects' state (player.isPlaying(), player.wantsToPlay(), Common.allowsToPlay(player), playerManager.manages(player), player.getCurrentPlaybackInfo()) and the method mostly relays those into playerManager calls.\",\"q4\":\"The branches are independent guards in several loops (allowsToPlay, isPlaying, manages, wantsToPlay), not one switch over one controlling value.\"},\"note\":\"onScrollStateChanged: on scroll idle, detaches players no longer eligible, attaches visible ones, asks the selector which to play and pauses the rest\"},{\"id\":\"u007\",\"q1\":false,\"q2\":false,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"updateRequestContent pulls the next mutation per parameter and pushes it into testStep.getProperties().get(name).setValue(...) or into XmlTreeNode.setValue on an XmlObjectTreeModel; its branches decide which external setter to call.\",\"q2\":\"The class runs the invalid-type mutation scan (execute, mutateParameters, hasNext) and also owns Swing UI pieces (TypeLabel, getComponent, refreshRestrictionLabel) plus the InvalidTypesForSOAP default-value table.\",\"q3\":\"It chains getTestStep().getProperties().get(param.getName()).setValue(...), param.getXpath(), property.getValue(), property.getSchemaType().getTypeSystem() and parameterMutations.get(param).get(0) throughout.\",\"q4\":\"The complexity is nested loops and null/xpath/xml guards under a two-way strategy if/else, not a case table.\"},\"note\":\"updateRequestContent: injects the next invalid-type value into each checked parameter (directly or via XPath into the XML) and returns the applied values\"},{\"id\":\"u008\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"listClazzFromDir walks a directory queue, derives the fully-qualified class name from each .class path by string manipulation, loads it, filters it and returns the resulting set.\",\"q2\":\"All methods list classes in a package from directories or jars with an optional filter, plus two private string helpers used for that.\",\"q3\":\"It works on JDK File/JarEntry objects and its own strings; no chains into project objects.\",\"q4\":\"The branching is guard conditions (isDirectory && recursive, endsWith .class, filter.accept) inside a while loop, not a switch over kinds.\"},\"note\":\"listClazzFromDir: scans a package directory (optionally recursively) and loads every .class file accepted by the filter\"},{\"id\":\"u009\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"The five-argument constructor iterates ordinals and fills its own cachedItems list, reusing previous cached objects or instantiating new ones based on the populated/previous bitsets.\",\"q2\":\"The class caches object representations of records per ordinal and keeps the cache updated as a type-state listener.\",\"q3\":\"The one deep chain ((HollowCachedDelegate)((HollowRecord)cached).getDelegate()).updateTypeAPI(typeAPI) re-points reused entries; the bulk of the logic is BitSet checks feeding the class's own list.\",\"q4\":\"The branching is a loop with a previouslyPopulated/currentlyPopulated decision, not a case table.\"},\"note\":\"HollowObjectCacheProvider(5-arg constructor): builds the per-ordinal object cache, reusing previous entries where ordinals persist and instantiating new ones otherwise\"},{\"id\":\"u010\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"resolveFetch takes the with-config and gRPC begin metadata and computes a GrpcKafkaWithFetchResult: decodes last-message-id partitions and builds filter keys/headers with identity and attribute substitution.\",\"q2\":\"All methods resolve the binding's with-configuration (fetch and produce) into runtime result objects with substitutions applied.\",\"q3\":\"It reads config records (fetch.filters.get(), filter.key, header0.name, header0.value) which are plain configuration data holders, and the result is its own.\",\"q4\":\"The complexity is nested loops over filters and headers with isPresent/matches guards, not a switch over kinds.\"},\"note\":\"resolveFetch: resolves fetch topic, partition offsets and filter key/header values (with identity/attribute placeholder substitution) into a GrpcKafkaWithFetchResult\"},{\"id\":\"u011\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"The most complex code is the anonymous apply in toV3Operator (and its mirror in toV1Operator): it wires a 1.x subscriber adapter to a 3.x subscriber via operator.call, onSubscribe, add and setProducer inside a try/catch, forwarding rather than computing.\",\"q2\":\"Every method is a static conversion between RxJava 1.x and 3.x types (Observable, Single, Completable, Subject, Transformer, Operator, Disposable, Scheduler).\",\"q3\":\"Each method null-checks its argument and wraps it in a dedicated adapter class; no getter chains or copying of foreign fields.\",\"q4\":\"There is no switch or case chain anywhere; each conversion is its own one-line factory method.\"},\"note\":\"toV3Operator.apply: adapts a 1.x Observable.Operator into a 3.x FlowableOperator by bridging subscriber and subscription types\"},{\"id\":\"u012\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"distance sorts each histogram's events by frequency, assigns ranks, then sums sign agreements over all event pairs and returns 1 minus the normalised Kendall correlation.\",\"q2\":\"The class is one DistanceFunction (name, tooltip, GUI flag, distance).\",\"q3\":\"It reads uniqueEvents() and relativeFrequency(e) from Histogram value objects and does the ranking in its own lists and maps.\",\"q4\":\"The complexity is nested loops with tie-rank and null-rank handling, no case table.\"},\"note\":\"distance: computes Kendall rank-correlation distance between two event histograms\"},{\"id\":\"u013\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"appendEntries validates each new entry's term and index against the log's own last term/index, adds it to the ring buffer, persists it and updates lastIndex/lastTerm.\",\"q2\":\"The class keeps and maintains the Raft log entries and snapshot (append, truncate, lookup, snapshot install, flush).\",\"q3\":\"It manipulates its own Ringbuffer and SnapshotEntry; entry.term()/entry.index() are fields of LogEntry value objects.\",\"q4\":\"The branches are capacity and ordering validation inside a loop, not a switch over kinds.\"},\"note\":\"appendEntries: appends new entries to the Raft log after checking capacity, term monotonicity and index continuity, persisting each\"},{\"id\":\"u014\",\"q1\":false,\"q2\":true,\"q3\":true,\"q4\":false,\"evidence\":{\"q1\":\"onBindViewHolder sets listeners, loads images with Glide and triggers CheckIsSubscribedToSubreddit/SubredditSubscription calls, deciding which view setter or service to invoke; it computes no value.\",\"q2\":\"The class is a paged RecyclerView adapter for subreddit listings (view types, binding, footer network state), with subscription handling as part of the item's subscribe button.\",\"q3\":\"Nearly every line is a depth-2+ chain like ((DataViewHolder) holder).binding.subscribeImageViewItemSubredditListing.setVisibility(...) acting on the holder's views, driven by subredditData getters.\",\"q4\":\"The branches are instanceof/isMultiSelection/iconUrl/accountName guards with nested callbacks, not a switch over one controlling value.\"},\"note\":\"onBindViewHolder: binds a subreddit row (icon, name, subscriber count, click/checkbox behaviour) and wires the subscribe button to subscription calls\"},{\"id\":\"u015\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"isSafe checks the four knight-attack cells relative to (row, col) on the board array and returns whether a knight may be placed; knight() is the recursive backtracking over the same board.\",\"q2\":\"The class solves and prints the N-knights placement problem.\",\"q3\":\"It works only on its own boolean[][] board argument.\",\"q4\":\"The complexity is four independent bounds-then-occupied guards, not a case chain over one value.\"},\"note\":\"isSafe: returns whether placing a knight at (row, col) is unattacked by already-placed knights\"},{\"id\":\"u016\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"getOverlayOptions builds and returns the list of marker and polyline options from the route line: entrance/exit markers per step, start/end markers, and polylines stitched across steps with cycling colours.\",\"q2\":\"The class is an overlay manager that renders one IndoorRouteLine on the map; other methods are hooks for icons/colour and no-op click handlers.\",\"q3\":\"The getter chains (step.getEntrace().getLocation(), mRouteLine.getAllStep().indexOf(step)) read the route-line search-result data holder, from which the overlays are composed.\",\"q4\":\"The branching is null/size guards around loops over steps, no switch; the only switch is commented out.\"},\"note\":\"getOverlayOptions: converts the indoor route line into marker and polyline overlay options\"},{\"id\":\"u017\",\"q1\":false,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"collectKafkaMetrics looks up version items and alive ZK nodes from services, then loops calling zookeeperMetricService.collectMetricsFromZookeeper(param) per metric and merges each returned result; it orchestrates service calls rather than computing from its own state.\",\"q2\":\"The class is one metric collector for ZooKeeper (collectKafkaMetrics plus collectorType).\",\"q3\":\"It reads DTO fields (elem.getStatus(), elem.getHost(), ret.getData().getMetrics(), clusterPhy.getZkProperties()) and service results, which are plain data carriers.\",\"q4\":\"The branching is skip-if-present and failed-result guards inside one loop with try/catch, no case table.\"},\"note\":\"collectKafkaMetrics: gathers ZooKeeper metrics for a cluster by invoking the metric service per version-control item and publishing the aggregate\"},{\"id\":\"u018\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"drawBubble renders the view's own state onto the canvas: GIF movie frame or faded preview bitmaps, map pin, unsupported mark, video icon, download-state overlay, size info panel and date/state panel with clock animation.\",\"q2\":\"The class is a message media bubble view: binds media from a message wireframe, measures itself and draws it (including download/upload state).\",\"q3\":\"Rendering uses the view's own fields (preview, desiredWidth, size, date, state); bindMedia reads TL model data holders via instanceof and getters.\",\"q4\":\"drawBubble's branching is many independent conditions (movie vs preview vs oldPreview, showMapPoint, isVideo, mode, isOut, state) with nested rendering blocks, not one short-case table.\"},\"note\":\"drawBubble: draws the media bubble contents (animation/preview, overlays, download state, size and time panels) and reports whether to keep animating\"},{\"id\":\"u019\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":true,\"evidence\":{\"q1\":\"startNode encodes a DOM node into SAX events, computing prefix mappings from xmlns attributes and namespace/local-name values before emitting startElement, comment, PI, CDATA or text callbacks.\",\"q2\":\"The class performs a pre-order DOM walk emitting SAX ContentHandler/LexicalHandler events.\",\"q3\":\"It reads DOM Node data (a syntax tree) and its own m_dh helper, and the emitted events are the class's own output.\",\"q4\":\"The complexity of startNode (and endNode) is a switch on node.getNodeType() with a short block per node kind; traverseFragment contributes only a small nested loop.\"},\"note\":\"startNode: dispatches on DOM node type to emit the corresponding SAX start events (prefix mappings, element, comment, PI, CDATA, text, entity)\"},{\"id\":\"u020\",\"q1\":true,\"q2\":true,\"q3\":false,\"q4\":false,\"evidence\":{\"q1\":\"getFactory implements the ordered discovery procedure (cached factory, system property, META-INF service file, properties file, default class) and returns the LogFactory it resolves, caching it and applying property attributes.\",\"q2\":\"The abstract contract, static discovery/bootstrap, classloader helpers and diagnostic output all serve locating and creating the LogFactory implementation.\",\"q3\":\"It works with JDK ClassLoader, Properties and streams plus its own static state; no project-object getter chains.\",\"q4\":\"The branching is a sequence of fallback steps each wrapped in isDiagnosticsEnabled guards and try/catch, not a switch over one controlling value.\"},\"note\":\"getFactory: discovers, instantiates and caches the LogFactory implementation for the context classloader via system property, service file, properties file or default\"}]}",
+  "structured_output": {
+   "readings": [
+    {
+     "id": "u001",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "asc_to_bcd takes a byte and returns its hex-digit value by range comparisons and arithmetic; the sibling helpers (ASCII_To_BCD, bcd2Str, splitString, splitArray) likewise compute arrays and strings from their own arguments.",
+      "q2": "Every method serves RSA encryption/decryption with hex (BCD) encoding of the ciphertext: key construction, block splitting, encrypt, decrypt, hex conversion.",
+      "q3": "The class works on its own byte arrays and strings plus JDK Cipher/KeyFactory objects; the only chain is publicKey.getModulus().bitLength() on a JDK key.",
+      "q4": "The if/else chain in asc_to_bcd tests numeric character ranges ('0'-'9', 'A'-'F', 'a'-'f') and subtracts offsets; it is a digit conversion, not a dispatch over kinds of one value, and the other complex methods are loops with boundary conditions."
+     },
+     "note": "asc_to_bcd: converts one ASCII hex character to its 4-bit numeric value by range comparisons"
+    },
+    {
+     "id": "u002",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "createEventData takes an event message and metadata and builds and returns the column map (json-string vs map vs scalar, strict-mode pruning of undeclared fields, id/timestamp columns).",
+      "q2": "All methods convert ThingMessages into (metric, TimeSeriesData) tuples and hand them to doSave: log data, event data, property data, error recording.",
+      "q3": "It reads message fields (getData, getEvent, getTimestamp) and settings flags (settings.getEvent().isUsingJsonString()), which are data/config holders, and the computed map is the class's own output rather than behaviour borrowed from them.",
+      "q4": "The complexity is nested ifs over several independent settings (isUsingJsonString, instanceof Map, isStrict, instanceof ObjectType, eventIsAllInOne), not one switch over one controlling value."
+     },
+     "note": "createEventData: builds the time-series column map for a thing event message according to storage settings and metadata"
+    },
+    {
+     "id": "u003",
+     "q1": true,
+     "q2": false,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "unzip iterates the zip entries, writes each to disk, then walks the extracted directories comparing file names against the existing plugin folder to move or delete each file; it is a file-extraction/merge procedure over its own path arguments.",
+      "q2": "The class loads and saves an Updater config.yml, calls the Modrinth JSON API, parses and compares semantic versions, downloads with progress and SHA checks, and unzips and merges plugin data folders; zip extraction and folder merging is a separate concern from version checking.",
+      "q3": "Nearly all data handled is JDK File/URL/Zip/JSON objects; the few plugin.getServer().getUpdateFolderFile() chains fetch a target folder rather than drive decisions.",
+      "q4": "The branching in unzip is nested loops and null/exists/name checks, with no switch or case chain over one controlling value."
+     },
+     "note": "unzip: extracts a downloaded zip, moves plugin jars to the update folder and merges contained data folders into the plugins directory"
+    },
+    {
+     "id": "u004",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "onTabComplete only picks which constant list to pass to StringUtil.copyPartialMatches (or which subcommand to query) and returns that call's result; onCommand likewise forwards to one of 17 CommandExecutor fields.",
+      "q2": "The class is the /party command router: it validates the sender, dispatches to subcommand executors, and tab-completes their arguments.",
+      "q3": "Most branches test args and the PartySubcommandType enum; the one deep chain mmoPlayer.getParty().getLeader().getUniqueId() is a single guard, not the bulk of the work.",
+      "q4": "The complexity is a switch on args.length nested with a switch on the PartySubcommandType enum (and three enum switches in onCommand), each case a one-line return."
+     },
+     "note": "onTabComplete: returns tab-completion candidates for /party by switching on argument position and subcommand type"
+    },
+    {
+     "id": "u005",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "createEventSet lazily instantiates the tagger (double-checked locking), tags the given text, and builds and returns an EventSet of the part-of-speech tags from the nested sentence/word loops.",
+      "q2": "The class is a single EventDriver that produces part-of-speech events from text; its other methods are only display name, tooltip and GUI flag.",
+      "q3": "It reads taggedWord.tag() from Stanford TaggedWord result objects (data holders) and adds them to its own EventSet.",
+      "q4": "The branching is a null-check lock pattern plus try/catch and two loops; there is no switch or case chain."
+     },
+     "note": "createEventSet: tags the text with the Stanford MaxentTagger and emits one Event per word's part-of-speech tag"
+    },
+    {
+     "id": "u006",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "onScrollStateChanged loops over players and children deciding whether to call playerManager.pause/release/detachPlayer/attachPlayer/initialize/play on each; it returns nothing and computes no value of its own.",
+      "q2": "Everything in the file (lifecycle hooks, scroll handling, PlaybackInfo caching, state save/restore, the Behavior and data observer helpers) serves one concept: a RecyclerView that manages auto-playback of its ToroPlayer children.",
+      "q3": "The decisions rest on other objects' state (player.isPlaying(), player.wantsToPlay(), Common.allowsToPlay(player), playerManager.manages(player), player.getCurrentPlaybackInfo()) and the method mostly relays those into playerManager calls.",
+      "q4": "The branches are independent guards in several loops (allowsToPlay, isPlaying, manages, wantsToPlay), not one switch over one controlling value."
+     },
+     "note": "onScrollStateChanged: on scroll idle, detaches players no longer eligible, attaches visible ones, asks the selector which to play and pauses the rest"
+    },
+    {
+     "id": "u007",
+     "q1": false,
+     "q2": false,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "updateRequestContent pulls the next mutation per parameter and pushes it into testStep.getProperties().get(name).setValue(...) or into XmlTreeNode.setValue on an XmlObjectTreeModel; its branches decide which external setter to call.",
+      "q2": "The class runs the invalid-type mutation scan (execute, mutateParameters, hasNext) and also owns Swing UI pieces (TypeLabel, getComponent, refreshRestrictionLabel) plus the InvalidTypesForSOAP default-value table.",
+      "q3": "It chains getTestStep().getProperties().get(param.getName()).setValue(...), param.getXpath(), property.getValue(), property.getSchemaType().getTypeSystem() and parameterMutations.get(param).get(0) throughout.",
+      "q4": "The complexity is nested loops and null/xpath/xml guards under a two-way strategy if/else, not a case table."
+     },
+     "note": "updateRequestContent: injects the next invalid-type value into each checked parameter (directly or via XPath into the XML) and returns the applied values"
+    },
+    {
+     "id": "u008",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "listClazzFromDir walks a directory queue, derives the fully-qualified class name from each .class path by string manipulation, loads it, filters it and returns the resulting set.",
+      "q2": "All methods list classes in a package from directories or jars with an optional filter, plus two private string helpers used for that.",
+      "q3": "It works on JDK File/JarEntry objects and its own strings; no chains into project objects.",
+      "q4": "The branching is guard conditions (isDirectory && recursive, endsWith .class, filter.accept) inside a while loop, not a switch over kinds."
+     },
+     "note": "listClazzFromDir: scans a package directory (optionally recursively) and loads every .class file accepted by the filter"
+    },
+    {
+     "id": "u009",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "The five-argument constructor iterates ordinals and fills its own cachedItems list, reusing previous cached objects or instantiating new ones based on the populated/previous bitsets.",
+      "q2": "The class caches object representations of records per ordinal and keeps the cache updated as a type-state listener.",
+      "q3": "The one deep chain ((HollowCachedDelegate)((HollowRecord)cached).getDelegate()).updateTypeAPI(typeAPI) re-points reused entries; the bulk of the logic is BitSet checks feeding the class's own list.",
+      "q4": "The branching is a loop with a previouslyPopulated/currentlyPopulated decision, not a case table."
+     },
+     "note": "HollowObjectCacheProvider(5-arg constructor): builds the per-ordinal object cache, reusing previous entries where ordinals persist and instantiating new ones otherwise"
+    },
+    {
+     "id": "u010",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "resolveFetch takes the with-config and gRPC begin metadata and computes a GrpcKafkaWithFetchResult: decodes last-message-id partitions and builds filter keys/headers with identity and attribute substitution.",
+      "q2": "All methods resolve the binding's with-configuration (fetch and produce) into runtime result objects with substitutions applied.",
+      "q3": "It reads config records (fetch.filters.get(), filter.key, header0.name, header0.value) which are plain configuration data holders, and the result is its own.",
+      "q4": "The complexity is nested loops over filters and headers with isPresent/matches guards, not a switch over kinds."
+     },
+     "note": "resolveFetch: resolves fetch topic, partition offsets and filter key/header values (with identity/attribute placeholder substitution) into a GrpcKafkaWithFetchResult"
+    },
+    {
+     "id": "u011",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "The most complex code is the anonymous apply in toV3Operator (and its mirror in toV1Operator): it wires a 1.x subscriber adapter to a 3.x subscriber via operator.call, onSubscribe, add and setProducer inside a try/catch, forwarding rather than computing.",
+      "q2": "Every method is a static conversion between RxJava 1.x and 3.x types (Observable, Single, Completable, Subject, Transformer, Operator, Disposable, Scheduler).",
+      "q3": "Each method null-checks its argument and wraps it in a dedicated adapter class; no getter chains or copying of foreign fields.",
+      "q4": "There is no switch or case chain anywhere; each conversion is its own one-line factory method."
+     },
+     "note": "toV3Operator.apply: adapts a 1.x Observable.Operator into a 3.x FlowableOperator by bridging subscriber and subscription types"
+    },
+    {
+     "id": "u012",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "distance sorts each histogram's events by frequency, assigns ranks, then sums sign agreements over all event pairs and returns 1 minus the normalised Kendall correlation.",
+      "q2": "The class is one DistanceFunction (name, tooltip, GUI flag, distance).",
+      "q3": "It reads uniqueEvents() and relativeFrequency(e) from Histogram value objects and does the ranking in its own lists and maps.",
+      "q4": "The complexity is nested loops with tie-rank and null-rank handling, no case table."
+     },
+     "note": "distance: computes Kendall rank-correlation distance between two event histograms"
+    },
+    {
+     "id": "u013",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "appendEntries validates each new entry's term and index against the log's own last term/index, adds it to the ring buffer, persists it and updates lastIndex/lastTerm.",
+      "q2": "The class keeps and maintains the Raft log entries and snapshot (append, truncate, lookup, snapshot install, flush).",
+      "q3": "It manipulates its own Ringbuffer and SnapshotEntry; entry.term()/entry.index() are fields of LogEntry value objects.",
+      "q4": "The branches are capacity and ordering validation inside a loop, not a switch over kinds."
+     },
+     "note": "appendEntries: appends new entries to the Raft log after checking capacity, term monotonicity and index continuity, persisting each"
+    },
+    {
+     "id": "u014",
+     "q1": false,
+     "q2": true,
+     "q3": true,
+     "q4": false,
+     "evidence": {
+      "q1": "onBindViewHolder sets listeners, loads images with Glide and triggers CheckIsSubscribedToSubreddit/SubredditSubscription calls, deciding which view setter or service to invoke; it computes no value.",
+      "q2": "The class is a paged RecyclerView adapter for subreddit listings (view types, binding, footer network state), with subscription handling as part of the item's subscribe button.",
+      "q3": "Nearly every line is a depth-2+ chain like ((DataViewHolder) holder).binding.subscribeImageViewItemSubredditListing.setVisibility(...) acting on the holder's views, driven by subredditData getters.",
+      "q4": "The branches are instanceof/isMultiSelection/iconUrl/accountName guards with nested callbacks, not a switch over one controlling value."
+     },
+     "note": "onBindViewHolder: binds a subreddit row (icon, name, subscriber count, click/checkbox behaviour) and wires the subscribe button to subscription calls"
+    },
+    {
+     "id": "u015",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "isSafe checks the four knight-attack cells relative to (row, col) on the board array and returns whether a knight may be placed; knight() is the recursive backtracking over the same board.",
+      "q2": "The class solves and prints the N-knights placement problem.",
+      "q3": "It works only on its own boolean[][] board argument.",
+      "q4": "The complexity is four independent bounds-then-occupied guards, not a case chain over one value."
+     },
+     "note": "isSafe: returns whether placing a knight at (row, col) is unattacked by already-placed knights"
+    },
+    {
+     "id": "u016",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "getOverlayOptions builds and returns the list of marker and polyline options from the route line: entrance/exit markers per step, start/end markers, and polylines stitched across steps with cycling colours.",
+      "q2": "The class is an overlay manager that renders one IndoorRouteLine on the map; other methods are hooks for icons/colour and no-op click handlers.",
+      "q3": "The getter chains (step.getEntrace().getLocation(), mRouteLine.getAllStep().indexOf(step)) read the route-line search-result data holder, from which the overlays are composed.",
+      "q4": "The branching is null/size guards around loops over steps, no switch; the only switch is commented out."
+     },
+     "note": "getOverlayOptions: converts the indoor route line into marker and polyline overlay options"
+    },
+    {
+     "id": "u017",
+     "q1": false,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "collectKafkaMetrics looks up version items and alive ZK nodes from services, then loops calling zookeeperMetricService.collectMetricsFromZookeeper(param) per metric and merges each returned result; it orchestrates service calls rather than computing from its own state.",
+      "q2": "The class is one metric collector for ZooKeeper (collectKafkaMetrics plus collectorType).",
+      "q3": "It reads DTO fields (elem.getStatus(), elem.getHost(), ret.getData().getMetrics(), clusterPhy.getZkProperties()) and service results, which are plain data carriers.",
+      "q4": "The branching is skip-if-present and failed-result guards inside one loop with try/catch, no case table."
+     },
+     "note": "collectKafkaMetrics: gathers ZooKeeper metrics for a cluster by invoking the metric service per version-control item and publishing the aggregate"
+    },
+    {
+     "id": "u018",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "drawBubble renders the view's own state onto the canvas: GIF movie frame or faded preview bitmaps, map pin, unsupported mark, video icon, download-state overlay, size info panel and date/state panel with clock animation.",
+      "q2": "The class is a message media bubble view: binds media from a message wireframe, measures itself and draws it (including download/upload state).",
+      "q3": "Rendering uses the view's own fields (preview, desiredWidth, size, date, state); bindMedia reads TL model data holders via instanceof and getters.",
+      "q4": "drawBubble's branching is many independent conditions (movie vs preview vs oldPreview, showMapPoint, isVideo, mode, isOut, state) with nested rendering blocks, not one short-case table."
+     },
+     "note": "drawBubble: draws the media bubble contents (animation/preview, overlays, download state, size and time panels) and reports whether to keep animating"
+    },
+    {
+     "id": "u019",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": true,
+     "evidence": {
+      "q1": "startNode encodes a DOM node into SAX events, computing prefix mappings from xmlns attributes and namespace/local-name values before emitting startElement, comment, PI, CDATA or text callbacks.",
+      "q2": "The class performs a pre-order DOM walk emitting SAX ContentHandler/LexicalHandler events.",
+      "q3": "It reads DOM Node data (a syntax tree) and its own m_dh helper, and the emitted events are the class's own output.",
+      "q4": "The complexity of startNode (and endNode) is a switch on node.getNodeType() with a short block per node kind; traverseFragment contributes only a small nested loop."
+     },
+     "note": "startNode: dispatches on DOM node type to emit the corresponding SAX start events (prefix mappings, element, comment, PI, CDATA, text, entity)"
+    },
+    {
+     "id": "u020",
+     "q1": true,
+     "q2": true,
+     "q3": false,
+     "q4": false,
+     "evidence": {
+      "q1": "getFactory implements the ordered discovery procedure (cached factory, system property, META-INF service file, properties file, default class) and returns the LogFactory it resolves, caching it and applying property attributes.",
+      "q2": "The abstract contract, static discovery/bootstrap, classloader helpers and diagnostic output all serve locating and creating the LogFactory implementation.",
+      "q3": "It works with JDK ClassLoader, Properties and streams plus its own static state; no project-object getter chains.",
+      "q4": "The branching is a sequence of fallback steps each wrapped in isDiagnosticsEnabled guards and try/catch, not a switch over one controlling value."
+     },
+     "note": "getFactory: discovers, instantiates and caches the LogFactory implementation for the context classloader via system property, service file, properties file or default"
+    }
+   ]
+  },
+  "ttft_ms": 5602,
+  "type": "result",
+  "duration_ms": 257222,
+  "uuid": "64ff63be-355a-42fe-9d65-747ef1bccfb3",
+  "ttft_stream_ms": 2692,
+  "time_to_request_ms": 162,
+  "first_content_frame_ms": 2693,
+  "queued_turn_count": 0,
+  "result_index": 0
+ }
+}
