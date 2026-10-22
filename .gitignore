@@ -43,3 +43,5 @@ paper/build.log
 # step logs; the derived label files ship in the paper's ancillary bundle.
 /labels/
 /step*.log
+/.idea/
+/complexity-concentration-study.iml

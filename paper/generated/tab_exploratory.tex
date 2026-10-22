@@ -3,28 +3,28 @@
 \toprule
 Level & Definition & Kind & Best signal (AUC) & & Best cell (macro MCC) & \\
 \midrule
-class & \texttt{ck\_CBOhigh} &  & \texttt{tokens\_sum} & 0.905 & \texttt{hvol\_sum} / \texttt{mad\_z} & 0.458 \\
-class & \texttt{ck\_LCOM} &  & \texttt{cyc\_density\_sum} & 0.803 & \texttt{nom} / \texttt{mad\_z} & 0.385 \\
-class & \texttt{ck\_LargeClass} &  & \texttt{nom}$^{*}$ & 0.948 & \texttt{nom} / \texttt{iqr} & 0.546 \\
-class & \texttt{ck\_TCClow} &  & \texttt{nom} & 0.933 & \texttt{cyc\_density\_sum} / \texttt{mad\_z} & 0.142 \\
-class & \texttt{decor\_blob} &  & \texttt{nom}$^{*}$ & 0.946 & \texttt{nom} / \texttt{iqr} & 0.509 \\
-class & \texttt{pmd\_CouplingBetweenObjects} &  & \texttt{tokens\_sum} & 0.968 & \texttt{nloc\_sum} / \texttt{iqr} & 0.394 \\
-class & \texttt{pmd\_ExcessiveImports} &  & \texttt{hvol\_sum} & 0.952 & \texttt{hvol\_sum} / \texttt{iqr} & 0.343 \\
-class & \texttt{pmd\_ExcessivePublicCount} &  & \texttt{cyc\_density\_sum} & 0.927 & \texttt{nom} / \texttt{pct\_top1} & 0.301 \\
-class & \texttt{pmd\_GodClass} &  & \texttt{cc\_sum}$^{*}$ & 0.978 & \texttt{cc\_sum} / \texttt{mad\_z} & 0.475 \\
-class & \texttt{pmd\_NcssCount} &  & \texttt{tokens\_sum} & 0.953 & \texttt{cc\_sum} / \texttt{evt\_pot} & 0.108 \\
-class & \texttt{pmd\_TooManyFields} &  & \texttt{nloc\_sum} & 0.893 & \texttt{nom} / \texttt{zscore} & 0.242 \\
-class & \texttt{pmd\_TooManyMethods} &  & \texttt{mi\_sum} & 0.965 & \texttt{mi\_sum} / \texttt{iqr} & 0.536 \\
-class & \texttt{wmc47} &  & \texttt{cc\_sum}$^{*}$ & 1.000 & \texttt{cc\_sum} / \texttt{mad\_z} & 0.641 \\
-method & \texttt{brain\_method} &  & \texttt{cc}$^{*}$ & 0.993 & \texttt{nesting} / \texttt{zscore} & 0.293 \\
-method & \texttt{cc14} &  & \texttt{cc}$^{*}$ & 1.000 & \texttt{cc} / \texttt{zscore} & 0.595 \\
-method & \texttt{cognitive15} &  & \texttt{cognitive}$^{*}$ & 1.000 & \texttt{cognitive} / \texttt{double\_mad} & 0.642 \\
-method & \texttt{loc50} &  & \texttt{nloc}$^{*}$ & 1.000 & \texttt{nloc} / \texttt{zscore} & 0.593 \\
-method & \texttt{nesting5} &  & \texttt{nesting}$^{*}$ & 1.000 & \texttt{nesting} / \texttt{zscore} & 0.506 \\
-method & \texttt{params5} &  & \texttt{params}$^{*}$ & 1.000 & \texttt{params} / \texttt{zscore} & 0.622 \\
-method & \texttt{pmd\_method\_CC10} &  & \texttt{cc}$^{*}$ & 0.997 & \texttt{cc} / \texttt{zscore} & 0.600 \\
-method & \texttt{pmd\_method\_Cognitive15} &  & \texttt{cognitive}$^{*}$ & 0.999 & \texttt{cognitive} / \texttt{zscore} & 0.616 \\
-method & \texttt{pmd\_method\_NPath200} &  & \texttt{cc} & 0.996 & \texttt{cc} / \texttt{pct\_top1} & 0.394 \\
-method & \texttt{pmd\_method\_Ncss60} &  & \texttt{mi}$^{*}$ & 0.999 & \texttt{mi} / \texttt{zscore} & 0.380 \\
+class & \texttt{ck\_CBOhigh} & component & \texttt{tokens\_sum} & 0.905 & \texttt{hvol\_sum} / \texttt{mad\_z} & 0.458 \\
+class & \texttt{ck\_LCOM} & component & \texttt{cyc\_density\_sum} & 0.803 & \texttt{nom} / \texttt{mad\_z} & 0.385 \\
+class & \texttt{ck\_LargeClass} & component & \texttt{nom}$^{*}$ & 0.948 & \texttt{nom} / \texttt{iqr} & 0.546 \\
+class & \texttt{ck\_TCClow} & component & \texttt{nom} & 0.933 & \texttt{cyc\_density\_sum} / \texttt{mad\_z} & 0.142 \\
+class & \texttt{decor\_blob} & composite & \texttt{nom}$^{*}$ & 0.946 & \texttt{nom} / \texttt{iqr} & 0.509 \\
+class & \texttt{pmd\_CouplingBetweenObjects} & component & \texttt{tokens\_sum} & 0.968 & \texttt{nloc\_sum} / \texttt{iqr} & 0.394 \\
+class & \texttt{pmd\_ExcessiveImports} & component & \texttt{hvol\_sum} & 0.952 & \texttt{hvol\_sum} / \texttt{iqr} & 0.343 \\
+class & \texttt{pmd\_ExcessivePublicCount} & component & \texttt{cyc\_density\_sum} & 0.927 & \texttt{nom} / \texttt{pct\_top1} & 0.301 \\
+class & \texttt{pmd\_GodClass} & composite & \texttt{cc\_sum}$^{*}$ & 0.978 & \texttt{cc\_sum} / \texttt{mad\_z} & 0.475 \\
+class & \texttt{pmd\_NcssCount} & component & \texttt{tokens\_sum} & 0.953 & \texttt{cc\_sum} / \texttt{evt\_pot} & 0.108 \\
+class & \texttt{pmd\_TooManyFields} & component & \texttt{nloc\_sum} & 0.893 & \texttt{nom} / \texttt{zscore} & 0.242 \\
+class & \texttt{pmd\_TooManyMethods} & component & \texttt{mi\_sum} & 0.965 & \texttt{mi\_sum} / \texttt{iqr} & 0.536 \\
+class & \texttt{wmc47} & self & \texttt{cc\_sum}$^{*}$ & 1.000 & \texttt{cc\_sum} / \texttt{mad\_z} & 0.641 \\
+method & \texttt{brain\_method} & composite & \texttt{cc}$^{*}$ & 0.993 & \texttt{nesting} / \texttt{zscore} & 0.293 \\
+method & \texttt{cc14} & self & \texttt{cc}$^{*}$ & 1.000 & \texttt{cc} / \texttt{zscore} & 0.595 \\
+method & \texttt{cognitive15} & self & \texttt{cognitive}$^{*}$ & 1.000 & \texttt{cognitive} / \texttt{double\_mad} & 0.642 \\
+method & \texttt{loc50} & self & \texttt{nloc}$^{*}$ & 1.000 & \texttt{nloc} / \texttt{zscore} & 0.593 \\
+method & \texttt{nesting5} & self & \texttt{nesting}$^{*}$ & 1.000 & \texttt{nesting} / \texttt{zscore} & 0.506 \\
+method & \texttt{params5} & self & \texttt{params}$^{*}$ & 1.000 & \texttt{params} / \texttt{zscore} & 0.622 \\
+method & \texttt{pmd\_method\_CC10} & calibration & \texttt{cc}$^{*}$ & 0.997 & \texttt{cc} / \texttt{zscore} & 0.600 \\
+method & \texttt{pmd\_method\_Cognitive15} & calibration & \texttt{cognitive}$^{*}$ & 0.999 & \texttt{cognitive} / \texttt{zscore} & 0.616 \\
+method & \texttt{pmd\_method\_NPath200} & tool & \texttt{cc} & 0.996 & \texttt{cc} / \texttt{pct\_top1} & 0.394 \\
+method & \texttt{pmd\_method\_Ncss60} & calibration & \texttt{mi}$^{*}$ & 0.999 & \texttt{mi} / \texttt{zscore} & 0.380 \\
 \bottomrule
 \end{tabular}

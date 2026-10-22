@@ -46,6 +46,18 @@
 \newcommand{\agrBlobRelFlagged}{326}
 \newcommand{\agrBlobRelMcc}{+0.202}
 \newcommand{\agrBlobRelMccCI}{[+0.153, +0.254]}
+\newcommand{\agrBlobRelMinusAbs}{-0.018}
+\newcommand{\agrBlobRelMinusAbsCI}{[-0.058, +0.023]}
+\newcommand{\agrBlobRelMinusAbsReading}{no difference resolved}
+\newcommand{\agrBlobRelMinusDecorBlob}{+0.007}
+\newcommand{\agrBlobRelMinusDecorBlobCI}{[-0.055, +0.071]}
+\newcommand{\agrBlobRelMinusDecorBlobReading}{no difference resolved}
+\newcommand{\agrBlobRelMinusPmdGodclass}{-0.039}
+\newcommand{\agrBlobRelMinusPmdGodclassCI}{[-0.098, +0.020]}
+\newcommand{\agrBlobRelMinusPmdGodclassReading}{no difference resolved}
+\newcommand{\agrBlobRelMinusWmcFourSeven}{-0.023}
+\newcommand{\agrBlobRelMinusWmcFourSevenCI}{[-0.079, +0.032]}
+\newcommand{\agrBlobRelMinusWmcFourSevenReading}{no difference resolved}
 \newcommand{\agrBlobRelPrecision}{0.25}
 \newcommand{\agrBlobRelRecall}{0.40}
 \newcommand{\agrBlobRepos}{390}
@@ -55,6 +67,7 @@
 \newcommand{\agrBlobWmcFourSevenMccCI}{[+0.171, +0.283]}
 \newcommand{\agrBlobWmcFourSevenPrecision}{0.25}
 \newcommand{\agrBlobWmcFourSevenRecall}{0.48}
+\newcommand{\agrComputedUtc}{2026-10-22 10:04:06 UTC}
 \newcommand{\agrLmAbsExtraDiff}{+0.911}
 \newcommand{\agrLmAbsExtraDiffCI}{[+0.897, +0.925]}
 \newcommand{\agrLmAbsExtraReading}{reviewers call the extra flags positive more often than unflagged non-god units}
@@ -117,6 +130,24 @@
 \newcommand{\agrLmRelFlagged}{205}
 \newcommand{\agrLmRelMcc}{+0.582}
 \newcommand{\agrLmRelMccCI}{[+0.517, +0.641]}
+\newcommand{\agrLmRelMinusAbs}{+0.161}
+\newcommand{\agrLmRelMinusAbsCI}{[+0.081, +0.240]}
+\newcommand{\agrLmRelMinusAbsReading}{relative rule higher}
+\newcommand{\agrLmRelMinusBrainMethod}{+0.454}
+\newcommand{\agrLmRelMinusBrainMethodCI}{[+0.367, +0.550]}
+\newcommand{\agrLmRelMinusBrainMethodReading}{relative rule higher}
+\newcommand{\agrLmRelMinusCcOneFour}{+0.162}
+\newcommand{\agrLmRelMinusCcOneFourCI}{[+0.085, +0.238]}
+\newcommand{\agrLmRelMinusCcOneFourReading}{relative rule higher}
+\newcommand{\agrLmRelMinusCognitiveOneFive}{+0.017}
+\newcommand{\agrLmRelMinusCognitiveOneFiveCI}{[-0.050, +0.085]}
+\newcommand{\agrLmRelMinusCognitiveOneFiveReading}{no difference resolved}
+\newcommand{\agrLmRelMinusLocFiveZero}{+0.101}
+\newcommand{\agrLmRelMinusLocFiveZeroCI}{[+0.025, +0.178]}
+\newcommand{\agrLmRelMinusLocFiveZeroReading}{relative rule higher}
+\newcommand{\agrLmRelMinusPmdMethodNpathTwoZeroZero}{+0.270}
+\newcommand{\agrLmRelMinusPmdMethodNpathTwoZeroZeroCI}{[+0.193, +0.352]}
+\newcommand{\agrLmRelMinusPmdMethodNpathTwoZeroZeroReading}{relative rule higher}
 \newcommand{\agrLmRelPrecision}{0.65}
 \newcommand{\agrLmRelRecall}{0.60}
 \newcommand{\agrLmRepos}{392}
@@ -255,6 +286,197 @@
 \newcommand{\flagClassMadMinLang}{go}
 \newcommand{\flagMethodMadMax}{12.7\%}
 \newcommand{\flagMethodMadMin}{7.7\%}
+\newcommand{\fpAbsFpCoupledN}{791}
+\newcommand{\fpAbsFpCoupledPct}{45.1\%}
+\newcommand{\fpAbsFpCoupledPctCI}{[34.9\%, 54.8\%]}
+\newcommand{\fpAbsFpDecorBlobN}{352}
+\newcommand{\fpAbsFpDecorBlobPct}{20.1\%}
+\newcommand{\fpAbsFpDecorBlobPctCI}{[14.6\%, 25.5\%]}
+\newcommand{\fpAbsFpLargeClassN}{599}
+\newcommand{\fpAbsFpLargeClassPct}{34.2\%}
+\newcommand{\fpAbsFpLargeClassPctCI}{[25.6\%, 41.5\%]}
+\newcommand{\fpAbsFpLowCohesionN}{1457}
+\newcommand{\fpAbsFpLowCohesionPct}{83.1\%}
+\newcommand{\fpAbsFpLowCohesionPctCI}{[65.0\%, 94.1\%]}
+\newcommand{\fpAbsFpMedianNloc}{165}
+\newcommand{\fpAbsFpMedianNom}{10}
+\newcommand{\fpAbsFpMedianRaw}{30}
+\newcommand{\fpAbsFpN}{1{,}753}
+\newcommand{\fpAbsFpNeitherCoupledNorLowCohesionN}{258}
+\newcommand{\fpAbsFpNeitherCoupledNorLowCohesionPct}{14.7\%}
+\newcommand{\fpAbsFpNeitherCoupledNorLowCohesionPctCI}{[4.5\%, 31.7\%]}
+\newcommand{\fpAbsFpNoneOfThreeN}{177}
+\newcommand{\fpAbsFpNoneOfThreePct}{10.1\%}
+\newcommand{\fpAbsFpNoneOfThreePctCI}{[4.1\%, 18.9\%]}
+\newcommand{\fpAbsFpRepos}{64}
+\newcommand{\fpAbsFpWmcFourSevenAndCoupledN}{436}
+\newcommand{\fpAbsFpWmcFourSevenAndCoupledPct}{24.9\%}
+\newcommand{\fpAbsFpWmcFourSevenAndCoupledPctCI}{[18.7\%, 31.1\%]}
+\newcommand{\fpAbsFpWmcFourSevenN}{712}
+\newcommand{\fpAbsFpWmcFourSevenPct}{40.6\%}
+\newcommand{\fpAbsFpWmcFourSevenPctCI}{[35.4\%, 44.5\%]}
+\newcommand{\fpComputedUtc}{2026-10-22 10:04:32 UTC}
+\newcommand{\fpFnCoupledN}{851}
+\newcommand{\fpFnCoupledPct}{66.8\%}
+\newcommand{\fpFnCoupledPctCI}{[55.7\%, 74.1\%]}
+\newcommand{\fpFnDecorBlobN}{873}
+\newcommand{\fpFnDecorBlobPct}{68.5\%}
+\newcommand{\fpFnDecorBlobPctCI}{[52.7\%, 80.0\%]}
+\newcommand{\fpFnLargeClassN}{1035}
+\newcommand{\fpFnLargeClassPct}{81.2\%}
+\newcommand{\fpFnLargeClassPctCI}{[62.6\%, 91.6\%]}
+\newcommand{\fpFnLowCohesionN}{1159}
+\newcommand{\fpFnLowCohesionPct}{91.0\%}
+\newcommand{\fpFnLowCohesionPctCI}{[71.8\%, 100.0\%]}
+\newcommand{\fpFnMedianNloc}{272}
+\newcommand{\fpFnMedianNom}{32}
+\newcommand{\fpFnMedianRaw}{11}
+\newcommand{\fpFnN}{1{,}274}
+\newcommand{\fpFnNeitherCoupledNorLowCohesionN}{85}
+\newcommand{\fpFnNeitherCoupledNorLowCohesionPct}{6.7\%}
+\newcommand{\fpFnNeitherCoupledNorLowCohesionPctCI}{[0.0\%, 21.2\%]}
+\newcommand{\fpFnNoneOfThreeN}{27}
+\newcommand{\fpFnNoneOfThreePct}{2.1\%}
+\newcommand{\fpFnNoneOfThreePctCI}{[0.0\%, 6.8\%]}
+\newcommand{\fpFnRepos}{50}
+\newcommand{\fpFnWmcFourSevenAndCoupledN}{803}
+\newcommand{\fpFnWmcFourSevenAndCoupledPct}{63.0\%}
+\newcommand{\fpFnWmcFourSevenAndCoupledPctCI}{[50.3\%, 71.2\%]}
+\newcommand{\fpFnWmcFourSevenN}{1171}
+\newcommand{\fpFnWmcFourSevenPct}{91.9\%}
+\newcommand{\fpFnWmcFourSevenPctCI}{[85.6\%, 96.3\%]}
+\newcommand{\fpFpCoupledN}{1650}
+\newcommand{\fpFpCoupledPct}{38.5\%}
+\newcommand{\fpFpCoupledPctCI}{[30.9\%, 46.9\%]}
+\newcommand{\fpFpDecorBlobN}{688}
+\newcommand{\fpFpDecorBlobPct}{16.0\%}
+\newcommand{\fpFpDecorBlobPctCI}{[11.7\%, 20.2\%]}
+\newcommand{\fpFpLargeClassN}{1119}
+\newcommand{\fpFpLargeClassPct}{26.1\%}
+\newcommand{\fpFpLargeClassPctCI}{[19.3\%, 31.9\%]}
+\newcommand{\fpFpLowCohesionN}{3608}
+\newcommand{\fpFpLowCohesionPct}{84.1\%}
+\newcommand{\fpFpLowCohesionPctCI}{[66.5\%, 94.0\%]}
+\newcommand{\fpFpMedianNloc}{113}
+\newcommand{\fpFpMedianNom}{9}
+\newcommand{\fpFpMedianRaw}{17}
+\newcommand{\fpFpN}{4{,}288}
+\newcommand{\fpFpNeitherCoupledNorLowCohesionN}{609}
+\newcommand{\fpFpNeitherCoupledNorLowCohesionPct}{14.2\%}
+\newcommand{\fpFpNeitherCoupledNorLowCohesionPctCI}{[4.9\%, 31.4\%]}
+\newcommand{\fpFpNoneOfThreeN}{484}
+\newcommand{\fpFpNoneOfThreePct}{11.3\%}
+\newcommand{\fpFpNoneOfThreePctCI}{[4.7\%, 22.7\%]}
+\newcommand{\fpFpRepos}{78}
+\newcommand{\fpFpWmcFourSevenAndCoupledN}{628}
+\newcommand{\fpFpWmcFourSevenAndCoupledPct}{14.6\%}
+\newcommand{\fpFpWmcFourSevenAndCoupledPctCI}{[10.6\%, 20.4\%]}
+\newcommand{\fpFpWmcFourSevenN}{1032}
+\newcommand{\fpFpWmcFourSevenPct}{24.1\%}
+\newcommand{\fpFpWmcFourSevenPctCI}{[18.4\%, 31.4\%]}
+\newcommand{\fpKappaAuthorModel}{0.20}
+\newcommand{\fpKappaAuthorModelAgree}{21}
+\newcommand{\fpKappaAuthorModelN}{40}
+\newcommand{\fpNeitherCoupledN}{4356}
+\newcommand{\fpNeitherCoupledPct}{8.2\%}
+\newcommand{\fpNeitherCoupledPctCI}{[5.9\%, 11.1\%]}
+\newcommand{\fpNeitherDecorBlobN}{3563}
+\newcommand{\fpNeitherDecorBlobPct}{6.7\%}
+\newcommand{\fpNeitherDecorBlobPctCI}{[4.1\%, 9.7\%]}
+\newcommand{\fpNeitherLargeClassN}{5870}
+\newcommand{\fpNeitherLargeClassPct}{11.1\%}
+\newcommand{\fpNeitherLargeClassPctCI}{[7.7\%, 13.9\%]}
+\newcommand{\fpNeitherLowCohesionN}{41516}
+\newcommand{\fpNeitherLowCohesionPct}{78.4\%}
+\newcommand{\fpNeitherLowCohesionPctCI}{[59.0\%, 90.0\%]}
+\newcommand{\fpNeitherMedianNloc}{27}
+\newcommand{\fpNeitherMedianNom}{5}
+\newcommand{\fpNeitherMedianRaw}{1}
+\newcommand{\fpNeitherN}{52{,}960}
+\newcommand{\fpNeitherNeitherCoupledNorLowCohesionN}{11317}
+\newcommand{\fpNeitherNeitherCoupledNorLowCohesionPct}{21.4\%}
+\newcommand{\fpNeitherNeitherCoupledNorLowCohesionPctCI}{[9.8\%, 40.7\%]}
+\newcommand{\fpNeitherNoneOfThreeN}{11210}
+\newcommand{\fpNeitherNoneOfThreePct}{21.2\%}
+\newcommand{\fpNeitherNoneOfThreePctCI}{[9.8\%, 40.2\%]}
+\newcommand{\fpNeitherRepos}{84}
+\newcommand{\fpNeitherWmcFourSevenAndCoupledN}{628}
+\newcommand{\fpNeitherWmcFourSevenAndCoupledPct}{1.2\%}
+\newcommand{\fpNeitherWmcFourSevenAndCoupledPctCI}{[0.7\%, 1.8\%]}
+\newcommand{\fpNeitherWmcFourSevenN}{1342}
+\newcommand{\fpNeitherWmcFourSevenPct}{2.5\%}
+\newcommand{\fpNeitherWmcFourSevenPctCI}{[1.7\%, 3.6\%]}
+\newcommand{\fpReadAuthorFpGathererN}{15}
+\newcommand{\fpReadAuthorFpGathererPct}{75\%}
+\newcommand{\fpReadAuthorFpLeafN}{5}
+\newcommand{\fpReadAuthorFpLeafPct}{25\%}
+\newcommand{\fpReadAuthorFpN}{20}
+\newcommand{\fpReadAuthorFpOtherN}{0}
+\newcommand{\fpReadAuthorFpOtherPct}{0\%}
+\newcommand{\fpReadAuthorFpTableN}{0}
+\newcommand{\fpReadAuthorFpTablePct}{0\%}
+\newcommand{\fpReadAuthorTpGathererN}{19}
+\newcommand{\fpReadAuthorTpGathererPct}{95\%}
+\newcommand{\fpReadAuthorTpLeafN}{1}
+\newcommand{\fpReadAuthorTpLeafPct}{5\%}
+\newcommand{\fpReadAuthorTpN}{20}
+\newcommand{\fpReadAuthorTpOtherN}{0}
+\newcommand{\fpReadAuthorTpOtherPct}{0\%}
+\newcommand{\fpReadAuthorTpTableN}{0}
+\newcommand{\fpReadAuthorTpTablePct}{0\%}
+\newcommand{\fpReadModelFpGathererN}{17}
+\newcommand{\fpReadModelFpGathererPct}{17\%}
+\newcommand{\fpReadModelFpLeafN}{66}
+\newcommand{\fpReadModelFpLeafPct}{66\%}
+\newcommand{\fpReadModelFpN}{100}
+\newcommand{\fpReadModelFpOtherN}{12}
+\newcommand{\fpReadModelFpOtherPct}{12\%}
+\newcommand{\fpReadModelFpTableN}{5}
+\newcommand{\fpReadModelFpTablePct}{5\%}
+\newcommand{\fpReadModelTpGathererN}{30}
+\newcommand{\fpReadModelTpGathererPct}{30\%}
+\newcommand{\fpReadModelTpLeafN}{58}
+\newcommand{\fpReadModelTpLeafPct}{58\%}
+\newcommand{\fpReadModelTpN}{100}
+\newcommand{\fpReadModelTpOtherN}{10}
+\newcommand{\fpReadModelTpOtherPct}{10\%}
+\newcommand{\fpReadModelTpTableN}{2}
+\newcommand{\fpReadModelTpTablePct}{2\%}
+\newcommand{\fpRepos}{84}
+\newcommand{\fpSampleFp}{100}
+\newcommand{\fpSampleN}{200}
+\newcommand{\fpSamplePerRepo}{3}
+\newcommand{\fpSampleTp}{100}
+\newcommand{\fpTpCoupledN}{1367}
+\newcommand{\fpTpCoupledPct}{74.3\%}
+\newcommand{\fpTpCoupledPctCI}{[59.0\%, 84.2\%]}
+\newcommand{\fpTpDecorBlobN}{1247}
+\newcommand{\fpTpDecorBlobPct}{67.7\%}
+\newcommand{\fpTpDecorBlobPctCI}{[47.7\%, 80.4\%]}
+\newcommand{\fpTpLargeClassN}{1373}
+\newcommand{\fpTpLargeClassPct}{74.6\%}
+\newcommand{\fpTpLargeClassPctCI}{[52.7\%, 88.0\%]}
+\newcommand{\fpTpLowCohesionN}{1592}
+\newcommand{\fpTpLowCohesionPct}{86.5\%}
+\newcommand{\fpTpLowCohesionPctCI}{[62.3\%, 99.7\%]}
+\newcommand{\fpTpMedianNloc}{415}
+\newcommand{\fpTpMedianNom}{32}
+\newcommand{\fpTpMedianRaw}{29}
+\newcommand{\fpTpN}{1{,}841}
+\newcommand{\fpTpNeitherCoupledNorLowCohesionN}{196}
+\newcommand{\fpTpNeitherCoupledNorLowCohesionPct}{10.6\%}
+\newcommand{\fpTpNeitherCoupledNorLowCohesionPctCI}{[0.2\%, 29.6\%]}
+\newcommand{\fpTpNoneOfThreeN}{14}
+\newcommand{\fpTpNoneOfThreePct}{0.8\%}
+\newcommand{\fpTpNoneOfThreePctCI}{[0.0\%, 2.0\%]}
+\newcommand{\fpTpRepos}{56}
+\newcommand{\fpTpWmcFourSevenAndCoupledN}{1342}
+\newcommand{\fpTpWmcFourSevenAndCoupledPct}{72.9\%}
+\newcommand{\fpTpWmcFourSevenAndCoupledPctCI}{[57.9\%, 82.4\%]}
+\newcommand{\fpTpWmcFourSevenN}{1782}
+\newcommand{\fpTpWmcFourSevenPct}{96.8\%}
+\newcommand{\fpTpWmcFourSevenPctCI}{[95.8\%, 98.0\%]}
+\newcommand{\fpUnits}{60{,}363}
 \newcommand{\friedRankAdjBoxplot}{3.85}
 \newcommand{\friedRankDoubleMad}{2.67}
 \newcommand{\friedRankIqr}{2.50}
@@ -401,7 +623,7 @@
 \newcommand{\humBlobRevLabelled}{2085}
 \newcommand{\humBlobRevMeasured}{1853}
 \newcommand{\humBlobRevRate}{88.9\%}
-\newcommand{\humComputedUtc}{2026-10-20 03:38:37 UTC}
+\newcommand{\humComputedUtc}{2026-10-22 10:03:52 UTC}
 \newcommand{\humLmLabelled}{239}
 \newcommand{\humLmMeasured}{228}
 \newcommand{\humLmRevLabelled}{2219}
@@ -531,6 +753,9 @@
 \newcommand{\humLongMethodPosSignal}{\texttt{mi}}
 \newcommand{\humLongMethodPosVerdict}{inferior}
 \newcommand{\humLongMethodPosZCut}{2.40}
+\newcommand{\javaFilesCk}{85{,}931}
+\newcommand{\javaFilesMulti}{19{,}952}
+\newcommand{\javaFilesMultiPct}{23\%}
 \newcommand{\mlcqAnalysedUtc}{2026-10-19 22:20:30 UTC}
 \newcommand{\mlcqApacheShare}{50.2\%}
 \newcommand{\mlcqBlob}{254}
@@ -559,6 +784,7 @@
 \newcommand{\mlcqPmdAbsFpr}{0.080}
 \newcommand{\mlcqPmdAbsFprPct}{8.0\%}
 \newcommand{\mlcqPmdAbsMacroMcc}{0.355}
+\newcommand{\mlcqPmdAbsMacroMccPos}{0.390}
 \newcommand{\mlcqPmdAbsMeanFlagsGodFree}{3.0}
 \newcommand{\mlcqPmdAbsMicroMcc}{0.483}
 \newcommand{\mlcqPmdAbsPooledFprPct}{8.2\%}
@@ -577,6 +803,7 @@
 \newcommand{\mlcqPmdMacroFprVerdict}{non-inferior}
 \newcommand{\mlcqPmdMacroMcc}{-0.020}
 \newcommand{\mlcqPmdMacroMccCI}{[-0.039, -0.003]}
+\newcommand{\mlcqPmdMacroMccPosN}{222}
 \newcommand{\mlcqPmdMacroMccVerdict}{non-inferior}
 \newcommand{\mlcqPmdMargin}{0.10}
 \newcommand{\mlcqPmdMicroMcc}{-0.098}
@@ -598,6 +825,7 @@
 \newcommand{\mlcqPmdRelFpr}{0.087}
 \newcommand{\mlcqPmdRelFprPct}{8.7\%}
 \newcommand{\mlcqPmdRelMacroMcc}{0.337}
+\newcommand{\mlcqPmdRelMacroMccPos}{0.370}
 \newcommand{\mlcqPmdRelMeanFlagsGodFree}{11.5}
 \newcommand{\mlcqPmdRelMicroMcc}{0.385}
 \newcommand{\mlcqPmdRelPooledFprPct}{8.7\%}
@@ -686,6 +914,7 @@
 \newcommand{\primAbsFpr}{0.038}
 \newcommand{\primAbsFprPct}{3.8\%}
 \newcommand{\primAbsMacroMcc}{0.285}
+\newcommand{\primAbsMacroMccPos}{0.380}
 \newcommand{\primAbsMeanFlagsGodFree}{0.9}
 \newcommand{\primAbsMicroMcc}{0.406}
 \newcommand{\primAbsPooledFprPct}{3.1\%}
@@ -738,6 +967,7 @@
 \newcommand{\primMacroMcc}{-0.009}
 \newcommand{\primMacroMccCI}{[-0.057, +0.040]}
 \newcommand{\primMacroMccN}{63}
+\newcommand{\primMacroMccPosN}{63}
 \newcommand{\primMacroMccVerdict}{non-inferior}
 \newcommand{\primMargin}{0.10}
 \newcommand{\primMicroMcc}{-0.028}
@@ -762,6 +992,7 @@
 \newcommand{\primRelFpr}{0.079}
 \newcommand{\primRelFprPct}{7.9\%}
 \newcommand{\primRelMacroMcc}{0.278}
+\newcommand{\primRelMacroMccPos}{0.371}
 \newcommand{\primRelMeanFlagsGodFree}{6.6}
 \newcommand{\primRelMicroMcc}{0.378}
 \newcommand{\primRelPooledFprPct}{7.5\%}
@@ -776,16 +1007,22 @@
 \newcommand{\reanalysedUtc}{2026-10-19 04:44:09 UTC}
 \newcommand{\runDone}{446}
 \newcommand{\runFailed}{2}
+\newcommand{\sampleCrossStratumLangs}{8 to Python, 6 to Java, 5 to JavaScript, 5 to TypeScript, 2 to PHP, 2 to C++, 1 to Go, 1 to Rust}
+\newcommand{\sampleCrossStratumN}{30}
+\newcommand{\sampleFailedN}{1}
+\newcommand{\sampleFailedRepos}{openjdk/jdk}
 \newcommand{\sampleMainDrawn}{431}
 \newcommand{\sampleMainError}{4}
 \newcommand{\sampleMainExcluded}{121}
 \newcommand{\sampleMainUsable}{306}
+\newcommand{\sampleOverlap}{10}
 \newcommand{\samplePopulation}{170{,}596}
 \newcommand{\sampleStarted}{2026-10-18}
 \newcommand{\sampleSuppDrawn}{198}
 \newcommand{\sampleSuppError}{3}
 \newcommand{\sampleSuppExcluded}{45}
 \newcommand{\sampleSuppUsable}{150}
+\newcommand{\sampleUnionUsable}{446}
 \newcommand{\samplerCommit}{7502a15}
 \newcommand{\samplerVersion}{0.1.0}
 \newcommand{\scaleCogMaxMad}{89\%}
@@ -793,9 +1030,120 @@
 \newcommand{\scaleMethodCcMad}{34\%}
 \newcommand{\scaleMethodCogMad}{42\%}
 \newcommand{\scaleMethodCogZeros}{53\%}
+\newcommand{\sizeRhoCcSum}{0.74}
+\newcommand{\sizeRhoCcSumCI}{[0.71, 0.77]}
+\newcommand{\sizeRhoCcSumN}{84}
+\newcommand{\sizeRhoNlocSum}{0.70}
+\newcommand{\sizeRhoNlocSumCI}{[0.67, 0.73]}
+\newcommand{\sizeRhoNlocSumN}{84}
+\newcommand{\sizeRhoNom}{0.42}
+\newcommand{\sizeRhoNomCI}{[0.38, 0.46]}
+\newcommand{\sizeRhoNomN}{84}
+\newcommand{\sizeRhoTokensSum}{0.73}
+\newcommand{\sizeRhoTokensSumCI}{[0.70, 0.76]}
+\newcommand{\sizeRhoTokensSumN}{84}
 \newcommand{\studySha}{3eaee366f33f}
 \newcommand{\totalFiles}{260{,}216}
 \newcommand{\totalFunctions}{2{,}699{,}093}
+\newcommand{\transferComputedUtc}{2026-10-22 10:04:27 UTC}
+\newcommand{\transferMainAbsOtherFlagged}{4{,}659}
+\newcommand{\transferMainAbsOtherMacroFpr}{0.063}
+\newcommand{\transferMainAbsOtherMacroFprPct}{6.3\%}
+\newcommand{\transferMainAbsOtherMacroMcc}{0.401}
+\newcommand{\transferMainAbsOtherMicroMcc}{0.421}
+\newcommand{\transferMainAbsOtherPrecision}{0.37}
+\newcommand{\transferMainAbsOtherRecall}{0.56}
+\newcommand{\transferMainAbsOwnFlagged}{3{,}113}
+\newcommand{\transferMainAbsOwnMacroFpr}{0.038}
+\newcommand{\transferMainAbsOwnMacroFprPct}{3.8\%}
+\newcommand{\transferMainAbsOwnMacroMcc}{0.380}
+\newcommand{\transferMainAbsOwnMicroMcc}{0.406}
+\newcommand{\transferMainAbsOwnPrecision}{0.44}
+\newcommand{\transferMainAbsOwnRecall}{0.44}
+\newcommand{\transferMainN}{84}
+\newcommand{\transferMainNPos}{63}
+\newcommand{\transferMainOptCutMax}{85}
+\newcommand{\transferMainOptCutMedian}{15}
+\newcommand{\transferMainOptCutMin}{7}
+\newcommand{\transferMainOptCutN}{51}
+\newcommand{\transferMainOptCutQOne}{12}
+\newcommand{\transferMainOptCutQThree}{26}
+\newcommand{\transferMainOtherCut}{17}
+\newcommand{\transferMainOtherMinusOwnMacroFpr}{+0.026}
+\newcommand{\transferMainOtherMinusOwnMacroFprCI}{[+0.020, +0.032]}
+\newcommand{\transferMainOtherMinusOwnMacroMcc}{+0.022}
+\newcommand{\transferMainOtherMinusOwnMacroMccCI}{[-0.012, +0.058]}
+\newcommand{\transferMainOtherMinusOwnMicroMcc}{+0.015}
+\newcommand{\transferMainOtherMinusOwnMicroMccCI}{[-0.003, +0.034]}
+\newcommand{\transferMainOwnCut}{22}
+\newcommand{\transferMainRelFlagged}{6{,}129}
+\newcommand{\transferMainRelMacroFpr}{0.079}
+\newcommand{\transferMainRelMacroFprPct}{7.9\%}
+\newcommand{\transferMainRelMacroMcc}{0.371}
+\newcommand{\transferMainRelMicroMcc}{0.378}
+\newcommand{\transferMainRelMinusOtherMacroFpr}{+0.016}
+\newcommand{\transferMainRelMinusOtherMacroFprCI}{[-0.003, +0.033]}
+\newcommand{\transferMainRelMinusOtherMacroMcc}{-0.030}
+\newcommand{\transferMainRelMinusOtherMacroMccCI}{[-0.062, +0.002]}
+\newcommand{\transferMainRelMinusOtherMicroMcc}{-0.043}
+\newcommand{\transferMainRelMinusOtherMicroMccCI}{[-0.080, -0.008]}
+\newcommand{\transferMainRelPrecision}{0.30}
+\newcommand{\transferMainRelRecall}{0.59}
+\newcommand{\transferMainZCutMax}{48.4}
+\newcommand{\transferMainZCutMedian}{14.1}
+\newcommand{\transferMainZCutMin}{0.3}
+\newcommand{\transferMainZCutN}{84}
+\newcommand{\transferMainZCutQOne}{6.2}
+\newcommand{\transferMainZCutQThree}{18.8}
+\newcommand{\transferMlcqAbsOtherFlagged}{14{,}941}
+\newcommand{\transferMlcqAbsOtherMacroFpr}{0.053}
+\newcommand{\transferMlcqAbsOtherMacroFprPct}{5.3\%}
+\newcommand{\transferMlcqAbsOtherMacroMcc}{0.376}
+\newcommand{\transferMlcqAbsOtherMicroMcc}{0.476}
+\newcommand{\transferMlcqAbsOtherPrecision}{0.47}
+\newcommand{\transferMlcqAbsOtherRecall}{0.57}
+\newcommand{\transferMlcqAbsOwnFlagged}{20{,}938}
+\newcommand{\transferMlcqAbsOwnMacroFpr}{0.080}
+\newcommand{\transferMlcqAbsOwnMacroFprPct}{8.0\%}
+\newcommand{\transferMlcqAbsOwnMacroMcc}{0.390}
+\newcommand{\transferMlcqAbsOwnMicroMcc}{0.483}
+\newcommand{\transferMlcqAbsOwnPrecision}{0.41}
+\newcommand{\transferMlcqAbsOwnRecall}{0.69}
+\newcommand{\transferMlcqN}{244}
+\newcommand{\transferMlcqNPos}{222}
+\newcommand{\transferMlcqOptCutMax}{97}
+\newcommand{\transferMlcqOptCutMedian}{19}
+\newcommand{\transferMlcqOptCutMin}{5}
+\newcommand{\transferMlcqOptCutN}{198}
+\newcommand{\transferMlcqOptCutQOne}{14}
+\newcommand{\transferMlcqOptCutQThree}{27}
+\newcommand{\transferMlcqOtherCut}{22}
+\newcommand{\transferMlcqOtherMinusOwnMacroFpr}{-0.028}
+\newcommand{\transferMlcqOtherMinusOwnMacroFprCI}{[-0.030, -0.025]}
+\newcommand{\transferMlcqOtherMinusOwnMacroMcc}{-0.014}
+\newcommand{\transferMlcqOtherMinusOwnMacroMccCI}{[-0.027, -0.003]}
+\newcommand{\transferMlcqOtherMinusOwnMicroMcc}{-0.007}
+\newcommand{\transferMlcqOtherMinusOwnMicroMccCI}{[-0.020, +0.006]}
+\newcommand{\transferMlcqOwnCut}{17}
+\newcommand{\transferMlcqRelFlagged}{20{,}106}
+\newcommand{\transferMlcqRelMacroFpr}{0.087}
+\newcommand{\transferMlcqRelMacroFprPct}{8.7\%}
+\newcommand{\transferMlcqRelMacroMcc}{0.370}
+\newcommand{\transferMlcqRelMicroMcc}{0.385}
+\newcommand{\transferMlcqRelMinusOtherMacroFpr}{+0.035}
+\newcommand{\transferMlcqRelMinusOtherMacroFprCI}{[+0.023, +0.044]}
+\newcommand{\transferMlcqRelMinusOtherMacroMcc}{-0.006}
+\newcommand{\transferMlcqRelMinusOtherMacroMccCI}{[-0.025, +0.011]}
+\newcommand{\transferMlcqRelMinusOtherMicroMcc}{-0.091}
+\newcommand{\transferMlcqRelMinusOtherMicroMccCI}{[-0.151, -0.053]}
+\newcommand{\transferMlcqRelPrecision}{0.35}
+\newcommand{\transferMlcqRelRecall}{0.56}
+\newcommand{\transferMlcqZCutMax}{171.3}
+\newcommand{\transferMlcqZCutMedian}{18.6}
+\newcommand{\transferMlcqZCutMin}{1.0}
+\newcommand{\transferMlcqZCutN}{244}
+\newcommand{\transferMlcqZCutQOne}{7.2}
+\newcommand{\transferMlcqZCutQThree}{24.8}
 \newcommand{\trivialJava}{65\%}
 \newcommand{\trivialMax}{65\%}
 \newcommand{\trivialMin}{40\%}
