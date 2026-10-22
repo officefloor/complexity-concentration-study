@@ -251,20 +251,33 @@ def table_confirm(res: dict, out: str, name: str, prefix: str) -> None:
 
 
 def decision_row(label: str, d: dict, arms_note=True) -> str:
+    """Two lines per definition: the paired difference on each arm with the margin and the
+    overall verdict, then beneath it each arm's interval and verdict in a smaller face, so the
+    columns stay narrow and nothing wraps; a dagger marks an arm reported but not decided on."""
     b = d["paired"]
-    cells = []
+    ests, arms = [], []
     for k in ("macro_mcc", "micro_mcc", "macro_fpr"):
         x = b.get(k)
         v = d["verdicts"][k]
         decided = k in d["arms"]
-        s = (f"{f(x['value'], 3, True)} {ci(x, 3, True)}" if x else "--") + f" {v}" + ("" if decided else "$^{\\dagger}$")
-        cells.append(s)
-    return f"{label} & " + " & ".join(cells) + f" & {f(d['margin'], 3)} & \\textbf{{{d['overall']}}} \\\\"
+        ests.append(f(x["value"], 3, True) if x else "--")
+        arms.append((f"{ci(x, 3, True)} " if x else "") + v + ("" if decided else "$^{\\dagger}$"))
+    # The definition's name goes on the first line and its signal and population beneath it, so
+    # the label column stays narrow.
+    name, tail = label.rsplit(" (\\texttt{", 1) if " (\\texttt{" in label else (label, None)
+    sub = ""
+    if tail is not None:
+        signal, rest = tail.split("})", 1)
+        sub = f"{{\\scriptsize \\texttt{{{signal}}}{rest}}}"
+    first = f"{name} & " + " & ".join(ests) + f" & {f(d['margin'], 3)} & \\textbf{{{d['overall']}}} \\\\"
+    second = f"{sub} & " + " & ".join(f"{{\\scriptsize {a}}}" for a in arms) + " & & \\\\[2pt]"
+    return first + "\n" + second
 
 
 def table_decisions(entries: list, out: str, name: str) -> None:
-    body = ["\\begin{tabular}{lp{2.9cm}p{2.9cm}p{2.9cm}rl}", "\\toprule",
-            "Definition (signal) & Macro MCC & Micro MCC & Macro FPR & Margin & Verdict \\\\", "\\midrule"]
+    body = ["\\begin{tabular}{lcccrl}", "\\toprule",
+            "Definition (signal) & Macro MCC & Micro MCC & Macro FPR & Margin & Verdict \\\\",
+            "\\midrule"]
     for label, d in entries:
         body.append(decision_row(label, d))
     body += ["\\bottomrule", "\\end{tabular}"]

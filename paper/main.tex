@@ -2,21 +2,17 @@
 % ---------------------------------------------------------------------------
 % Complexity concentration as a god-class and god-method detector:
 % a pre-registered test of a scale-free outlier rule against tool definitions
-% and human labels.
+% and human labels.  Short form.
 %
-% Built for arXiv (primary class cs.SE). Everything it needs is either a standard
-% LaTeX package that arXiv's TeX Live already carries, or a file in this
-% directory. There is no .bib: the bibliography is a `thebibliography`
-% environment at the end, so no BibTeX pass and no .bbl upload is required.
+% Built for arXiv (primary class cs.SE). No .bib: the bibliography is a
+% `thebibliography` environment at the end.
 %
 % Every number in this file is a macro from generated/numbers.tex and every
-% table is a fragment under generated/, both written by paper/scripts/tables.py
-% from the harness's analysis files; the figures are drawn by
-% paper/scripts/figures.py. No number this study computes is typed by hand; the only typed
-% numbers are literature constants and the output of the superseded harness agreement
-% (Section 6). See README.md.
+% table is a fragment under generated/, both written by paper/scripts/tables.py;
+% the figure is drawn by paper/scripts/figures.py. No number this study computes
+% is typed by hand; the only typed numbers are literature constants.
 %
-% Build:   pdflatex main && pdflatex main       (twice, for the references)
+% Build:   pdflatex main && pdflatex main
 % ---------------------------------------------------------------------------
 \documentclass[11pt,a4paper]{article}
 
@@ -36,7 +32,6 @@
 \input{generated/numbers}
 
 \newcommand{\madz}{modified $z \geq 3.5$}
-% Scale a generated table down to the text width only when it is wider than that.
 \newcommand{\fitwidth}[1]{\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{#1}}
 \newcommand{\sig}[1]{\texttt{#1}}
 
@@ -57,622 +52,342 @@ definitions and human labels}
 
 \begin{abstract}
 \noindent
-God-class and god-method detectors mark concentrated complexity with
-a raw-scale threshold, a weighted method count of 47 or a
-cyclomatic complexity of 14, constants that must be re-fitted when the
-population moves, as LLM coding agents may be moving it. This paper pre-registers a test of a rule with no raw-scale
-constant: a unit is a god unit when its complexity is a robust outlier for its
-own codebase, a modified z-score of 3.5 or more. On \nUsable{} repositories in
-ten languages, \nJava{} of them Java, and the \mlcqUsable{} Java
-repositories of MLCQ, every unit is measured ten ways and the rule's flags
-are scored against PMD's GodClass, an approximate DECOR Blob, PMD's NPath and MLCQ's
-reviewers, with signal and cutoff chosen on half the
-repositories and read on the rest.
-
-Against PMD GodClass on the Java repositories the rule ranks god classes from
-the per-file maximum of cognitive complexity at a per-repository AUC of
-\primAucMacro{}, but standardising lowers the pooled AUC on both populations,
-and at its default the rule matches a cutoff tuned on the same population
-within the pre-registered margin while flagging twice as many non-god classes.
-The verdict is inconclusive on both populations, by the false-positive arm on
-one and the MCC arm on the other, and tuning the rule's constant does not
-change it. A cutoff carried between the populations loses almost nothing, as it
-should against an oracle that is itself a constant. At method level the rule
-is inferior. Against the reviewers every detector is weak on Blob; on Long
-Method the relative rule on cyclomatic complexity has the highest point
-estimate, unresolved against cognitive complexity at 15. The rule's extra flags are
-small classes holding one method at PMD's method threshold, not the large
-coupled classes PMD marks. Concentration finds where
-the complexity is; whether that place is a god unit is a question about
-coupling, for a registered follow-on study.
+God-class and god-method detectors mark concentrated complexity with a
+raw-scale threshold, a weighted method count of 47 or a cyclomatic complexity
+of 14, constants fitted on a corpus and re-fitted when the population moves.
+This paper pre-registers a test of a rule with no raw-scale constant: a unit is
+a god unit when its complexity is a robust outlier for its own codebase, a
+modified z-score of 3.5 or more. On \nUsable{} repositories in ten languages,
+\nJava{} of them Java, and the \mlcqUsable{} Java repositories of MLCQ, the
+rule is scored against PMD's GodClass, MLCQ's reviewers and two further
+definitions, with signal and cutoff chosen on half the repositories and read on
+the rest. LLM-written code gathers its complexity differently, the case for a
+detector that needs no re-fitting; the first question, tested here, is whether
+one can match the single scale of existing human-written code. Against PMD GodClass the rule ranks god classes from the per-file
+maximum of cognitive complexity at a per-repository AUC of \primAucMacro{}
+and, at its literature default, is non-inferior within the pre-registered
+margin to a cutoff tuned on the same population on recovery, on both
+populations. It flags about twice as many non-god classes, so the overall
+verdict is inconclusive. The two populations sit on one scale: a cutoff carried
+between them lost almost nothing, so the test is of matching one human scale,
+not of surviving a shift. The rule's extra flags are small classes holding one method
+at PMD's own method-level threshold, not the large coupled classes PMD marks,
+and two readers of the source could tell the two apart only on whether a class
+works on other objects' data. Concentration finds where the complexity is;
+whether that place is a god unit is a question about coupling, which a
+registered follow-on study takes up.
 \end{abstract}
 
 \section{Introduction}
 
 A god class is a class that does too much. Riel named the heuristic
-\cite{riel1996}, Fowler catalogued the smell as Large Class and its method-level
-twin as Long Method \cite{fowler1999}, and Lanza and Marinescu turned the
-judgement into a detection strategy: a class is a God Class when its weighted
-method count is very high, its cohesion low and it accesses the data of other
-classes \cite{lanza2006, marinescu2004}. Every detector in use follows that
-template. PMD's GodClass rule and DECOR's Blob \cite{moha2010} are conjunctions
-of metric thresholds, and the thresholds are constants on a raw scale: a
-weighted method count of 47, a cyclomatic complexity of 14, a cognitive
-complexity of 15, fifty lines.
-
-Those constants are not arbitrary. Lanza and Marinescu's are frozen percentiles
-of a forty-five project corpus; the benchmark-based methods that followed derive
-each constant from a larger corpus \cite{alves2010, ferreira2012, oliveira2014}.
-But a constant derived from a corpus is a statement about that corpus. It
-encodes how much complexity a reader of that era could be expected to hold, and
-it has to be re-derived when the population moves. If the population is moving,
-as it may be while AI agents take over more of the writing and maintaining of
-code, every raw-scale constant drifts out of calibration with it. There is
-evidence that it is moving: open-source projects that adopted an LLM coding
-agent showed a persistent rise in cognitive complexity against matched projects
-that did not \cite{he2026cursor}, and on one assignment LLM-generated projects
-gathered their complexity into fewer classes \cite{zhang2026llm}. That argument
-motivates this paper. It is not tested by it, and Section~\ref{sec:disc} says
-what the results do and do not say about it.
+\cite{riel1996}, Fowler catalogued the smell as Large Class and its
+method-level twin as Long Method \cite{fowler1999}, and Lanza and Marinescu
+turned the judgement into a detection strategy, a conjunction of metric
+thresholds \cite{lanza2006, marinescu2004}. Every detector in use follows that
+template, and the thresholds are constants on a raw scale: a weighted method
+count of 47, a cyclomatic complexity of 14, a cognitive complexity of 15,
+fifty lines. The constants are frozen percentiles of a corpus
+\cite{lanza2006, alves2010, ferreira2012, oliveira2014}, and a constant
+derived from a corpus is a statement about that corpus. It has to be
+re-derived when the population moves, and there is evidence that it is
+moving: projects that adopted an LLM coding agent showed a persistent rise in
+complexity \cite{he2026cursor}, and on a fixed assignment LLM-generated
+projects gathered their complexity into fewer classes, which the
+threshold-based detectors missed \cite{zhang2026llm}. If agent-written code
+concentrates complexity differently, a detector whose constant is fitted to
+the codebase in front of it would be worth having. Populations of
+agent-written code are not yet available at the scale a pre-registered test
+needs, so the question has to be taken in steps. The first step, and this
+paper's question, is whether such a detector can match the single scale of
+existing human-written code at all: if it cannot recover what the constants
+recover where the constants work, it has nothing to offer where they may not.
 
 The alternative is a rule whose constant lives on a standardised axis.
 Standardise every unit by its own repository's median and median absolute
 deviation and flag the units whose modified z-score is 3.5 or more, Iglewicz
 and Hoaglin's rule \cite{iglewicz1993}. The 3.5 is still a constant, but it is
-fitted on the codebase at the time of use and carries no corpus. The rule is
-scale-free, not constant-free. It asks of a unit not ``is it above 47'' but
-``is it an outlier for this codebase'', and the question stands on its own: it
-needs no premise beyond the observation that a raw-scale constant is a
-statement about a corpus.
-
-The question arose in a companion study \cite{conserved}, which is the context
-for it rather than a premise. Holding a task fixed and letting an AI agent
-implement sixty change requests under two architectures and five instruction
-conditions, that study found the amount of complexity steady to within 7\% to
-20\% across every cell while its placement moved by factors of three to ten.
-Complexity was conserved under change; what architecture and instruction
-decided was where it sat. Conservation does not entail that the places where
-complexity gathers are god units. What it does is make placement, not amount,
-the thing a design decides, which is what turned this study's attention from
-the level of a unit's complexity to its \emph{concentration}. The claim this
-paper tests is:
-
-\begin{quote}
-A scale-free relative outlier in a reasonable per-unit complexity measure
-recovers the classes and methods that tuned, absolute-threshold definitions
-mark, and that human reviewers mark, without a raw-scale constant and without a
-benchmark corpus; and it does so in measures that are not size, so the finding
-is about the concentration rather than about one metric.
-\end{quote}
+fitted on the codebase at the time of use and carries no corpus: the rule is
+scale-free, not constant-free. The question arose in a companion study
+\cite{conserved}, which found the amount of complexity an AI agent produced on
+a fixed task steady across architectures and instructions while its placement
+moved by factors of three to ten. Placement, not amount, was what a design
+decided, and that turned attention from the level of a unit's complexity to
+its \emph{concentration}. The claim this paper tests is that a scale-free
+relative outlier in a per-unit complexity measure that is not size recovers
+the classes and methods that tuned, absolute-threshold definitions mark, and
+that human reviewers mark, without a raw-scale constant.
 
 The claim was pre-registered: the primary estimand, the decision rule and its
 margins, the families a signal may be chosen from, the sample seed and the
-bootstrap were committed and tagged before the confirmatory sample was drawn,
-and the analysis that reads them was written once. The design is deliberately
-tilted against the claim. Every tool definition is itself an absolute
-threshold, the competitor is a single raw-scale cutoff tuned on the explore
-half of the same population, and the relative rule is read at its literature
-default first.
-
-This paper contributes:
+bootstrap were committed and tagged before the confirmatory sample was drawn.
+The design is tilted against the claim: every tool oracle is itself an
+absolute threshold, and the competitor is a cutoff tuned on the explore half
+of the same population, which is the right competitor for the first step,
+since matching a tuned constant on its own population is the bar a scale-free
+rule must clear before a shifted population is worth testing. The paper has
+three findings.
 
 \begin{enumerate}
-\item A pre-registered, two-population test of a scale-free god-unit rule: a
-  seeded, stratified sample of \nUsable{} repositories in ten languages drawn by
-  a separate sampling tool whose only inputs are GitHub's index and criteria
-  fixed in advance, and the \mlcqUsable{} Java repositories of the MLCQ data set
-  with its reviewers' Blob and Long Method labels \cite{mlcq2020}. Every
-  repository is measured at a pinned commit; every rule is fitted on the
-  repository's own units; every number is read on a held-out half.
-\item The primary result. Against PMD's GodClass the rule recovers god classes
-  from the per-file maximum of cognitive complexity, a signal that is not a size
-  sum, at a per-repository AUC of \primAucMacro{}, which falls to
-  \primAucGiven{} within the classes that already pass the size clause. Read
-  against an absolute cutoff tuned on the same population's explore half, every
-  point estimate goes against the relative rule: standardising costs pooled
-  ranking quality on both populations, and at its default the rule matches the
-  cutoff's MCC within the pre-registered margin while flagging about twice as
-  many non-god classes. The pre-registered verdict is \emph{inconclusive}, and
-  tuning the rule's own constant on explore does not change it. At method
-  level the rule is inferior. The result holds in every tier and in both
-  application and library repositories, and MLCQ's population reaches the same
-  verdict by a different arm.
-\item The comparison the plan did not make: the tuned cutoff carried from one
-  population to the other, against the relative rule that was never tuned
-  (Section~\ref{sec:transfer}). The plan's comparisons are the best case for a
-  raw-scale constant, a cutoff tuned and read on one population; this one is
-  what such a constant does on a population it has not seen, against an oracle
-  that is itself one constant on both.
-\item The human-label result, in two parts. The planned read-out, on the signals
-  the plan's own procedure chose, is underpowered and inferior, and the choice
-  exposes a flaw in the plan. An exploratory comparison on the reviewed units
-  finds that no detector, tool or rule, agrees with the reviewers' Blob verdicts
-  beyond an MCC of about \agrBlobMaxMcc{}, and that on Long Method the relative rule on
-  cyclomatic complexity has the highest point estimate of the detectors tried,
-  read with a paired test against each of them.
-\item A full account of the deviations from the plan, each with its effect on
-  the numbers, so a reader can weigh the confirmatory status of each result.
-\item What the false positives are (Section~\ref{sec:fp}): every extra flag of
-  the relative rule characterised by the tool definitions' own component
-  clauses, and a blinded reading of a seeded sample of them beside true
-  positives, by the author and by a language model. By the component clauses
-  the extra flags are small, mostly uncoupled files holding one method at
-  PMD's own method-level threshold. The reading did not settle what they are:
-  the two readers agreed on whether a class works on other objects' data and
-  on little else, the model reader called nearly every class
-  single-responsibility, and each read the extra flags and PMD's god classes
-  more alike than apart. Complexity
-  concentration locates where a codebase's complexity has gathered; whether a
-  concentration is a god unit or a leaf that legitimately holds the complexity
-  of the algorithm it computes is a question about coupling, which a follow-on
-  study, registered before the human-label numbers here existed, takes up.
+\item \textbf{The rule is not worse on recovery, within the margin, and costs
+  false positives.} Against PMD's GodClass on \nJava{} Java repositories and
+  again on MLCQ's \mlcqUsable{}, the per-file maximum of cognitive complexity
+  ranks god classes at a per-repository AUC of \primAucMacro{}, and the rule at
+  its default is non-inferior to a cutoff tuned on the same population on both
+  MCC arms of the decision. It flags about twice as many non-god classes, the
+  false-positive arm does not resolve, and the pre-registered verdict is
+  \emph{inconclusive} on both populations. Tuning the rule's own constant does
+  not change it. At method level the rule is inferior.
+\item \textbf{The two populations share one scale, so the first step is
+  well posed.} A cutoff tuned on one population and carried unchanged to the
+  other, seven years and a sampling frame apart, lost almost nothing. Both are
+  code written largely by people, and on them a single constant holds; the
+  test here is therefore of matching that scale, which the rule does within
+  the margin, and not of surviving a shift, which these populations cannot
+  show. Whether agent-written populations move the scale is the step after
+  the detector is refined.
+\item \textbf{The errors have a shape.} The rule's extra flags are small,
+  mostly uncoupled classes holding one method at PMD's own method-level
+  threshold. Against MLCQ's reviewers no detector, tool or rule, agrees with
+  the Blob verdicts beyond an MCC of about \agrBlobMaxMcc{}, while on Long
+  Method the relative rule on cyclomatic complexity has the highest point
+  estimate of the detectors tried. A blinded reading of the extra flags by the
+  author and by a language model agreed on one question only, whether the
+  class works on other objects' data, and that question separated the extra
+  flags from PMD's god classes to both readers. Concentration locates where a
+  codebase's complexity has gathered; whether the place is a god unit is a
+  coupling question, which a follow-on study, registered before these numbers
+  existed, takes up. A detector refined by that study is what should then be
+  taken to agent-written code.
 \end{enumerate}
 
-\section{Background and related work}
+\section{Background}
 \label{sec:related}
 
-\paragraph{God classes and detection strategies.} The god class is Riel's
-heuristic \cite{riel1996} and Fowler's Large Class \cite{fowler1999}. Marinescu
-made it operational as a \emph{detection strategy}, a conjunction of metric
-filters with thresholds \cite{marinescu2004}, and Lanza and Marinescu fixed the
-thresholds from a corpus of forty-five Java and C++ systems: weighted method
-count at least \emph{very high}, tight class cohesion below one third, access to
-foreign data above \emph{few} \cite{lanza2006}. DECOR expressed the same Blob as a
-rule card over size, cohesion and association with data classes
-\cite{moha2010}. PMD implements the Lanza--Marinescu GodClass directly. Every
-one of these contains a coupling or cohesion clause beside the complexity
-clause; this paper uses them as oracles for the complexity clause and says so
-where it matters.
+Marinescu's detection strategy is a conjunction of metric filters with
+thresholds \cite{marinescu2004}; Lanza and Marinescu fixed the GodClass
+thresholds from forty-five systems \cite{lanza2006}, DECOR expressed the Blob
+as a rule card over size, cohesion and association with data classes
+\cite{moha2010}, and PMD implements the Lanza--Marinescu GodClass directly.
+Every one of these has a coupling or cohesion clause beside the complexity
+clause; this paper uses them as oracles for the complexity clause. That the
+constants are hard to justify is an old observation: Alves, Ypma and Visser
+derived them from a benchmark \cite{alves2010}, Ferreira et al.\ from fitted
+distributions \cite{ferreira2012}, Oliveira, Valente and Lima as relative
+thresholds over a corpus \cite{oliveira2014}, Herbold et al.\ per language
+\cite{herbold2011} and Aniche et al.\ per architectural role
+\cite{aniche2016}. Each still ships a constant derived from systems other
+than the one scored, and Baxter et al.\ found the shape of the distributions
+those constants cut varying with the application \cite{baxter2006}. The rule
+tested here is fitted on each repository's own units at the time of use.
 
-\paragraph{Thresholds.} That the constants matter and are hard to justify is an
-old observation. Alves, Ypma and Visser derived thresholds from a benchmark of
-systems so that a threshold means ``worse than $p$\% of the corpus''
-\cite{alves2010}; Ferreira et al.\ fitted distributions to derive them
-\cite{ferreira2012}; Oliveira, Valente and Lima defined \emph{relative}
-thresholds of the form ``$p$\% of the classes must have $M \leq k$''
-\cite{oliveira2014}. Each replaces an expert's constant with a corpus percentile,
-and each still ships a constant that has to be re-derived when the corpus is no
-longer representative. Tailoring the constant to a context is the nearest line
-of work: Herbold, Grabowski and Waack derive and optimise threshold sets per
-metric set and language from a corpus \cite{herbold2011}, and Aniche et al.'s
-SATT fits a separate threshold to each architectural role of a system, from a
-corpus of systems with that role \cite{aniche2016}. Both still ship a constant
-derived from systems other than the one scored. The distributions those constants cut are heavy-tailed,
-some close to power laws and some not, and Baxter et al.\ found their shape
-varying with the application itself \cite{baxter2006}: one corpus percentile
-lands at a different place in each system's tail. The rule tested here is of a different kind: it is fitted
-on each repository's own units at the time of use and carries no corpus at all.
-What it carries is the standardised-axis constant of the outlier rule, and that
-distinction, scale-free rather than constant-free, is kept throughout.
-
-\paragraph{Robust outlier rules.} The modified z-score with the median absolute
-deviation is Iglewicz and Hoaglin's \cite{iglewicz1993}; Tukey's fence is the
-boxplot whisker \cite{tukey1977}; Hubert and Vandervieren adjusted the fence for
-skew with the medcouple \cite{hubert2008, brys2004}; peaks over a high threshold
-with a generalised Pareto tail is the extreme-value route \cite{pickands1975}. All
-are fitted on the population they score. The study runs all of them, and a
-classic mean-and-standard-deviation z-score as the parametric control, and
-reads the modified z-score as its primary because its constant is the one the
-literature gives.
-
-\paragraph{Complexity measures.} Cyclomatic complexity \cite{mcCabe1976}, Halstead
-volume \cite{halstead1977}, the maintainability index built on them
-\cite{oman1992}, Campbell's cognitive complexity \cite{campbell2018}, nesting
-depth, lines, tokens, parameters and exit points are all measured per function,
-and per file as sums, means and maxima. They are known to be correlated, and
-that is the point: if the result holds across them it is about concentration,
-not about one metric. Tempero and Ralph argue that no one of them is a measure of
-complexity: cyclomatic complexity counts linearly independent paths, ``at most
-one facet'' of the construct, and a construct of several facets needs a
-measurement model of several indicators rather than a search for the best
-single metric \cite{tempero2026}. A factor analysis of class-level metrics
-supports the warning, finding size a construct of its own and complexity not
-cleanly one \cite{arif2026}. This study fits no such model; it tests a rule on
-each indicator and reads one primary, and the families below are its guard
-against the indicator that is really size. The confound that matters is size. El Emam et al.\ showed
-that most object-oriented metrics are confounded with class size
-\cite{elemam2001}, and every per-file sum is nearly collinear with the size
-clause of every definition. The study therefore assigns every signal to a family
-in advance, size, peak or density at class level, and the primary may be chosen
+The confound that matters is size: El Emam et al.\ showed most
+object-oriented metrics confounded with class size \cite{elemam2001}, and every
+per-file sum is nearly collinear with the size clause of every definition. The
+study therefore assigns every signal to a family in advance, \emph{size}
+(per-file sums and the method count), \emph{peak} (per-file maxima) and
+\emph{density} (per-file means) at class level, and the primary may be chosen
 from the peak and density families only.
 
-\paragraph{Concentration as a system property.} Vasa, Lumpe, Branch and
-Nierstrasz measured how unevenly metrics are spread across a system with the
-Gini coefficient and found the values stable as systems evolve \cite{vasa2009};
-Serebrenik and van den Brand used the Theil index for the same purpose
-\cite{serebrenik2010}. Zhang, Wen and Tempero's \emph{max-percentage}, the
-largest class's share of a project's weighted method count, lines or coupling,
-is the summary closest to a god unit \cite{zhang2026llm}, but it reads one class
-per project and is bounded below by one over the number of classes, so a design
-with fewer classes raises it on that account alone. Those are system-level
-summaries of concentration. This paper names the units that hold it.
-
-\paragraph{Human labels and their critique.} Tool definitions are themselves
-imperfect, so a study of detectors needs human ground truth. MLCQ is a data set
-of code smell reviews by professional developers on Java open-source samples,
-graded without a given definition and with several reviewers per sample
-\cite{mlcq2020}; classifiers trained on it reach a median MCC of about 0.51 for
-Blob and 0.81 for Long Method \cite{mlcq2023}. Those models learn from the
-labels; the rule here never sees them, so those figures are a reference point,
-not a baseline. Fontana et al.\ compared machine learning on hand-validated
-smell instances from the Qualitas Corpus \cite{fontana2016}, and Di Nucci et
-al.\ showed that the balanced, extreme construction of such sets inflates every
-detector's apparent accuracy \cite{dinucci2018}. Schumacher et al.\ found that
-developers agree with one another only moderately on god classes and that
-metric detectors compare well with them \cite{schumacher2010}; Palomba et al.'s
-Landfill is a further public set \cite{landfill2015}. MLCQ's reviewers graded
-samples without the repository in view, so a human label is an absolute
-judgement too, by a reader's own budget rather than a tool's constant. That makes
-the human labels external, not scale-free, and the only oracle with no
+MLCQ is a data set of code smell reviews by professional developers on Java
+open-source samples, graded without a given definition and with several
+reviewers per sample \cite{mlcq2020}; classifiers trained on it reach a median
+MCC of about 0.51 for Blob and 0.81 for Long Method \cite{mlcq2023}, a
+reference point rather than a baseline, since the rule here never sees the
+labels. Schumacher et al.\ found developers agree with one another only
+moderately on god classes \cite{schumacher2010}. The reviewers graded samples
+without the repository in view, so a human label is an absolute judgement by a
+reader's own budget: external, not scale-free, and the one oracle with no
 numeric constant inside it.
 
-\paragraph{Evaluation.} Flagged sets are scored by the Matthews correlation
-coefficient, which Chicco and Jurman show to be the balanced choice for rare
-positives \cite{chicco2020}; signals, independently of any cut, by the
-Mann--Whitney AUC. Rules and signals are compared across repositories with the
-Friedman test, the Iman--Davenport correction and the Nemenyi critical
-difference, as Dem\v{s}ar recommends for comparing methods over many data sets
-\cite{demsar2006}. Intervals are percentile bootstraps that resample
-repositories \cite{davison1997}. The pre-registration follows the discipline
-Nosek et al.\ argue for \cite{nosek2018}: the plan was committed and tagged
-before the confirmatory sample existed, and everything outside it is labelled
-exploratory.
+Flagged sets are scored by the Matthews correlation coefficient
+\cite{chicco2020}, signals by the Mann--Whitney AUC, and intervals are
+percentile bootstraps that resample repositories \cite{davison1997}. The
+pre-registration follows Nosek et al.\ \cite{nosek2018}: the plan was
+committed and tagged before the confirmatory sample existed, and everything
+outside it is labelled exploratory.
 
 \section{The claim and how it is read}
 \label{sec:claim}
 
-\paragraph{Relative against absolute.} An absolute rule flags a unit when a raw
-measure exceeds a constant: $x \geq k$. A relative rule standardises the unit by
-its own repository's distribution and applies its constant on that axis. The
-primary rule here is the modified z-score,
+The primary rule is the modified z-score,
 \begin{equation}
 z(x) = \frac{0.6745\,(x - \tilde{x})}{\mathrm{MAD}}, \qquad \text{flag when } z \geq 3.5,
 \end{equation}
-with $\tilde{x}$ the median and MAD the median absolute deviation of every unit
-in the repository at that level, zeros included. When more than half the units
-tie at the median the MAD is zero and the rule falls back to the mean absolute
-deviation with its normal consistency constant; which scale was used is
-recorded per repository and signal, because a standardised constant transfers
-only between populations whose standardised axis means the same thing. The
-rule is therefore scale-free but not shape-free, and Section~\ref{sec:diag}
-reports the shape diagnostics before any accuracy number.
+with $\tilde{x}$ the median and MAD the median absolute deviation of every
+unit in the repository at that level, zeros included. When more than half the
+units tie at the median the MAD is zero and the rule falls back to the mean
+absolute deviation with its normal consistency constant; which scale was used
+is recorded, because the rule is scale-free but not shape-free.
 
-\paragraph{Three ways to be wrong.} The claim is read three ways, and the limits
-of each are stated with it.
+\paragraph{Three readings.} A within-repository AUC is invariant to any
+monotone per-repository transform, so it is identical under the relative and
+the absolute view: it is evidence about the signal, never about
+scale-freeness. The threshold-free reading pools every repository's units into
+one ranking, once on the raw value and once on the per-repository modified z,
+and compares the two pooled AUCs as a paired difference. The operating-point
+reading compares the relative rule at its literature default with the single
+raw-scale cutoff that maximised the pooled MCC on the explore half, both on the
+confirm half. Every tool definition is itself an absolute threshold, so this
+comparison is tilted toward the absolute competitor: a relative win is strong
+evidence, a relative loss weak evidence against relative rules in general. A
+relative rule also cannot see what an absolute rule uses: in a repository of
+uniformly small classes it must still flag something and PMD marks nothing.
+Those false positives are reported, and the decision has an arm that sees
+them.
 
-\emph{Ranking.} The AUC of a signal against a definition within a repository,
-read on the confirm half, says whether the signal ranks god units above the
-rest without any cut. But a within-repository AUC is invariant to any monotone
-per-repository transform, so it is identical under the relative and the
-absolute view. It is evidence about the signal, never about scale-freeness.
-
-\emph{Across measures.} Every signal belongs to a family fixed in advance:
-at class level \emph{size} (every per-file sum and the method count), \emph{peak}
-(every per-file maximum) and \emph{density} (every per-file mean); at method level
-\emph{size} (lines, tokens, Halstead volume), \emph{structure} (cyclomatic,
-cognitive, nesting, exit points) and \emph{density} (cyclomatic density,
-maintainability burden, parameters). A size signal recovering a definition whose
-first clause is a size threshold is size recovering size. The primary signal is
-chosen from the peak and density families only, a signal that is an ingredient
-of a definition may never headline it, and the AUC is also read within the units
-that already pass the definition's size clause.
-
-\emph{Relative against a tuned constant.} The threshold-free form pools the
-units of every repository into one ranking, once on the raw value and once on
-the per-repository modified z, and compares the two pooled AUCs as a paired
-difference. The operating-point form reads the relative rule at its literature
-default against the single raw-scale cutoff that maximised the pooled MCC on the
-explore half, both on the confirm half, on three paired arms. Every tool
-definition is itself an absolute threshold, so this comparison is tilted toward
-the absolute competitor: a relative win is strong evidence, a relative loss is
-weak evidence against relative rules in general.
-
-\paragraph{What per-repository standardisation discards.} A relative rule
-cannot see the information an absolute rule uses. In a repository of uniformly
-small classes it must still flag something and PMD marks nothing; in one of
-uniformly huge classes PMD marks many and the rule flags few. Agreement is
-bounded by how homogeneous repositories are, and the false positives in
-god-free repositories are where that bound shows. They are reported rather than
-argued away, and the decision rule has an arm that sees them.
-
-\paragraph{The decision rule.} Pre-registered, and read as the weakest of three
-paired comparisons of the relative rule at its default minus the tuned absolute
-cutoff, each on the same confirm repositories with a 95\% percentile bootstrap
-of 2{,}000 resamples over repositories at a fixed seed:
-\begin{itemize}
-\item \emph{macro MCC}, the mean per-repository MCC difference over the confirm
-  repositories with at least one positive (the MCC is 0 for both rules in a
-  god-free repository, and such $0-0$ pairs would only narrow the interval);
-\item \emph{micro MCC}, the pooled MCC difference over every confirm repository
-  carrying the definition, god-free ones included, the arm that sees their
-  false positives;
-\item \emph{macro FPR}, the mean per-repository false-positive-rate difference
-  over every confirm repository, lower being better.
-\end{itemize}
-On the MCC arms the relative rule is \emph{superior} if the lower bound of the
-difference is above 0, \emph{non-inferior} if it is above $-m$, \emph{inferior}
-if the upper bound is below $-m$, and \emph{inconclusive} otherwise, with
-$m = \min(0.10,\ 0.30 \times$ the explore-half macro MCC of the relative rule on
-the chosen signal$)$. On the FPR arm the rule is non-inferior if the upper bound
-of the difference is below $+0.05$, superior if below 0, inferior if the lower
-bound is above $+0.05$. The signal is said to carry the definition only if the
-lower bound of the confirm macro AUC is at least 0.70, and the primary is read as
-confirmatory only on at least 20 confirm repositories with three or more
-positives and 40 carrying the definition. The power analysis behind these
-constants, from a seed-1 pilot, is in the registered plan: a margin of 0.05 was
-not resolvable at any affordable sample, 0.10 from about sixty confirm
-repositories. A margin of 0.10 is large against the MCC levels realised here,
-about a third of the confirm macro MCC, so non-inferiority on an MCC arm is a
-weak bar, and the point estimates are read beside the verdict for that reason.
+\paragraph{The decision rule.} Pre-registered, and read as the weakest of
+three paired comparisons of the relative rule at its default minus the tuned
+absolute cutoff, each on the same confirm repositories with a 95\% percentile
+bootstrap of 2{,}000 resamples over repositories: \emph{macro MCC}, the mean
+per-repository MCC difference over the confirm repositories with at least one
+positive; \emph{micro MCC}, the pooled MCC difference over every confirm
+repository carrying the definition, god-free ones included; and \emph{macro
+FPR}, the mean per-repository false-positive-rate difference over every
+confirm repository, lower being better. On the MCC arms the relative rule is
+\emph{superior} if the lower bound of the difference is above 0,
+\emph{non-inferior} if above $-m$, \emph{inferior} if the upper bound is
+below $-m$, and \emph{inconclusive} otherwise, with $m = \min(0.10,\ 0.30
+\times$ the explore-half macro MCC of the relative rule$)$. On the FPR arm the
+rule is non-inferior if the upper bound is below $+0.05$, superior if below 0,
+inferior if the lower bound is above $+0.05$. A signal carries the definition
+only if the lower bound of the confirm macro AUC is at least 0.70, and the
+primary is confirmatory only on at least 20 confirm repositories with three or
+more positives and 40 carrying the definition. The power analysis behind these
+constants, from a seed-1 pilot of \nPilot{} repositories, is in the registered
+plan: a margin of 0.05 was not resolvable at any affordable sample, 0.10 from
+about sixty confirm repositories. A margin of 0.10 is about a third of the MCC
+levels realised here, so non-inferiority on an MCC arm is a weak bar, and the
+point estimates are read beside the verdict for that reason.
 
 \section{Study design}
 \label{sec:design}
 
 \paragraph{Sample.} Repositories are drawn by a seeded, stratified sampler, a
-separate tool of the author's, whose only inputs are GitHub's search index and
-criteria fixed before any repository is inspected: ten languages, Java, Python, JavaScript,
-TypeScript, Go, C, C++, C\#, PHP and Rust, by three popularity tiers, more than
-5{,}000 stars, 1{,}000 to 5{,}000, and 200 to 999, each stratum enumerated whole
-(\samplePopulation{} repositories in the frame; GitHub's index returns at most
-1{,}000 results per query, so the sampler splits a stratum into star bands and
-then creation-date bands until every band fits under that cap, and lists each
-band whole) and shuffled under the pre-registered seed 2. A candidate is \emph{usable} on size alone, at least 50
-functions in at least 15 source files with a function, decided before any
-detection outcome. The author's own ecosystem, the GitHub owners
-\texttt{officefloor} and \texttt{sagenschneider}, is excluded. Each language is
-drawn to 30 usable repositories, and because every composite class-level
-definition and every tool method-level definition is Java-only, a Java
-supplement is drawn with the same seed to 150. Each repository is pinned to the
-commit its default branch was on when drawn and only that commit is measured.
-The main draw produced \sampleMainDrawn{} candidates (\sampleMainUsable{}
-usable, \sampleMainExcluded{} excluded by the criteria, \sampleMainError{}
-clone errors) and the supplement \sampleSuppDrawn{} (\sampleSuppUsable{} usable);
-the two draws share \sampleOverlap{} Java repositories, each measured once,
-and one candidate in both draws (\sampleFailedRepos{}) could not be checked out,
-leaving \nUsable{}. The sampler classifies each candidate by its measured
-dominant language, so a candidate drawn in one language's stratum can be usable
-under another; \sampleCrossStratumN{} main-draw repositories are
-(\sampleCrossStratumLangs{}), which is why two languages exceed 30 in
-Table~\ref{tab:sample}. Ruby was not sampled because the pinned parser
-mis-bounds Ruby functions.
+separate tool of the author's whose only inputs are GitHub's search index and
+criteria fixed before any repository is inspected: ten languages (Java,
+Python, JavaScript, TypeScript, Go, C, C++, C\#, PHP and Rust) by three
+popularity tiers (above 5{,}000 stars, 1{,}000 to 5{,}000, 200 to 999),
+\samplePopulation{} repositories in the frame, shuffled under the
+pre-registered seed 2. A candidate is usable on size alone, at least 50
+functions in at least 15 source files, decided before any detection outcome.
+The author's own ecosystem is excluded. Each language is drawn to 30 usable
+repositories and, because every composite class-level definition is Java-only,
+a Java supplement is drawn with the same seed to 150, giving \nJava{} Java
+repositories among \nUsable{}. Each repository is pinned to the commit its
+default branch was on when drawn. The \nUsable{} rows have \nOwners{} distinct
+GitHub owners, so the bootstrap's assumption of independent repositories is
+close to met in the main run; it is not met in the MLCQ run, where
+\mlcqTopOwner{} alone holds \mlcqApacheShare{} of the repositories, and MLCQ's
+intervals are read with that in mind.
 
 \paragraph{Measurement.} Every function of every source file outside test,
-vendored and build directories is measured with lizard \cite{lizard} for its
-cyclomatic complexity, lines and tokens and by the harness's own scanners for
-cognitive complexity, nesting depth, Halstead volume, maintainability burden
-($100 - \mathrm{MI}$), exit points and parameters. Class level is the file,
-which holds for Java and loosely elsewhere, with each measure aggregated over
-every function in the file as a sum, a mean and a maximum, plus the method
-count; the cyclomatic sum \emph{is} WMC \cite{ck1994}. PMD and CK report per class, and a
-file is positive under a class definition when any class it holds meets it,
-nested and anonymous classes included; CK found more than one class in
-\javaFilesMulti{} of the \javaFilesCk{} Java files it parsed
-(\javaFilesMultiPct{}), so a file's maximum is over the methods of every class
-in it and a nested class's god verdict is credited to its file. Generated files, files over 1~MB and files the parser fails on leave the
-universe and are counted. The lexical estimators are calibrated continuously
-against PMD's own values on every Java method (Section~\ref{sec:diag}).
+vendored and build directories is measured with lizard \cite{lizard} for
+cyclomatic complexity \cite{mcCabe1976}, lines and tokens, and by the
+harness's own scanners for cognitive complexity \cite{campbell2018}, nesting,
+Halstead volume, maintainability burden, exit points and parameters. Class
+level is the file, with each measure aggregated over the file's functions as a
+sum, a mean and a maximum, plus the method count; the cyclomatic sum is WMC
+\cite{ck1994}. A file is positive under a class definition when any class it
+holds meets it; \javaFilesMultiPct{} of Java files hold more than one class.
+The lexical estimators track PMD's own values on every Java method at Spearman
+\calibCcRho{} for cyclomatic and \calibCognitiveRho{} for cognitive, with AUCs
+against PMD's own thresholds of \calibCcAuc{} and above, so a weak result
+cannot be blamed on the estimators.
 
-\paragraph{Definitions.} Every definition is declared in a registry written with
-the run, with its level, kind, origin, constant and \emph{ingredients}, the
-signals its definition is built from, closed over derived signals and, at class
-level, every aggregation. Table~\ref{tab:registry} (Appendix~\ref{app:tables}) lists the
-ones this paper reads. The headline definitions are PMD's GodClass (tool, Java, class level),
-PMD's NPath rule at 200 \cite{nejmeh1988} (tool, Java, method level), an
-approximate DECOR Blob
-composed from CK's counts \cite{cktool} with the association clause omitted
-(composed, Java), the study's own Brain Method, the conjunction of fifty lines,
-cyclomatic 14 and nesting 5 (internal, every language, and read as internal
-consistency, never as recovery of an external definition), and the human labels
-of MLCQ. PMD and CK run without an auxiliary classpath, so ATFD and CBO see only
-what the sources declare; the size of that under-count is measured
-(Section~\ref{sec:classpath}).
+\paragraph{Definitions and rules.} The headline definitions are PMD's GodClass
+(tool, Java, class level), PMD's NPath rule at 200 \cite{nejmeh1988} (tool,
+Java, method level), an approximate DECOR Blob composed from CK's counts
+\cite{cktool} as its LargeClass and LowCohesion clauses alone, the
+ControllerClass and association clauses omitted (composed, Java), the study's
+own Brain Method (fifty lines, cyclomatic 14 and nesting 5; internal, every
+language, read as internal consistency only), and the human labels of MLCQ.
+PMD and CK run without an auxiliary classpath; the size of that under-count is
+bounded in Section~\ref{sec:deviations}. Every rule is fitted on exactly the
+population it scores, the whole per-level universe of the repository with
+zeros included. A definition scoped to Java is scored on Java units only.
 
-\paragraph{Rules.} Seven relative outlier rules, each fitted on exactly the
-population it scores, the whole per-level universe of the repository with zeros
-included, never a positive-only subset (Table~\ref{tab:rules}, Appendix~\ref{app:tables}). A definition
-scoped to Java is scored on the Java units only, so a Kotlin file in a Java
-repository that PMD never evaluated is not a forced negative.
-
-\paragraph{Split and choices.} Every usable repository is assigned to an explore
-or a confirm half from the sample file alone, stratified by language and tier,
-ordered by a hash of its URL and alternated, and the assignment is written to
-disk and recorded in every row before the first repository is measured. The
-primary signal is chosen on explore among the peak and density families by the
-macro mean per-repository AUC over repositories with at least three positives;
-the absolute competitor is the single raw cutoff maximising the pooled MCC on
-explore; a tuned relative cut is chosen the same way as a secondary. All are
-read on confirm. Each secondary definition gets the same read-outs and the same
-paired decision, labelled secondary, with no multiplicity correction and no
-power to change the primary verdict.
+\paragraph{Split and choices.} Every usable repository is assigned to an
+explore or a confirm half from the sample file alone, stratified by language
+and tier, and the assignment is recorded in every row before the first
+repository is measured. The primary signal is chosen on explore among the peak
+and density families by the macro mean per-repository AUC over repositories
+with at least three positives; the absolute competitor is the single raw cutoff
+maximising the pooled MCC on explore; a tuned relative cut is chosen the same
+way as a secondary. All are read on confirm. Each secondary definition gets
+the same read-outs and the same paired decision, with no multiplicity
+correction and no power to change the primary verdict.
 
 \paragraph{The MLCQ sub-study.} MLCQ 1.1 holds \mlcqSamples{} reviews over
-\mlcqRepos{} Java repositories at 2019 commits \cite{mlcq2020}. Its samples were
-drawn at random from the classes and methods of its projects, in the longest
-phase from those longer than four lines, and a final cross-check phase
-re-reviewed samples already graded above \emph{none} on which reviewers had
-disagreed, so the reviewed units are a random draw enriched by re-review and
-the positive rate among them is not a population base rate. Its Blob and
-Long Method reviews are converted with a pre-registered rule, a sample is
-positive when a strict majority of its reviews grade the smell above
-\emph{none}, giving \mlcqBlob{} Blob positives among \mlcqBlobReviewed{}
-reviewed classes and \mlcqLm{} Long Method positives among \mlcqLmReviewed{}
-reviewed methods, one commit per repository. Every repository is measured at its
-labelled commit with the same harness, split the same way, and the human
-definitions are scored \emph{within the reviewed units only}: a class no
-reviewer looked at is unknown, not a negative, while every rule is still fitted
-on the repository's whole Java population. Because MLCQ reviewed a handful of
-units per repository, the plan decides the human definitions on the micro arm
-alone and reports the macro arms. The sub-study is a different population,
-chosen by MLCQ, and is reported beside the main run, never pooled with it. The
-same run also re-reads the whole main plan against PMD's GodClass on MLCQ's
-\mlcqUsable{} repositories, a replication on a second population.
-
-\paragraph{Scale.} \nUsable{} usable repositories in the main run,
-\totalFunctions{} functions in \totalFiles{} files; \mlcqUsable{} usable
-repositories in the MLCQ run, \mlcqTotalFunctions{} functions. Measurement was
-done by the harness at a committed revision recorded in every row
-(\harnessCommit{} for the main run, \mlcqHarnessCommit{} for the MLCQ run), with
+\mlcqRepos{} Java repositories at 2019 commits \cite{mlcq2020}; \mlcqRunDone{}
+could be measured at their labelled commit and \mlcqUsable{} cleared the
+substance floor. Its reviewed units are a random draw enriched by re-review of
+disputed samples, so the positive rate among them is not a population base
+rate. Reviews are converted with a pre-registered rule, a sample is positive
+when a strict majority of its reviews grade the smell above \emph{none},
+giving \mlcqBlob{} Blob positives among \mlcqBlobReviewed{} reviewed classes
+and \mlcqLm{} Long Method positives among \mlcqLmReviewed{} reviewed methods.
+The human definitions are scored within the reviewed units only, a class no
+reviewer looked at being unknown rather than negative, while every rule is
+fitted on the repository's whole Java population; because MLCQ reviewed a
+handful of units per repository, the plan decides the human definitions on
+the micro arm alone. The same run re-reads the whole main plan against PMD's
+GodClass on MLCQ's repositories, a replication on a second population.
+Measurement was done by the harness at a committed revision recorded in every
+row (\harnessCommit{} for the main run, \mlcqHarnessCommit{} for MLCQ), with
 lizard 1.23.0, PMD 7.27.0 and CK 0.7.0 pinned by version and checksum.
 
-\paragraph{Timeline, and what was seen when.} The plan was committed and tagged
-on 2026-10-18, after same-day revisions of its margin and decision rule and
-hours before the confirmatory sample was drawn, with the seed-1 pilot of
-\nPilot{} repositories in hand; the pilot shaped the plan's constants, never a
-repository's result. The tag, \texttt{plan-v1}, sits at the harness revision
-every row of the main run records (\harnessCommit{}), in the public repository
-named in the ancillary README. That history is the author's own record; no
-third-party timestamp was registered, and a reader should weigh the
-pre-registration accordingly. The main run completed overnight and its confirmatory analysis was written once, on
-\analysedUtc{}, with its digest committed. The classpath validation that the
-plan required \emph{before} the confirm half was read was run \emph{after} it,
-on 2026-10-19, on explore repositories only; its re-analysis
-(\reanalysedUtc{}) changed no number and is reported as a deviation
-(Section~\ref{sec:classpath}). The MLCQ run was analysed on
-\mlcqAnalysedUtc{}. The human-label read-out in Section~\ref{sec:human} was
-first computed by this paper's scripts on 2026-10-20, and the regeneration of
-\humComputedUtc{} that the numbers here are printed from reproduced every one
-of them (Section~\ref{sec:deviations}); the follow-on study
-mentioned in Section~\ref{sec:disc} registered its plan before that read-out
-existed, and its plan records what of this study it had seen.
+\paragraph{Timeline.} The plan was committed and tagged (\texttt{plan-v1}) on
+2026-10-18, hours before the confirmatory sample was drawn. That history is the
+author's own record; no third-party timestamp was registered. The main run's
+confirmatory analysis was written once, on \analysedUtc{}, with its digest
+committed; the MLCQ run was analysed on \mlcqAnalysedUtc{}. The follow-on
+study mentioned in Section~\ref{sec:disc} registered its plan before the
+human-label read-out here existed.
 
 \section{Results}
 
-\subsection{Diagnostics, read first}
+\subsection{Shape, read first}
 \label{sec:diag}
 
-Table~\ref{tab:sample} gives the realised sample. The split is frozen and
-recorded in every row, no row was measured from a dirty tree, \runDone{} usable candidates were
-measured and \runFailed{} could not be cloned. The main
-sample's \nJavaMain{} Java repositories are joined by \nJavaSupp{} from the
-supplement, so every Java-only definition is read on \nJava{} repositories while
-every all-language statistic is read on the main sample's \nMainSample{}. One
-repository (\pilotOverlapRepo{}) is also in the seed-1 pilot the plan was shaped
-on; it is retained, and the primary re-read without it is identical. The
-\nUsable{} rows have \nOwners{} distinct GitHub owners, with \nRowsSharingOwner{}
-rows sharing an owner, so the bootstrap's assumption of independent
-repositories is close to met in the main run. It is not met in the MLCQ run,
-where \mlcqTopOwner{} alone holds \mlcqTopOwnerN{} of \mlcqUsable{} repositories
-(\mlcqApacheShare{}) and \mlcqOwners{} owners hold all of them; its intervals are
-narrower than that dependence warrants and are read with that in mind.
-
-\begin{table}[t]
-\centering
-\caption{Usable repositories of the main run by language and popularity tier,
-split into the explore and confirm halves before measurement. Java is the
-main sample's 30 plus the supplement.}
-\label{tab:sample}
-\small
-\fitwidth{\input{generated/tab_sample}}
-\end{table}
-
-\paragraph{Calibration.} The lexical estimators track PMD's own values on every
-Java method (Table~\ref{tab:calibration}): Spearman \calibCcRho{} for
-cyclomatic, \calibCognitiveRho{} for cognitive and \calibNlocRho{} for lines
-against PMD's NCSS, with AUCs against PMD's own thresholds of \calibCcAuc{} and
-above. A weak result below cannot be blamed on the estimators.
-
-\begin{table}[t]
-\centering
-\caption{Calibration of the lexical estimators against PMD's values, per
-repository (macro mean with a 95\% bootstrap interval), and the AUC of each
-estimator against PMD's own threshold rule on the same measure.}
-\label{tab:calibration}
-\small
-\fitwidth{\input{generated/tab_calibration}}
-\end{table}
-
-\paragraph{Shape.} At class level the chosen signal's modified z used the MAD
-scale in \scaleCogMaxMad{} of repositories, with \scaleCogMaxZeros{} of files
-scoring zero on it on average (a file whose every method has cognitive
-complexity 0). At method level the zero-heavy signals fall back to the mean
-absolute deviation far more often: cyclomatic complexity, which is 1 for more
-than half of all methods, used the MAD scale in only \scaleMethodCcMad{} of
-repositories, and cognitive complexity, zero for \scaleMethodCogZeros{} of
-methods, in \scaleMethodCogMad{}. Trivial methods (cyclomatic 1) are
-\trivialJava{} of Java's units and between \trivialMin{} and \trivialMax{}
-across languages; anonymous callbacks are \anonJs{} of JavaScript's units and
-\anonTs{} of TypeScript's. The method-level rule is therefore fitted on
-populations that tie at the floor, and its flag rate is a property of the
-tail's shape as much as of its constant.
-
-\paragraph{Does the constant transfer?} Figure~\ref{fig:flagrates} gives the
-share of units the modified z-score at 3.5 flags, per repository and language.
-At class level on \sig{cognitive\_max} the language medians run from
-\flagClassMadMin{} to \flagClassMadMax{}, at method level on \sig{cognitive}
-from \flagMethodMadMin{} to \flagMethodMadMax{}, with wide spread within every
-language. The constant transfers in the sense that no language sits apart; it
-does not in the sense that the share flagged is far from constant, which an
-absolute threshold would not promise either.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/flag_rates.pdf}
-\caption{The share of units the modified z-score at its default flags, per
-repository, by language. Every repository of the main run; a box is the
-interquartile range, the line the median.}
-\label{fig:flagrates}
-\end{figure}
+At class level the chosen signal's modified z used the MAD scale in
+\scaleCogMaxMad{} of repositories. At method level the zero-heavy signals fall
+back to the mean absolute deviation far more often: cyclomatic complexity,
+which is 1 for more than half of all methods, used the MAD scale in only
+\scaleMethodCcMad{} of repositories. The method-level rule is therefore fitted
+on populations that tie at the floor, and its flag rate is a property of the
+tail's shape as much as of its constant. At class level the default flags
+between \flagClassMadMin{} and \flagClassMadMax{} of files in the median
+repository of each language: no language sits apart, but a rule that admits a
+tenth of the population is not an outlier rule in the usual sense, and the
+heavy tail against a small MAD that collapses the method-level rule is present
+at class level too, in milder form.
 
 \subsection{The primary: PMD GodClass at class level}
 \label{sec:primary}
 
 PMD's GodClass is present on \primCarryEx{} explore and \primCarryCo{} confirm
-Java repositories, marking \primPosEx{} and \primPosCo{} files; \primMinPosEx{}
-and \primMinPosCo{} repositories carry three or more, which is where a
-per-repository AUC is read. The median Java repository has \pmdGodsMedian{} PMD
-god classes and \pmdGodFreeShare{} have none.
+Java repositories; \primMinPosCo{} confirm repositories carry three or more
+god classes, where a per-repository AUC is read, and \pmdGodFreeShare{} of
+Java repositories carry none. Among the peak and density families the
+per-file maximum of cognitive complexity, \sig{cognitive\_max}, had the
+highest macro AUC on explore, \primExploreAuc{}, ahead of \primExploreSecond{}
+at \primExploreSecondAuc{}; its absolute competitor is \sig{cognitive\_max}
+$\geq \primCut$. A per-file maximum is a method-level property lifted to class
+level: it asks whether the file holds a repository-extreme method, which is
+worth holding in mind when the false positives are read
+(Section~\ref{sec:fp}).
 
-\paragraph{Chosen on explore.} Among the peak and density families, the
-per-file maximum of cognitive complexity, \sig{cognitive\_max}, had the highest
-macro mean per-repository AUC on the explore half, \primExploreAuc{}, ahead of
-\primExploreSecond{} at \primExploreSecondAuc{}; the peak family led, and the
-best density signal, \primExploreBestDensity{} at \primExploreBestDensityAuc{},
-beat only the weakest peak (Table~\ref{tab:explore}). Its absolute competitor,
-the cutoff maximising the pooled MCC on explore, is \sig{cognitive\_max} $\geq
-\primCut$.
-
-\begin{table}[t]
-\centering
-\caption{The explore-half choice of the primary signal: macro mean
-per-repository AUC against PMD GodClass over the explore repositories with at
-least three god classes, peak and density families, ingredients excluded.}
-\label{tab:explore}
-\small
-\fitwidth{\input{generated/tab_explore_primary}}
-\end{table}
-
-\paragraph{Read on confirm.} The signal carries the definition. Its macro
-per-repository AUC on confirm is \primAucMacro{}, interval \primAucMacroCI{}
-over \primAucMacroN{} repositories, clearing the 0.70 floor; within the files
-that already pass the WMC $\geq 47$ clause it falls to \primAucGiven{}
-\primAucGivenCI{}: much of what the signal separates is the size clause, and
-something is left beyond it. The peak is not a sum, but it is not free of size
-either. Per repository, \sig{cognitive\_max} correlates with the sum of lines at
-Spearman \sizeRhoNlocSum{} \sizeRhoNlocSumCI{} and with the method count at
-\sizeRhoNom{} \sizeRhoNomCI{} over the \sizeRhoNomN{} confirm repositories: a
-file with more methods has a higher maximum, and the family labelling is read
-with that in mind. Figure~\ref{fig:aucbysignal} shows the same
-per-repository AUC for every class signal: the size family sits highest, as
-size recovering size should, the peak family next, and the density family
-lowest and widest.
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=\textwidth]{figures/auc_by_signal.pdf}
-\caption{Per-repository AUC of every class-level signal against PMD GodClass on
-the confirm half, grouped by family. One point per repository with at least
-three god classes; the box is the interquartile range. Size signals are grey
-because the plan never allowed one to headline a definition with a size clause.}
-\label{fig:aucbysignal}
-\end{figure}
-
-The threshold-free comparison goes against the relative view. Pooling every
-confirm unit into one ranking, the AUC is \primPooledAucRaw{} on the raw value
-and \primPooledAucStd{} on the per-repository modified z, a paired difference of
-\primPooledAucDiff{} with interval \primPooledAucDiffCI{}: \emph{\primPooledAucReading}.
-Standardising each repository by its own scale costs a little ranking quality
-against a definition that is itself an absolute threshold, which is the
-direction the tilt predicts.
+\paragraph{Read on confirm.} The signal carries the definition: macro AUC
+\primAucMacro{}, interval \primAucMacroCI{} over \primAucMacroN{}
+repositories, falling to \primAucGiven{} \primAucGivenCI{} within the files
+that already pass the WMC $\geq 47$ clause. Much of what the signal separates
+is the size clause, and something is left beyond it; the peak correlates with
+the sum of lines at Spearman \sizeRhoNlocSum{} per repository. The
+threshold-free comparison goes against the relative view: pooled over every
+confirm unit the AUC is \primPooledAucRaw{} raw and \primPooledAucStd{}
+standardised, a paired difference of \primPooledAucDiff{}
+\primPooledAucDiffCI{}, \primPooledAucReading.
 
 \begin{table}[t]
 \centering
@@ -680,10 +395,7 @@ direction the tilt predicts.
 literature default against the absolute cutoff tuned on explore, and the tuned
 relative cut as a secondary. Macro is one repository, one vote, over the
 \primCarryCo{} confirm repositories carrying the definition, god-free ones at
-MCC 0; over the \primMacroMccPosN{} with at least one god class, the population
-of the decision's macro arm and of the explore level (\primExploreLevel{}), the
-two macro MCCs are \primRelMacroMccPos{} and \primAbsMacroMccPos{}. Micro pools
-their units. ``FP in god-free'' is the number of flags in the \primNGodFree{}
+MCC 0. ``FP in god-free'' is the number of flags in the \primNGodFree{}
 confirm repositories where PMD marks nothing.}
 \label{tab:confirm-primary}
 \small
@@ -692,67 +404,38 @@ confirm repositories where PMD marks nothing.}
 \end{table}
 
 At the operating point (Table~\ref{tab:confirm-primary}) the two rules reach
-almost the same macro MCC, \primRelMacroMcc{} for the default modified z against
-\primAbsMacroMcc{} for the tuned cutoff, and a lower micro MCC,
-\primRelMicroMcc{} against \primAbsMicroMcc{}. The difference is in how they get
-there. The relative rule flags \primRelFlagged{} confirm files, recall
-\primRelRecall{} at precision \primRelPrecision{}; the absolute cutoff flags
-\primAbsFlagged{}, recall \primAbsRecall{} at precision \primAbsPrecision{}. The
-relative rule's extra flags are its false positives: a per-repository
+almost the same macro MCC, \primRelMacroMcc{} against \primAbsMacroMcc{}, and
+a lower micro MCC, \primRelMicroMcc{} against \primAbsMicroMcc{}. The
+difference is in how they get there. The relative rule flags \primRelFlagged{}
+confirm files, recall \primRelRecall{} at precision \primRelPrecision{}; the
+cutoff flags \primAbsFlagged{}, recall \primAbsRecall{} at precision
+\primAbsPrecision{}. The extra flags are false positives: a per-repository
 false-positive rate of \primRelFprPct{} against \primAbsFprPct{}, and
 \primRelFpGodFree{} flags in the \primNGodFree{} god-free repositories against
-\primAbsFpGodFree{}, about \primRelMeanFlagsGodFree{} files per such repository
-against \primAbsMeanFlagsGodFree{}. Figure~\ref{fig:pooled} shows why. On the
-relative axis \primRelRecall{} of PMD's god classes clear 3.5 but so do
-\primRelPooledFprPct{} of the other files, because the per-repository tails are
-long; on the raw axis the tuned cutoff admits \primAbsPooledFprPct{} of the other
-files at the price of recall. The tuned
-relative cut, \madz{} replaced by $z \geq \primZCut$, buys recall with more
-false positives still. It is the one comparison that separates the
-standardised axis from the constant 3.5, tuned against tuned, and the plan
-calls it secondary; read on the same three arms (Table~\ref{tab:transfer}) its
-paired differences from the tuned cutoff are
-\transferMainTunedMinusOwnMacroMcc{} \transferMainTunedMinusOwnMacroMccCI{} on
-macro MCC, \transferMainTunedMinusOwnMicroMcc{}
-\transferMainTunedMinusOwnMicroMccCI{} on micro MCC and
-\transferMainTunedMinusOwnMacroFpr{} \transferMainTunedMinusOwnMacroFprCI{} on
-false-positive rate, \transferMainTunedMinusOwnVerdict{}, the verdict the
-default reaches. The constant is not what the rule loses on.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/pooled_distribution.pdf}
-\caption{Every Java class unit of the confirm half, pooled: the share of units
-at or above $x$, for PMD's god classes and for the rest, on the relative axis
-(the per-repository modified z of \sig{cognitive\_max}) and on the absolute
-axis (the raw value). Dashed lines are the two rules' cuts.}
-\label{fig:pooled}
-\end{figure}
+\primAbsFpGodFree{}. The tuned relative cut, $z \geq \primZCut$, buys recall
+with more false positives still; read against the tuned cutoff on the same
+three arms it is \transferMainTunedMinusOwnVerdict{}, the verdict the default
+reaches, so the constant is not what the rule loses on.
 
 \paragraph{The decision.} Table~\ref{tab:decisions} and
-Figure~\ref{fig:decisions} give the three paired arms. The MCC margin read is
-\primMargin{}, the ceiling, since 0.30 times the explore-half macro MCC
-(\primExploreLevel{}) is above it. On the macro MCC arm the paired difference is
-\primMacroMcc{}, interval \primMacroMccCI{} over \primMacroMccN{} repositories
-with at least one god class: \primMacroMccVerdict. On the micro arm it is
-\primMicroMcc{} \primMicroMccCI{} over \primMicroMccN{}: \primMicroMccVerdict.
-On the false-positive arm the relative rule is \primMacroFpr{} points worse,
-\primMacroFprCI{}: neither below the $+0.05$ margin at its upper bound nor
-above it at its lower, so \primMacroFprVerdict. The upper bound misses the
-margin by less than a hundredth, so the label of the overall verdict turns on
-that much; the lower bound, above zero, resolves the extra false positives as
-real. The verdict, the weakest arm, is \textbf{\primVerdict}. Every point estimate is on the absolute side: both MCC
-differences are negative, the pooled ranking is better raw, and the
-false-positive rate is higher. Non-inferiority on the MCC arms says only that
-the relative rule is not more than 0.10 worse, and 0.10 is about a third of the
-MCC level realised. The effective sample is met (\primMinPosCo{} repositories
-with three or more positives against 20 needed, \primCarryCo{} carrying the
-definition against 40) and the AUC floor is met; the classpath bound is met
-too, but out of order (Section~\ref{sec:classpath}), so the verdict is read as
-confirmatory with that qualification. Figure~\ref{fig:paired} shows the pairing
-repository by repository: the two rules' MCCs lie along the diagonal, and the
-relative rule's false-positive rate lies above it in most repositories where
-the absolute cutoff flags little.
+Figure~\ref{fig:decisions} give the three arms. The margin is \primMargin{}.
+On the macro MCC arm the paired difference is \primMacroMcc{}
+\primMacroMccCI{} over \primMacroMccN{} repositories: \primMacroMccVerdict. On
+the micro arm it is \primMicroMcc{} \primMicroMccCI{} over \primMicroMccN{}:
+\primMicroMccVerdict. On the false-positive arm the relative rule is
+\primMacroFpr{} points worse, \primMacroFprCI{}: neither below the $+0.05$
+margin at its upper bound nor above it at its lower, so \primMacroFprVerdict;
+the upper bound misses the margin by less than a hundredth, and the lower
+bound, above zero, resolves the extra false positives as real. The verdict,
+the weakest arm, is \textbf{\primVerdict}. Every point estimate is on the
+absolute side, and non-inferiority on the MCC arms says only that the rule is
+not more than 0.10 worse. The effective sample and the AUC floor are met; the
+classpath bound is met but out of order (Section~\ref{sec:deviations}), so the
+verdict is read as confirmatory with that qualification. The result is the
+same in every slice: the macro AUC is \primBrTierHighAuc{},
+\primBrTierMidAuc{} and \primBrTierLowAuc{} by popularity tier, and
+\primBrKindApplicationAuc{} and \primBrKindLibraryAuc{} in application and
+library repositories.
 
 \begin{table}[t]
 \centering
@@ -764,8 +447,8 @@ verdict is the weakest arm among those the plan decides on; $\dagger$ marks an
 arm reported but not decided on (the human definitions decide on the micro arm
 alone).}
 \label{tab:decisions}
-\scriptsize
-\setlength{\tabcolsep}{3pt}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
 \fitwidth{\input{generated/tab_decisions}}
 \end{table}
 
@@ -778,342 +461,126 @@ FPR arm it sits at $+0.05$ and a bar wholly to its left is non-inferior.}
 \label{fig:decisions}
 \end{figure}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/paired_mcc.pdf}
-\caption{The pairing behind the decision: each point is one confirm Java
-repository carrying PMD GodClass, with the per-repository MCC (left, point size
-by the number of god classes) and false-positive rate (right) of the two rules
-on \sig{cognitive\_max}.}
-\label{fig:paired}
-\end{figure}
-
-\paragraph{Breakdowns.} The result is the same in every slice. The macro AUC is
-\primBrTierHighAuc{} in the high tier, \primBrTierMidAuc{} in the mid tier and
-\primBrTierLowAuc{} in the low tier; the default rule's macro MCC is
-\primBrTierHighMcc{}, \primBrTierMidMcc{} and \primBrTierLowMcc{}. Applications
-(\primBrKindApplicationN{} repositories) and libraries (\primBrKindLibraryN{})
-give AUCs of \primBrKindApplicationAuc{} and \primBrKindLibraryAuc{}.
-
-\subsection{Secondary definitions}
-\label{sec:secondary}
-
-Table~\ref{tab:secondary} summarises the three secondary definitions of the
-main run; each has the same read-out as the primary, and their decision arms
-are in Table~\ref{tab:decisions}.
-
-\begin{table}[t]
-\centering
-\caption{The secondary definitions of the main run, chosen on explore and read
-on confirm. The pooled AUC difference is standardised minus raw; the micro MCCs
-are the default modified z and the explore-tuned absolute cutoff.}
-\label{tab:secondary}
-\scriptsize
-\setlength{\tabcolsep}{4pt}
-\fitwidth{\input{generated/tab_secondary}}
-\end{table}
-
-\paragraph{PMD NPath at method level.} Cyclomatic complexity ranks PMD's NPath
-positives almost perfectly, a macro AUC of \npathAucMacro{}, since the two
-measures count nearly the same branches. The relative rule is nonetheless
-\textbf{\npathVerdict}: it flags \npathRelFlagged{} confirm methods to recover
-\npathRelRecall{} of the \npathPosCo{} positives at precision
-\npathRelPrecision{}, where the tuned cutoff \sig{cc} $\geq \npathCut$ flags
-\npathAbsFlagged{} at precision \npathAbsPrecision{} and recall
-\npathAbsRecall{}. The micro MCC difference is \npathMicroMcc{}
-\npathMicroMccCI{}. This is the shape diagnostic made concrete: with more than
-half of all methods at cyclomatic complexity 1 the scale falls back to the mean
-absolute deviation, 3.5 of those deviations is a low bar, and the rule flags a
-twentieth of every repository's methods. A cut tuned on the relative axis,
-$z \geq \npathZCut$, closes much of the gap, so the failure is the literature
-constant on this shape of distribution, not the standardisation.
-
-\paragraph{DECOR Blob (approximate).} The approximate Blob is the one definition on which the
-relative rule is \textbf{\decorVerdict}, non-inferior on both MCC arms
-(\decorMacroMcc{} \decorMacroMccCI{} and \decorMicroMcc{} \decorMicroMccCI{}) and
-superior on false positives (\decorMacroFpr{} \decorMacroFprCI{}). The tuned
-cutoff for this definition is a low \sig{cognitive\_max} $\geq \decorCut$,
-which flags \decorAbsFprPct{} of non-Blob files per repository, more than the
-relative rule's \decorRelFprPct{}; DECOR's Blob is mostly a size and cohesion
-definition and the peak signal ranks it at only \decorAucMacro{}. The
-threshold-free difference here favours the relative ranking in point estimate
-(\decorPooledAucDiff{}) without resolving (\decorPooledAucDiffCI{}).
-
-\paragraph{Brain Method.} The internal composite is recovered by cognitive
-complexity at a macro AUC of \brainAucMacro{}, as a conjunction of its
-ingredients' cousins should be, and the relative rule is \textbf{\brainVerdict}
-on every arm for the NPath reason: \brainRelFlagged{} flags for \brainPosCo{}
-positives, read on \brainCarryCo{} confirm repositories of every language,
-since the internal definition is not Java-only.
-
-\subsection{Rules and signals compared}
-
-Table~\ref{tab:friedman} ranks the five pre-specified rules by per-repository
-MCC and the six pre-specified signals by per-repository AUC against PMD
-GodClass, in both runs. Among rules, the modified z-score (mean rank
-\friedRankMadZ), Tukey's fence (\friedRankIqr) and the one-sided MAD
-(\friedRankDoubleMad), in that order, are within a critical difference of
-\friedRulesCD{} of one another and separated from the top percentile
-(\friedRankPctTopOne) and the skew-adjusted boxplot (\friedRankAdjBoxplot),
-over \friedRulesN{} repositories.
-Among signals, the per-file sum of lines ranks first (\friedSigRankNlocSum) and
-the method count second (\friedSigRankNom), both size; among the non-size
-signals the two peaks, \sig{cc\_max} (\friedSigRankCcMax) and
-\sig{cognitive\_max} (\friedSigRankCognitiveMax), are within the critical
-difference of \friedSignalsCD{} of each other and well ahead of the two means.
-The MLCQ run reproduces both orderings with its larger $N$, and its smaller
-critical difference separates the one-sided MAD from the first two rules.
-
-\begin{table}[t]
-\centering
-\caption{Friedman tests over repositories with the Iman--Davenport correction,
-rules by per-repository MCC and signals by per-repository AUC against PMD
-GodClass, pre-specified subsets, both runs. Lower mean rank is better; two
-methods closer than the Nemenyi critical difference are not separated.}
-\label{tab:friedman}
-\scriptsize
-\fitwidth{\input{generated/tab_friedman}}
-\end{table}
-
-\subsection{The classpath validation, out of order}
-\label{sec:classpath}
-
-PMD and CK ran without an auxiliary classpath, so the ATFD clause of GodClass
-sees only the sources. The plan bounded that under-count by building at least
-ten explore-half Java repositories with their own Maven or Gradle wrappers,
-re-running PMD with the built classpath over the same file list, and counting
-the GodClass verdicts that flip, with a bound of 10\%. It was due before the
-confirm half was read and was run after: the candidates were ordered by a seeded
-shuffle of every explore Java repository with at least one god class, worked
-down in order, \cpTried{} attempted, \cpFailed{} failing to build under any of
-four JDKs and \cpSkipped{} skipped (no build, or an Android SDK required), until
-\cpRepos{} had a report (Table~\ref{tab:classpath}). \cpFlips{} of \cpUnion{}
-verdicts flipped, \cpRate{}, every one a god class gained with the classpath.
-\cpMaxFlips{} of them are in one repository (\cpMaxFlipsRepo{}), where
-\cpMaxFlipsRepoRate{} of the verdicts flipped; over the other nine the rate is
-\cpRateExclMax{}. The bound is met. The under-count is small on average, not
-uniform, since a repository that leans on external types can miss a sixth of
-its god classes, and one-sided: the oracle misses some god classes, which can
-only lower the recovery measured against it. Because the order of events was wrong, the
-confirmatory analysis file records the primary verdict as not confirmatory for
-want of the validation, and the re-analysis that applied the bound is a dated
-exploratory file; the two agree on every number. The paper reads the verdict as
-confirmatory with this deviation declared, and a reader who holds to the
-plan's order may read the primary as exploratory.
-
-\begin{table}[t]
-\centering
-\caption{The classpath validation: ten explore-half Java repositories built with
-their own build tool, PMD GodClass verdicts without and with the built
-classpath over the same files.}
-\label{tab:classpath}
-\small
-\fitwidth{\input{generated/tab_classpath}}
-\end{table}
-
-\subsection{Replication on MLCQ's population}
-\label{sec:mlcq-pmd}
-
-The same plan, read on the \mlcqUsable{} usable MLCQ repositories with their own
-explore and confirm halves and PMD's GodClass as the oracle, chooses the same
-signal, \mlcqPmdSignal{}, at a macro AUC of \mlcqPmdAucMacro{}
-\mlcqPmdAucMacroCI{} over \mlcqPmdAucMacroN{} confirm repositories, and reaches
-the same verdict, \textbf{\mlcqPmdVerdict}: the macro MCC arm is
-\mlcqPmdMacroMccVerdict{} (\mlcqPmdMacroMcc{} \mlcqPmdMacroMccCI{}), the FPR arm
+\paragraph{Replication on MLCQ's population.} The same plan, read on the
+\mlcqUsable{} MLCQ repositories with their own halves and PMD's GodClass as
+the oracle, chooses the same signal at a macro AUC of \mlcqPmdAucMacro{}
+\mlcqPmdAucMacroCI{} over \mlcqPmdAucMacroN{} confirm repositories and reaches
+the same verdict, \textbf{\mlcqPmdVerdict}, by a different arm: the macro MCC
+arm is \mlcqPmdMacroMccVerdict{} (\mlcqPmdMacroMcc{} \mlcqPmdMacroMccCI{},
+within the margin though resolved below zero), the FPR arm
 \mlcqPmdMacroFprVerdict{} (\mlcqPmdMacroFpr{} \mlcqPmdMacroFprCI{}), and the
-micro arm \mlcqPmdMicroMccVerdict{} (\mlcqPmdMicroMcc{} \mlcqPmdMicroMccCI{}),
-with the margin again at \mlcqPmdMargin{}. The verdict is the same but the
-arm that withholds it is not: on the sampled population the MCC arms pass and
-the false-positive arm is inconclusive, on MLCQ the false-positive arm passes
-and the micro MCC arm is inconclusive, its lower bound below the margin. The
-population is older, larger and more concentrated by owner, the tuned cutoff
-is lower (\sig{cognitive\_max} $\geq \mlcqPmdCut$ against \primCut{} in the
-main run), and it flags about as many files as the relative rule does, a
-false-positive rate of \mlcqPmdAbsFprPct{} against \mlcqPmdRelFprPct{}, while
-leading it on pooled MCC by about a tenth. On this population the rule's cost
-is not its flag rate but its pooled ranking, which the pooled AUC difference
-(\mlcqPmdPooledAucDiff{} \mlcqPmdPooledAucDiffCI{}) also says. Tuning the
-relative constant on MLCQ's own explore half ($z \geq \transferMlcqOwnZCut$)
-changes nothing: \transferMlcqTunedMinusOwnMacroMcc{}
-\transferMlcqTunedMinusOwnMacroMccCI{}, \transferMlcqTunedMinusOwnMicroMcc{}
-\transferMlcqTunedMinusOwnMicroMccCI{} and \transferMlcqTunedMinusOwnMacroFpr{}
-\transferMlcqTunedMinusOwnMacroFprCI{} on the three arms,
-\transferMlcqTunedMinusOwnVerdict{} (Table~\ref{tab:transfer}). The three secondaries
-replicate too: NPath \mlcqNpathVerdict{} (\mlcqNpathMicroMcc{}
-\mlcqNpathMicroMccCI{}), Brain Method \mlcqBrainVerdict{}, and DECOR Blob
-\mlcqDecorVerdict{} with the signal \mlcqDecorSignal{} chosen in place of
-\sig{cognitive\_max}.
+micro arm \mlcqPmdMicroMccVerdict{} (\mlcqPmdMicroMcc{} \mlcqPmdMicroMccCI{}).
+The tuned cutoff is lower there (\sig{cognitive\_max} $\geq \mlcqPmdCut$
+against \primCut{}) and flags about as many files as the relative rule does,
+\mlcqPmdAbsFprPct{} against \mlcqPmdRelFprPct{}, while leading it on pooled
+MCC by about a tenth; the pooled AUC difference (\mlcqPmdPooledAucDiff{}
+\mlcqPmdPooledAucDiffCI{}) says the same. Tuning the relative constant on
+MLCQ's own explore half ($z \geq \transferMlcqOwnZCut$) changes nothing:
+\transferMlcqTunedMinusOwnVerdict{}.
+
+\paragraph{Secondary definitions.} At method level the rule is
+\textbf{\npathVerdict} against PMD's NPath: cyclomatic complexity ranks the
+positives at a macro AUC of \npathAucMacro{}, but with more than half of all
+methods at cyclomatic 1 the scale collapses to a mean deviation, 3.5 of it is
+a low bar, and the rule flags a twentieth of every repository's methods at
+precision \npathRelPrecision{} (micro MCC difference \npathMicroMcc{}
+\npathMicroMccCI{}). A cut tuned on the relative axis, $z \geq \npathZCut$,
+closes much of the gap, so the failure is the literature constant on this
+shape of distribution, not the standardisation. The rule is
+\textbf{\decorVerdict} against the approximate DECOR Blob, whose tuned cutoff
+is a low \sig{cognitive\_max} $\geq \decorCut$ flagging more non-Blob files
+than the rule does, and \textbf{\brainVerdict} against the internal Brain
+Method for the NPath reason. All three replicate on MLCQ.
 
 \subsection{Exploratory: the cutoff carried across populations}
 \label{sec:transfer}
 
 Every comparison above tunes the absolute cutoff on one population's explore
 half and reads it on the same population's confirm half, the best case for a
-raw-scale constant. The paper's motivation is that such a constant has to be
-re-fitted when the population moves, and the relative rule's claim is that it
-does not. The two populations here are seven years and a sampling frame
-apart: MLCQ's Java projects at 2019 commits, chosen by its authors, and the
-2026 sample. Table~\ref{tab:transfer} reads each confirm half four ways: the
-relative rule at its default, the relative cut tuned on that population's
-explore half, the cutoff tuned on that population, and the cutoff tuned on the
-other population and carried across unchanged. The read-out is exploratory
-(Section~\ref{sec:deviations}).
+raw-scale constant. The paper's premise is that the comparison is a test of
+matching one scale, which holds only if the two populations do share a scale;
+this read-out checks that. The two populations here are seven years and a
+sampling frame apart. Table~\ref{tab:transfer} reads each confirm half four ways: the
+relative rule at its default, the relative cut tuned on that population, the
+cutoff tuned on that population, and the cutoff tuned on the other population
+and carried across unchanged. The read-out was added after review and is
+exploratory.
 
 \begin{table}[t]
 \centering
 \caption{Exploratory: the absolute cutoff on \sig{cognitive\_max} carried
 between populations, and the relative cut tuned on each population, against
-PMD GodClass on each population's confirm half.
-Macro MCC is over the repositories with at least one god class, macro FPR over
-every repository carrying the definition.}
+PMD GodClass on each population's confirm half. Macro MCC is over the
+repositories with at least one god class, macro FPR over every repository
+carrying the definition.}
 \label{tab:transfer}
 \small
 \setlength{\tabcolsep}{4pt}
 \fitwidth{\input{generated/tab_transfer}}
 \end{table}
 
-The constant transfers almost intact. Tuned on the main run the cutoff is
+The constant transfers intact. Tuned on the main run the cutoff is
 \sig{cognitive\_max} $\geq \transferMainOwnCut$, on MLCQ $\geq
 \transferMlcqOwnCut$. Read on the main run's confirm half, MLCQ's cutoff does
-no worse than the main run's own: micro MCC \transferMainAbsOtherMicroMcc{}
-against \transferMainAbsOwnMicroMcc{} and macro MCC
-\transferMainAbsOtherMacroMcc{} against \transferMainAbsOwnMacroMcc{}, paired
-differences of \transferMainOtherMinusOwnMicroMcc{}
-\transferMainOtherMinusOwnMicroMccCI{} and \transferMainOtherMinusOwnMacroMcc{}
-\transferMainOtherMinusOwnMacroMccCI{}, at a false-positive rate
-\transferMainOtherMinusOwnMacroFpr{} higher
-\transferMainOtherMinusOwnMacroFprCI{}. Read on MLCQ, the main run's cutoff
-costs \transferMlcqOtherMinusOwnMicroMcc{} \transferMlcqOtherMinusOwnMicroMccCI{}
-of micro MCC and \transferMlcqOtherMinusOwnMacroMcc{}
-\transferMlcqOtherMinusOwnMacroMccCI{} of macro MCC, with fewer false positives
-(\transferMlcqOtherMinusOwnMacroFpr{} \transferMlcqOtherMinusOwnMacroFprCI{}).
-Against the carried constant the relative rule is behind on the micro arm on
-both populations, \transferMainRelMinusOtherMicroMcc{}
-\transferMainRelMinusOtherMicroMccCI{} and \transferMlcqRelMinusOtherMicroMcc{}
-\transferMlcqRelMinusOtherMicroMccCI{}, level on the macro arm
-(\transferMainRelMinusOtherMacroMcc{} \transferMainRelMinusOtherMacroMccCI{};
-\transferMlcqRelMinusOtherMacroMcc{} \transferMlcqRelMinusOtherMacroMccCI{}),
-and flags more (\transferMainRelMinusOtherMacroFpr{}
-\transferMainRelMinusOtherMacroFprCI{}; \transferMlcqRelMinusOtherMacroFpr{}
-\transferMlcqRelMinusOtherMacroFprCI{}).
+better in point estimate than the main run's own: micro MCC
+\transferMainAbsOtherMicroMcc{} against \transferMainAbsOwnMicroMcc{}, paired
+difference \transferMainOtherMinusOwnMicroMcc{}
+\transferMainOtherMinusOwnMicroMccCI{}, at a false-positive rate
+\transferMainOtherMinusOwnMacroFpr{} higher. A cutoff tuned on a foreign
+population matching one tuned on the same population means the explore-half
+optimum is flat, so the competitor in the primary was itself loosely
+identified, which if anything understates the rule's deficit. Read on MLCQ,
+the main run's cutoff costs \transferMlcqOtherMinusOwnMicroMcc{}
+\transferMlcqOtherMinusOwnMicroMccCI{} of micro MCC. Against the carried
+constant the relative rule is behind on the micro arm on both populations
+(\transferMainRelMinusOtherMicroMcc{} \transferMainRelMinusOtherMicroMccCI{};
+\transferMlcqRelMinusOtherMicroMcc{} \transferMlcqRelMinusOtherMicroMccCI{}),
+level on the macro arm, and flags more.
 
 What moves is the optimum per repository, not the pooled one. The cutoff that
 maximises a single confirm repository's own MCC runs from
-\transferMainOptCutMin{} to \transferMainOptCutMax{} on the main run, quartiles
-\transferMainOptCutQOne{}, \transferMainOptCutMedian{} and
-\transferMainOptCutQThree{} over the \transferMainOptCutN{} repositories with
-three or more god classes, and from \transferMlcqOptCutMin{} to
-\transferMlcqOptCutMax{} on MLCQ (quartiles \transferMlcqOptCutQOne{},
-\transferMlcqOptCutMedian{}, \transferMlcqOptCutQThree{}). The raw value at
-which the relative rule's 3.5 falls in a repository, its implied cutoff, is as
-spread: quartiles \transferMainZCutQOne{}, \transferMainZCutMedian{} and
-\transferMainZCutQThree{} on the main run. Repositories differ a great deal in
-where their god classes sit on the raw axis, and the relative rule follows
-that spread; but following it does not recover PMD's verdicts better than one
-constant for everyone, because PMD's definition is itself one constant for
-everyone. Between these two populations, that constant did not need
-re-fitting. That is what a constant does against an oracle built from a
-constant; it is not evidence that the oracle's own constant holds against
-readers, which no comparison with a tool definition can see.
+\transferMainOptCutMin{} to \transferMainOptCutMax{} on the main run,
+quartiles \transferMainOptCutQOne{}, \transferMainOptCutMedian{} and
+\transferMainOptCutQThree{}, and the raw value at which the rule's 3.5 falls
+is as spread. Repositories differ a great deal in where their god classes sit
+on the raw axis, and the relative rule follows that spread; but following it
+does not recover PMD's verdicts better than one constant for everyone, because
+PMD's definition is itself one constant for everyone. The two populations sit
+on one scale, so the comparisons above are what they were meant to be, a test
+of matching a single human scale. They are not a test of drift: a constant
+against an oracle built from the same constant cannot show the oracle's
+constant moving, and neither population is agent-written.
 
 \subsection{Human labels}
 \label{sec:human}
 
-\paragraph{Coverage.} Of MLCQ's \mlcqRepos{} repositories, \mlcqRunDone{} were
-measured and \mlcqRunFailed{} could not be cloned at their labelled commit, most
-of them Eclipse projects that have moved organisation; \mlcqUsable{} cleared the
-substance floor. Of the Blob reviews on the measured repositories
-\humBlobRevMeasured{} of \humBlobRevLabelled{} land on a measured file
-(\humBlobRevRate{}), the rest on files outside the universe (test directories,
-generated code), and \humBlobMeasured{} of the \humBlobLabelled{} Blob positives;
-for Long Method \humLmRevMeasured{} of \humLmRevLabelled{} reviewed methods
-(\humLmRevRate{}) and \humLmMeasured{} of \humLmLabelled{} positives, after
-stepping a label that starts on an annotation line forward to the method it
-names.
-
-\paragraph{The planned read-out.} For Blob, \humBlobAllReposEx{} explore and
-\humBlobAllReposCo{} confirm repositories have at least one reviewed class,
-\humBlobAllRevEx{} and \humBlobAllRevCo{} reviewed classes with
-\humBlobAllPosEx{} and \humBlobAllPosCo{} positives, but only
-\humBlobAllMinPosEx{} and \humBlobAllMinPosCo{} repositories have three or more
-positives, so the explore choice rests on nine repositories and the
-effective-sample gate (20) is not met. The plan's procedure chose
-\humBlobAllSignal{}, the per-file maximum of the maintainability burden, and the
-choice exposes a flaw in the plan rather than bad luck. The maintainability
-index is bounded and built on logarithms of volume, complexity and lines, so its
-upper tail is compressed; a per-repository AUC, the criterion the plan chooses
-by, is invariant to that compression, while a modified z of 3.5 on the
-compressed axis is out of reach in most repositories. A plan that admits a
-bounded composite into a family chosen by AUC will pick it whenever it ranks
-well and then read a rule that cannot flag: \madz{} on it flags
-\humBlobAllRelFlagged{} of \humBlobAllRevCo{} reviewed classes (recall
-\humBlobAllRelRecall{}) against the tuned cutoff's \humBlobAllAbsFlagged{}
-(recall \humBlobAllAbsRecall{}, precision \humBlobAllAbsPrecision{}). The micro
-MCC difference is \humBlobAllMicroMcc{} \humBlobAllMicroMccCI{}:
-\textbf{\humBlobAllVerdict}, \humBlobAllPowered{}, and with the AUC floor not
-met (\humBlobAllAucMacro{} \humBlobAllAucMacroCI{}). The margin the plan's
-formula gives here is \humBlobAllMargin{}, 0.30 of an explore level of
-\humBlobAllExploreLevel{}, below anything the sample could resolve, so this
-read-out could never have been non-inferior: the formula degenerates when the
-explore level is near zero, a second flaw in the plan.
-For Long Method the procedure chose \humLongMethodAllSignal{}, the method-level
-maintainability burden, which ranks the reviewers' positives at a macro AUC of
-\humLongMethodAllAucMacro{} but again under-flags on the relative axis: micro
-MCC \humLongMethodAllRelMicroMcc{} for the default rule against
-\humLongMethodAllAbsMicroMcc{} for the cutoff, difference
-\humLongMethodAllMicroMcc{} \humLongMethodAllMicroMccCI{},
-\textbf{\humLongMethodAllVerdict} and \humLongMethodAllPowered{}
-(\humLongMethodAllMinPosCo{} confirm repositories with three or more
-positives). Tables~\ref{tab:human-class} and \ref{tab:human-method} give both
-read-outs in full, and both decision rows are in Table~\ref{tab:decisions}.
-Restricted to the repositories whose reviewed units hold a positive
-(Section~\ref{sec:deviations}), the verdicts are unchanged.
-
-\begin{table}[t]
-\centering
-\caption{The planned human-label read-out for MLCQ's Blob on the confirm half,
-every repository with a reviewed class kept, rules fitted on each repository's
-whole Java class population and scored on its reviewed classes.}
-\label{tab:human-class}
-\small
-\setlength{\tabcolsep}{4pt}
-\fitwidth{\input{generated/tab_confirm_human_class_all}}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{The same for MLCQ's Long Method at method level.}
-\label{tab:human-method}
-\small
-\setlength{\tabcolsep}{4pt}
-\fitwidth{\input{generated/tab_confirm_human_method_all}}
-\end{table}
-
-\paragraph{Every candidate, beside the chosen one.} Because the choice rested on
-nine repositories, Tables~\ref{tab:human-cand-class} and
-\ref{tab:human-cand-method} give the confirm read-out of every candidate signal.
-They are exploratory: the plan reads the chosen signal, and the best of twenty is upward-biased. For Blob no signal does well. The pooled standardised AUC of
-the best signal is \humCandBlobTopPooledAuc{}, the default relative rule's micro
-MCC peaks at \humCandBlobBestRelMicroMcc{} (\humCandBlobBestRelSignal{}) and
-the tuned cutoffs at \humCandBlobBestAbsMicroMcc{} (\humCandBlobBestAbsSignal{}),
-with precision around a quarter at either operating point. For Long
-Method the two structure signals, \sig{cognitive} and \sig{cc}, give the
-relative rule at its default a micro MCC of \humCandLongMethodCognitiveRelMicroMcc{}
-and \humCandLongMethodCcRelMicroMcc{} against
-\humCandLongMethodCognitiveAbsMicroMcc{} and \humCandLongMethodCcAbsMicroMcc{}
-for their tuned cutoffs, so on those signals the default rule is close to a
-cutoff tuned on the same population, while on \sig{mi} it is not.
+\paragraph{The planned read-out.} For Blob only \humBlobAllMinPosEx{} explore
+repositories have three or more reviewed positives, so the effective-sample
+gate (20) is not met, and the plan's procedure chose \humBlobAllSignal{}, the
+per-file maximum of the maintainability burden. The choice exposes a flaw in
+the plan: the maintainability index is bounded and logarithmic, so its upper
+tail is compressed; a per-repository AUC is invariant to that compression,
+while a modified z of 3.5 on the compressed axis is out of reach in most
+repositories, and the chosen rule cannot flag. The micro MCC difference is
+\humBlobAllMicroMcc{} \humBlobAllMicroMccCI{}: \textbf{\humBlobAllVerdict},
+\humBlobAllPowered{}. For Long Method the procedure chose
+\humLongMethodAllSignal{} on \humLongMethodAllMinPosEx{} repositories, with the
+same effect: \humLongMethodAllMicroMcc{} \humLongMethodAllMicroMccCI{},
+\textbf{\humLongMethodAllVerdict} and \humLongMethodAllPowered{}. On the two
+structure signals the plan did not choose, \sig{cognitive} and \sig{cc}, the
+default rule reaches a micro MCC within \humCandLongMethodMaxGap{} of a cutoff
+tuned on MLCQ's own explore half (\humCandLongMethodCcRelMicroMcc{} against
+\humCandLongMethodCcAbsMicroMcc{} on \sig{cc}); that is the best of twenty
+candidates and upward-biased. No human-label result here is confirmatory.
 
 \paragraph{Tools and rules against the reviewers.} The exploratory comparison
-that the main result called for asks two things of the reviewed units: how well
-each fixed definition agrees with the reviewers at all, and whether the classes
-the relative rule flags that PMD does not, its false positives in the main run,
-are classes people call Blob. Nothing here is tuned on MLCQ: the signal, the
-rule and the cutoff are the main run's (\primSignal{} with \madz{} and the
-cutoff \primCut{}; \sig{cc} with the cutoff \npathCut{} at method level), so
-every usable repository with a reviewed unit is used, the confirm half alone
-being reported in the data as a sensitivity. Table~\ref{tab:agreement} and
-Figure~\ref{fig:agreement} give the answers.
+asks how well each fixed definition agrees with the reviewers at all, and
+whether the classes the relative rule flags that PMD does not are classes
+people call Blob. Nothing here is tuned on MLCQ: the signal, the rule and the
+cutoff are the main run's. Repositories on which the tool definition was never
+evaluated are dropped, which is why the unit counts in
+Table~\ref{tab:agreement} are slightly below the number of reviews that land
+on a measured file.
 
 \begin{table}[t]
 \centering
@@ -1126,97 +593,49 @@ MLCQ repository, with a 95\% repository bootstrap on the MCC.}
 \fitwidth{\input{generated/tab_agreement}}
 \end{table}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/human_agreement.pdf}
-\caption{The MCC of each definition and rule against MLCQ's reviewers, with its
-95\% repository bootstrap, on the reviewed classes (Blob) and methods (Long
-Method). Orange: the relative rule; aqua: the absolute cutoff tuned on the main
-run's explore half.}
-\label{fig:agreement}
-\end{figure}
-
-On Blob, every detector is weak and none is separated from the others. PMD's
+On Blob every detector is weak and none is separated from the others. PMD's
 GodClass reaches an MCC of \agrBlobPmdGodclassMcc{} \agrBlobPmdGodclassMccCI{}
 against the \agrBlobPos{} reviewer positives among \agrBlobUnits{} reviewed
-classes, WMC $\geq 47$ alone \agrBlobWmcFourSevenMcc{}, the relative rule
-\agrBlobRelMcc{} \agrBlobRelMccCI{} and the absolute cutoff \agrBlobAbsMcc{}
-\agrBlobAbsMccCI{}, each flagging between a quarter and a third of what it
-flags correctly. The reviewers' Blob rate is \agrBlobGrpToolRate{} among the
-classes PMD flags, \agrBlobGrpRelNotToolRate{} among the
-\agrBlobGrpRelNotToolN{} classes the relative rule flags and PMD does not, and
-\agrBlobGrpNeitherRelNorToolRate{} among the classes neither flags: the rule's
-extra flags are called Blob more than twice as often as unflagged classes, the
-paired difference \agrBlobRelExtraDiff{} \agrBlobRelExtraDiffCI{}, and the
-absolute cutoff's extra flags more often still (\agrBlobAbsExtraDiff{}
-\agrBlobAbsExtraDiffCI{}). Four in five of the classes the relative rule adds to
-PMD's list are not Blobs to the reviewers either. No paired difference between
-the relative rule and a fixed definition is resolved: against PMD GodClass
-\agrBlobRelMinusPmdGodclass{} \agrBlobRelMinusPmdGodclassCI{}, against the
-tuned cutoff \agrBlobRelMinusAbs{} \agrBlobRelMinusAbsCI{}.
-
-On Long Method the picture is different and sharper. The fixed thresholds are
-precise and recall little: PMD's NPath flags \agrLmPmdMethodNpathTwoZeroZeroFlagged{}
-of the \agrLmUnits{} reviewed methods at precision
-\agrLmPmdMethodNpathTwoZeroZeroPrecision{} and recall
-\agrLmPmdMethodNpathTwoZeroZeroRecall{} (MCC \agrLmPmdMethodNpathTwoZeroZeroMcc{}),
-CC $\geq 14$ recall \agrLmCcOneFourRecall{} (MCC \agrLmCcOneFourMcc{}), fifty
-lines \agrLmLocFiveZeroRecall{} (\agrLmLocFiveZeroMcc{}), cognitive $\geq 15$
-\agrLmCognitiveOneFiveRecall{} (\agrLmCognitiveOneFiveMcc{}
-\agrLmCognitiveOneFiveMccCI{}), and the tuned cutoff \sig{cc} $\geq \npathCut$
-recall \agrLmAbsRecall{} (\agrLmAbsMcc{}). The relative rule on \sig{cc} trades
-precision for recall, \agrLmRelPrecision{} and \agrLmRelRecall{}, and has the
-highest MCC point estimate of the detectors tried, \agrLmRelMcc{}
-\agrLmRelMccCI{}. Paired over repositories on the same units, its lead is
-resolved over PMD's NPath (\agrLmRelMinusPmdMethodNpathTwoZeroZero{}
-\agrLmRelMinusPmdMethodNpathTwoZeroZeroCI{}), CC $\geq 14$
-(\agrLmRelMinusCcOneFour{} \agrLmRelMinusCcOneFourCI{}), fifty lines
-(\agrLmRelMinusLocFiveZero{} \agrLmRelMinusLocFiveZeroCI{}) and the tuned
-cutoff (\agrLmRelMinusAbs{} \agrLmRelMinusAbsCI{}), and not over cognitive
-$\geq 15$ (\agrLmRelMinusCognitiveOneFive{}
-\agrLmRelMinusCognitiveOneFiveCI{}): against the strongest fixed threshold the
-two sit at different operating points with no difference resolved. Its extra
-flags over PMD's NPath are called Long Method \agrLmGrpRelNotToolRate{} of the
-time against \agrLmGrpNeitherRelNorToolRate{} for unflagged methods. Read with
-Table~\ref{tab:human-cand-method}, where the same signal at the same default
-reaches a micro MCC of \humCandLongMethodCcRelMicroMcc{} on the confirm half
-against \humCandLongMethodCcAbsMicroMcc{} for a cutoff tuned on MLCQ's own
-explore half, the relative rule on cyclomatic
-complexity is close to the best a tuned constant does against the reviewers,
-ahead of every literature constant but one and level with that one, while the
-plan's own procedure, choosing by per-repository AUC on thirteen repositories,
-picked the one candidate on which it fails.
+classes, the relative rule \agrBlobRelMcc{} \agrBlobRelMccCI{} and the
+absolute cutoff \agrBlobAbsMcc{} \agrBlobAbsMccCI{}. The reviewers' Blob rate
+is \agrBlobGrpToolRate{} among the classes PMD flags,
+\agrBlobGrpRelNotToolRate{} among the \agrBlobGrpRelNotToolN{} classes the
+relative rule flags and PMD does not, and \agrBlobGrpNeitherRelNorToolRate{}
+among the classes neither flags: four in five of the rule's extra flags are
+not Blobs to the reviewers either. No paired difference between the relative
+rule and a fixed definition is resolved. On Long Method the fixed thresholds
+are precise and recall little: cognitive $\geq 15$, the strongest, has recall
+\agrLmCognitiveOneFiveRecall{} and MCC \agrLmCognitiveOneFiveMcc{}. The
+relative rule on \sig{cc} trades precision for recall, \agrLmRelPrecision{}
+and \agrLmRelRecall{}, and has the highest MCC point estimate of the detectors
+tried, \agrLmRelMcc{} \agrLmRelMccCI{}; paired over repositories its lead is
+resolved over PMD's NPath, CC $\geq 14$, fifty lines and the tuned cutoff, and
+not over cognitive $\geq 15$ (\agrLmRelMinusCognitiveOneFive{}
+\agrLmRelMinusCognitiveOneFiveCI{}), from which it is not separated. A reader
+should expect this number to shrink on replication.
 
 \subsection{Exploratory: what the false positives are}
 \label{sec:fp}
 
-The relative rule's extra flags against PMD are the cost the decision turned
-on, and the reading offered for them in Section~\ref{sec:disc}, that
-complexity concentration finds complex leaves as well as god classes, is a
-claim about what those files are. Two read-outs test it, both exploratory
-(Section~\ref{sec:deviations}). The first
-characterises every one of them by the tool definitions' own component
-clauses. Over the \fpUnits{} Java class units of the \fpRepos{} confirm
-repositories carrying PMD GodClass, Table~\ref{tab:fp-breakdown} splits the
-units into those the rule flags and PMD marks (\fpTpN{}), those the rule flags
-and PMD does not (\fpFpN{}), those PMD marks and the rule misses (\fpFnN{}) and
-the rest, and gives for each the share that passes PMD's size clause (the
-harness's WMC $\geq 47$, which tracks PMD's own WMC closely but not exactly),
-the share a coupling component marks (CK's CBO $\geq 14$ or PMD's
-CouplingBetweenObjects), the share a cohesion component marks (CK's TCC $<
-1/3$ or LCOM* $\geq 0.8$), the share whose most complex method reaches a
-cognitive complexity of 15, PMD's own method-level CognitiveComplexity
-threshold, on the harness's calibrated estimate, and the medians of the
-signal, the lines and the method count.
+The rule's extra flags against PMD are the cost the decision turned on. Two
+read-outs, both added after review, ask what they are. The first characterises
+every one of them by the tool definitions' own component clauses. Over the
+\fpUnits{} Java class units of the \fpRepos{} confirm repositories carrying
+PMD GodClass, Table~\ref{tab:fp-breakdown} splits the units by the rule's flag
+and PMD's verdict and gives, for each group, the share passing PMD's size
+clause (WMC $\geq 47$), the share a coupling component marks (CK's CBO $\geq
+14$ or PMD's CouplingBetweenObjects), the share a cohesion component marks,
+the share whose most complex method reaches cognitive complexity 15, PMD's
+own method-level threshold, and the group medians.
 
 \begin{table}[t]
 \centering
 \caption{Exploratory: every Java class unit of the confirm repositories
 carrying PMD GodClass, grouped by the relative rule's flag and PMD's verdict,
 with the share each group's units meet of PMD's size clause, of the coupling
-and cohesion components and of PMD's method-level cognitive threshold (a
-file whose most complex method reaches 15), and the group medians. The last row is the
-explore-tuned absolute cutoff's own extra flags.}
+and cohesion components and of PMD's method-level cognitive threshold, and
+the group medians. The last row is the explore-tuned absolute cutoff's own
+extra flags.}
 \label{tab:fp-breakdown}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -1224,51 +643,44 @@ explore-tuned absolute cutoff's own extra flags.}
 \end{table}
 
 The extra flags are not god classes by size. Only \fpFpWmcFourSevenPct{} of
-them pass the size clause (\fpFpWmcFourSevenPctCI{}), against
-\fpTpWmcFourSevenPct{} of the classes PMD marks; their median file has
-\fpFpMedianNom{} methods and \fpFpMedianNloc{} lines against \fpTpMedianNom{}
-and \fpTpMedianNloc{}, and a maximum cognitive complexity of \fpFpMedianRaw{}
-against \fpTpMedianRaw{}. A coupling component marks \fpFpCoupledPct{} of them
-(\fpFpCoupledPctCI{}), against \fpTpCoupledPct{} of PMD's god classes and
-\fpNeitherCoupledPct{} of unflagged classes. The cohesion components mark most
-classes of every group and separate nothing. What does mark the extra flags is
-PMD's method-level rule: \fpFpCognitiveOneFivePct{} of them
-(\fpFpCognitiveOneFivePctCI{}) hold a method at or above cognitive complexity
-15, against \fpNeitherCognitiveOneFivePct{} of unflagged classes and
-\fpTpCognitiveOneFivePct{} of PMD's god classes. The absolute cutoff's own extra
-flags (\fpAbsFpN{}) are larger and more often coupled than the relative rule's,
-\fpAbsFpWmcFourSevenPct{} passing the size clause and \fpAbsFpCoupledPct{}
-coupled, which is the other face of its lower false-positive rate: at a raw
-cutoff the extra flags are big classes that missed on data access or cohesion,
-at a relative cut they are small classes with one complex method. The typical
-extra flag of the relative rule is therefore a file of about ten methods
-holding one method that PMD's own method-level rule would flag: a long method
-in a small class, which is what the class-level rule finds, and not, by PMD's
-own components, a class that gathers responsibilities, which is what PMD's
-class definition is built to find. That is also why the rule's one favourable
-result against the reviewers is on Long Method (Section~\ref{sec:human}).
-Whether such a file is a god class to a reader is the second read-out's
-question.
+them pass the size clause against \fpTpWmcFourSevenPct{} of the classes PMD
+marks; their median file has \fpFpMedianNom{} methods and \fpFpMedianNloc{}
+lines against \fpTpMedianNom{} and \fpTpMedianNloc{}. A coupling component
+marks \fpFpCoupledPct{} of them against \fpTpCoupledPct{} of PMD's god
+classes and \fpNeitherCoupledPct{} of unflagged classes; the cohesion
+components separate nothing. What does mark them is PMD's method-level rule:
+\fpFpCognitiveOneFivePct{} hold a method at or above cognitive complexity 15,
+against \fpNeitherCognitiveOneFivePct{} of unflagged classes. The absolute
+cutoff's own extra flags are larger and more often coupled
+(\fpAbsFpWmcFourSevenPct{} pass the size clause, \fpAbsFpCoupledPct{}
+coupled): at a raw cutoff the extra flags are big classes that missed on data
+access or cohesion, at a relative cut they are small classes with one complex
+method. The typical extra flag of the relative rule is a file of about ten
+methods holding one method PMD's own method-level rule would flag, a long
+method in a small class, and not, by PMD's own components, a class that
+gathers responsibilities.
 
 The second read-out reads the source. A seeded sample of \fpSampleFp{} of the
 rule's extra flags and \fpSampleTp{} of the classes it flags that PMD also
-marks, at most \fpSamplePerRepo{} per repository, was fetched at its pinned
-commit and read blind to PMD's verdict, though not to the file's size, which
-is most of that verdict, under a fixed protocol: four yes-or-no
-questions, whether the most complex method implements one algorithm over the
-class's own inputs, whether the class has one responsibility, whether it works
-mostly on other objects' data, and whether its complexity is one dispatch
-table, with a fixed mapping from the answers to four categories (leaf,
-gatherer, table, other), written before any file was opened. Reading
-conventions that settle what the questions leave open (what counts as one
-algorithm, as cohesion, as foreign data and as a dispatch table) were added on
-21 October 2026, after the author had read 13 units and before any model
-reading; they change no question or mapping row, and the author re-read those
-13 units under them. The scripts that
-draw the sample and apply the mapping are in the repository; every reader's
-answers, with the units they refer to, are in the ancillary data, as are the
-recorded sessions of the language-model reader, which a script ran blind, each
-session seeing only the protocol and its batch of files.
+marks, at most \fpSamplePerRepo{} per repository, was read blind to PMD's
+verdict, though not to the file's size, under a fixed protocol: four
+yes-or-no questions (whether the most complex method implements one algorithm
+over the class's own inputs, whether the class has one responsibility, whether
+it works mostly on other objects' data, and whether its complexity is one
+dispatch table) with a fixed mapping from the answers to four categories,
+leaf, gatherer, table and other, written before any file was opened. The
+mapping applies its rows in order with leaf before table, so a dispatch table
+whose method is also one algorithm is read as a leaf. Reading conventions
+that settle what the questions leave open were added after the author had read
+13 units and before any model reading; they change no question or mapping
+row, and those 13 units were re-read under them. The author read a seeded
+subset of \fpReadAuthorFpN{} extra flags and \fpReadAuthorTpN{} of PMD's god
+classes before the model read; the model, Claude Fable 5.1 (model id
+\texttt{claude-fable-5-1}) through the Claude Code command line (version
+2.1.307) on \fpModelReadDate{}, read all \fpSampleN{} in ten independent
+sessions of twenty files at default sampling settings, each session seeing
+only the protocol and its batch. Every reader's answers and the model's
+recorded sessions are in the ancillary data.
 
 \begin{table}[t]
 \centering
@@ -1283,440 +695,245 @@ responsibility, or mostly other objects' data. Table: one dispatch table.}
 \fitwidth{\input{generated/tab_fp_readings}}
 \end{table}
 
-Table~\ref{tab:fp-readings} gives the reading. The author read a seeded subset
-of \fpReadAuthorFpN{} extra flags and \fpReadAuthorTpN{} of PMD's god classes,
-before the model read and before either reading was scored; the model, Claude
-Fable 5.1 (model id \texttt{claude-fable-5-1}) through the Claude Code command
-line (version 2.1.307) on \fpModelReadDate{}, read all \fpSampleN{} in ten
-sessions of twenty files. The two readers do not agree on
-what the files are. To the author \fpReadAuthorFpGathererPct{} of the extra
-flags are gatherers and \fpReadAuthorFpLeafPct{} leaves, against
-\fpReadAuthorTpGathererPct{} and \fpReadAuthorTpLeafPct{} of PMD's god
-classes; to the model \fpReadModelFpLeafPct{} of the extra flags are leaves
-and \fpReadModelFpGathererPct{} gatherers, against \fpReadModelTpLeafPct{} and
-\fpReadModelTpGathererPct{}. Each reader puts more leaves among the extra
-flags than among PMD's god classes and more gatherers among PMD's, the
+Table~\ref{tab:fp-readings} gives the reading. The two readers do not agree on
+what the files are: to the author \fpReadAuthorFpGathererPct{} of the extra
+flags are gatherers, to the model \fpReadModelFpLeafPct{} are leaves, and on
+the \fpKappaAuthorModelN{} units both read they give the same category to
+\fpKappaAuthorModelAgree{}, Cohen's $\kappa$ of \fpKappaAuthorModel{}. Each
+puts more leaves among the extra flags than among PMD's god classes, the
 direction the component breakdown predicts, but each reads the two groups
-more alike than apart, and on the \fpKappaAuthorModelN{} units both read they
-give the same category to \fpKappaAuthorModelAgree{}, Cohen's $\kappa$ of
-\fpKappaAuthorModel{}. The disagreement sits in one question. On whether the
-most complex method implements one algorithm the readers say yes at much the
-same rate in both groups (the author for \fpReadAuthorFpQOneYesPct{} of the
-extra flags and \fpReadAuthorTpQOneYesPct{} of PMD's god classes, the model
-for \fpReadModelFpQOneYesPct{} and \fpReadModelTpQOneYesPct{}), so the
-complexity the rule finds is, to both readers, mostly an algorithm's, god
-class or not. On whether the class has one responsibility they part: the
-author says yes for \fpReadAuthorFpQTwoYesPct{} of the extra flags and
-\fpReadAuthorTpQTwoYesPct{} of PMD's god classes, the model for
-\fpReadModelFpQTwoYesPct{} and \fpReadModelTpQTwoYesPct{}, and their $\kappa$
-on that question is \fpKappaAuthorModelQTwo{}. That number says less than it
-seems. The model's yes rate is a ceiling that leaves $\kappa$ nothing to
-measure, so the model's category was decided almost entirely by the
-foreign-data question; and the author's yes rate of
-\fpReadAuthorTpQTwoYesPct{} on PMD's god classes, which are large files, is
-what a reading blind to the verdict but not to size would give. The one
-question they answer alike is whether the class works mostly on other objects'
-data ($\kappa$ \fpKappaAuthorModelQThree{}), and on it both separate the
-groups the same way, the author widely and the model narrowly: yes for
-\fpReadAuthorFpQThreeYesPct{} of the extra flags against
+more alike than apart. The disagreement sits in one question, whether the
+class has one responsibility: the model says yes for
+\fpReadModelFpQTwoYesPct{} of the extra flags and \fpReadModelTpQTwoYesPct{}
+of PMD's god classes, a ceiling that leaves $\kappa$ (\fpKappaAuthorModelQTwo{})
+nothing to measure, while the author says yes for \fpReadAuthorFpQTwoYesPct{}
+and \fpReadAuthorTpQTwoYesPct{}. The one question they answer alike is whether
+the class works mostly on other objects' data ($\kappa$
+\fpKappaAuthorModelQThree{}), and on it both separate the groups the same way:
+yes for \fpReadAuthorFpQThreeYesPct{} of the extra flags against
 \fpReadAuthorTpQThreeYesPct{} of PMD's god classes to the author, and for
 \fpReadModelFpQThreeYesPct{} against \fpReadModelTpQThreeYesPct{} to the
-model. Dispatch tables are few to both. The reading therefore does not
-establish that the extra flags are leaves. Whether a class has one
-responsibility is a judgement two readers made differently on the same files
-under the same written conventions, and the mapping turns on it; what the two
-readers could judge alike, and what separated the extra flags from PMD's god
-classes to both, is whether the class works on other objects' data, which is
-the coupling question the follow-on study measures rather than reads.
-
-\subsection{Exploratory: the whole matrix}
-
-Table~\ref{tab:exploratory} (Appendix~\ref{app:tables}) gives, for every definition in the registry, the
-signal with the highest macro AUC over all repositories and the signal-and-rule
-cell with the highest macro MCC, in the main run. It is a search over 31
-signals, seven rules and two dozen definitions, upward-biased and reported as
-such. Three patterns are worth stating. Every self definition is recovered by
-its own signal at AUC 1, as it must be. Every PMD size and coupling component
-is best recovered by a size signal. And where the best signal is an ingredient
-it is marked, so that a reader does not take \sig{cc\_sum} recovering PMD's
-GodClass, which contains WMC, as a finding.
+model. The reading therefore does not establish that the extra flags are
+leaves. What the two readers could judge alike, and what separated the extra
+flags from PMD's god classes to both, is whether the class works on other
+objects' data, which is the coupling question the follow-on study measures
+rather than reads.
 
 \section{Deviations from the plan}
 \label{sec:deviations}
 
-One thing did not go to plan, and one part of the analysis was computed outside
-the harness. Each is stated with its effect.
-
-\paragraph{The classpath validation ran after confirm was read.} Described in
-Section~\ref{sec:classpath}. The validation touched explore repositories only,
-nothing in the analysis changed, and the bound was met; the order was wrong,
-and the confirmatory file records the primary as not confirmatory for that
-reason. Effect on the numbers: none. Effect on status: the reader's call.
+\paragraph{The classpath validation ran after confirm was read.} PMD and CK
+ran without an auxiliary classpath, so GodClass's data-access clause sees only
+the sources. The plan bounded that under-count by building at least ten
+explore-half Java repositories with their own build tool and re-running PMD
+with the built classpath, with a bound of 10\%; it was due before the confirm
+half was read and was run after, on explore repositories only. Of \cpTried{}
+candidates worked down in seeded order, \cpRepos{} built. \cpFlips{} of
+\cpUnion{} verdicts flipped, \cpRate{}, every one a god class gained with the
+classpath; \cpMaxFlips{} of them are in one repository (\cpMaxFlipsRepo{},
+\cpMaxFlipsRepoRate{}) and over the other nine the rate is \cpRateExclMax{}.
+The bound is met; the under-count is one-sided and can only lower the
+recovery measured. Because the order was wrong the confirmatory analysis file
+records the primary as not confirmatory for want of the validation, and the
+re-analysis that applied the bound is a dated exploratory file; the two agree
+on every number. A reader who holds to the plan's order may read the primary
+as exploratory.
 
 \paragraph{The human read-out is computed by the paper's scripts.} The
-harness's analysis of record covers the tool definitions. It writes its
-definition registry before the first repository is measured and reads its
-secondaries from that registry, which for the MLCQ run holds no human
-definition, so the planned human read-out is performed by this paper's
-scripts, with the harness's statistics module and the plan's constants, on the
-reviewed units reduced from the per-unit sidecar under the registry written at
-the end of the run. The extraction is checked against the harness's own
-analysis file on the main run, where every number it reproduces agrees to nine
-decimals. The read-out was first computed on 2026-10-20 and last regenerated
-on \humComputedUtc{}, with every number unchanged; nothing about the procedure
-was chosen after seeing it, and the plan it follows is the one tagged before
-the run. Two readings are reported. The plan keeps a god-free
-repository, so the paper keeps every repository with a reviewed unit at that
-level, its reviewed units being negatives the reviewers did look at; that is
-the plan-faithful reading and the one the paper quotes. Restricted to the
-\humBlobPosReposCo{} confirm repositories with a Blob positive, the Blob
-micro-MCC difference is \humBlobPosMicroMcc{} \humBlobPosMicroMccCI{}, and on
-the \humLongMethodPosReposCo{} repositories with a Long Method positive the
-difference is \humLongMethodPosMicroMcc{} \humLongMethodPosMicroMccCI{}: the
-same verdicts. Both readings are in the ancillary data. The exploratory
-agreement of Section~\ref{sec:human} is likewise the paper's, on the reviewed
-units. An earlier version of it in the harness, written before the MLCQ run,
-scored every Java class of each repository (218{,}896 units over 136
-repositories, with MCCs near 0.03 because the unreviewed classes were taken as
-negatives); it is superseded by the paper's, with the same questions,
-decisions and readings, and its output is kept in the ancillary data as a
-record.
+harness writes its definition registry before the first repository is
+measured, and the MLCQ run's registry holds no human definition, so the
+planned human read-out is performed by this paper's scripts with the harness's
+statistics module and the plan's constants, on the reviewed units reduced from
+the per-unit data. The reduction is checked against the harness's own analysis
+file on the main run, where every number it reproduces agrees to nine
+decimals. It was first computed on 2026-10-20 and last regenerated on
+\humComputedUtc{} with every number unchanged.
 
-\paragraph{Added after review.} Five read-outs were added after drafts of
-this paper were reviewed, none pre-registered and each labelled exploratory
-where it appears: the paired differences in the agreement comparison
-(Section~\ref{sec:human}, computed \agrComputedUtc{}), the cross-population
-transfer (Section~\ref{sec:transfer}, \transferComputedUtc{}), the tuned
-relative cut read against the tuned cutoff on the plan's three arms
-(Sections~\ref{sec:primary} and \ref{sec:mlcq-pmd}, computed with the
-transfer), the size correlations of the primary signal
-(Section~\ref{sec:primary}) and the characterisation and reading of the false
-positives (Section~\ref{sec:fp}, \fpComputedUtc{}). Effect on the pre-registered
-numbers: none. Effect on the reading: the transfer read-out weakens the
-motivation, and the paper says so.
+\paragraph{Added after review.} Four read-outs were added after drafts were
+reviewed, none pre-registered and each labelled exploratory: the paired
+differences in the agreement comparison (computed \agrComputedUtc{}), the
+cross-population transfer and the tuned relative cut read on the plan's three
+arms (\transferComputedUtc{}), the size correlation of the primary signal
+(Section~\ref{sec:primary}), and the characterisation and reading of the
+false positives (\fpComputedUtc{}). Effect on the pre-registered numbers:
+none. Effect on the reading: the transfer read-out shows the two populations
+share one scale, so the paper's comparisons test matching rather than drift,
+and the paper says so.
 
 \section{Discussion}
 \label{sec:disc}
 
-\paragraph{What inconclusive means here.} The scale-free rule did not beat
+\paragraph{Not worse on recovery, at a cost.} The scale-free rule did not beat
 the tuned cutoff on anything measured. It recovers PMD's god classes from a
-signal that is not a size sum at a per-repository AUC above 0.9, and within
-the pre-registered margin it matches a cutoff tuned on the same population on
-recovery, on a second population and in every tier. But every point estimate
-is on the cutoff's side: the pooled ranking is better raw than standardised,
-the rule flags about twice as many non-god classes, and the cutoff carried
-from the other population beats it too. The verdict is inconclusive because
-the plan made the false-positive arm decide and that arm neither cleared its
-margin nor fell below it; non-inferiority on the MCC arms, at a margin a third
-of the level, says only that the rule is not much worse. A rule that flagged
-half as much would have passed the plan; it would also have recalled less.
-That is the sampled population's story. On MLCQ the cutoff flags as much as
-the rule and still leads on pooled MCC, so the rule's cost there is its
-ranking, and tuning the rule's constant on either population's explore half
-leaves both verdicts where they were. The one threshold-free reading, the
-pooled AUC, is lower standardised than raw on both populations.
+signal that is not a size sum at a per-repository AUC above 0.9 and, within
+the pre-registered margin, matches a cutoff tuned on the same population on
+recovery, on a second population and in every tier. Every point estimate is on
+the cutoff's side, the rule flags about twice as many non-god classes, and the
+verdict is inconclusive because the false-positive arm neither cleared its
+margin nor fell below it. Every tool oracle is a raw-scale constant, so
+against the tools these comparisons could at best have shown the rule
+matching a constant, and a loss against them is weak evidence, as
+Section~\ref{sec:claim} said in advance. The one oracle with no constant
+inside it, the reviewers, is read on too few repositories to decide. The
+confirmatory verdict therefore answers a narrower question than the title
+asks: whether a relative outlier recovers PMD's verdicts as well as a constant
+tuned to them. It does, within the margin; whether it recovers a constant-free
+judgement of a god unit as well as a constant does is left open.
 
-\paragraph{What the design leaves open.} Every tool oracle is a raw-scale
-constant, so against the tools these comparisons could at best have shown the
-rule matching a constant, and a loss against them is weak evidence, as
-Section~\ref{sec:claim} said in advance. The one oracle with no constant inside
-it, the reviewers, is read on too few repositories to decide. The confirmatory
-verdict therefore answers a narrower question than the title asks: whether a
-relative outlier recovers PMD's verdicts as well as a constant tuned to them.
-Whether it recovers a constant-free judgement of a god unit as well as a
-constant does is left open.
+\paragraph{The steps, and which one this is.} The case for a scale-free
+detector is that agent-written code may concentrate complexity differently
+from the corpora the constants were fitted on \cite{he2026cursor,
+zhang2026llm}. That case cannot be tested until populations of agent-written
+code exist at scale, and a detector that fails on human-written code would
+have nothing to offer them. This study is the first step: on two populations
+of human-written code that share one scale, the rule matches a constant tuned
+to that scale within the margin, at the cost of false positives whose shape
+Section~\ref{sec:fp} describes. The second step is the follow-on coupling
+study, which asks whether the false positives can be separated from the god
+units by what a unit does with other objects' data, and so refines the
+detector. The third, which neither study makes, is to take the refined
+detector to populations of agent-written code, a comparison of repositories
+by agent adoption of the kind He et al.\ made for complexity
+\cite{he2026cursor}, or a fixed task under both authorships as Zhang, Wen and
+Tempero made \cite{zhang2026llm}. Nothing here measures whether the scale
+moves; what it establishes is that the rule is worth refining and carrying
+there.
 
-\paragraph{What the false positives are.} The relative rule's extra flags are
-small classes carrying one method PMD's own method-level rule would flag.
-Three in four fail PMD's size clause, their median file has \fpFpMedianNom{}
-methods, \fpFpCognitiveOneFivePct{} of them hold a method at PMD's cognitive
-threshold of 15, and a coupling component marks \fpFpCoupledPct{} of them
-against \fpTpCoupledPct{} of PMD's god classes; against MLCQ's reviewers one in six of them is a Blob, more than
-twice the rate among unflagged classes and less than the rate among PMD's
-flags. Reading the source did not settle whether they are leaves. Both readers
-found the complexity to be an algorithm's in about seven files of ten, god
-class or not; on whether the class around it has one responsibility the two
-readings cannot be compared, the model calling nearly every class
-single-responsibility and the author calling three in four of the extra flags
-gatherers; and the one judgement
-the two shared, whether the class works on other objects' data, was the one
-that separated the extra flags from PMD's god classes to both. The reading
-that fits is that complexity concentration locates where a codebase's
-complexity has gathered, and that whether the place is a god unit is legible
-neither in the complexity nor, reliably, in a reader's sense of responsibility,
-but in what the unit does with other objects' data. A leaf that holds the
-complexity of the algorithm it computes, a parser, a solver, a state machine,
-is an outlier for its repository and is exactly where that complexity belongs.
-Complexity alone cannot tell it from a class that gathers responsibilities,
-every definition in this study that does so adds a coupling clause to do it,
-and the coupling question was the one the two readers could answer alike.
-That is what the follow-on study takes up: whether a method's or class's
-coupling divergence, what it hands on to the rest of the system against what it
-receives, separates a complex leaf from a god unit among the units complexity
-alone flags. Its plan was registered before the human-label numbers here
-existed and records what of this study it had seen.
+\paragraph{Method level, and the class-level rule's flag rate.} At method
+level most methods have the lowest possible value, the robust scale collapses
+to a mean deviation, and 3.5 of it is a low bar; yet on the structure signals
+the default rule reaches a micro MCC within \humCandLongMethodMaxGap{} of a
+tuned cutoff against the reviewers' Long Method verdicts. The constant is the
+problem, not the standardisation. The same diagnosis applies, in milder form,
+at class level, where the default admits a tenth of files. A scale-free rule
+needs a constant fitted to the shape of these distributions; the natural
+candidate is the same rule on a logarithmic axis, a modified z of
+$\log(1+x)$, which is as scale-free as the rule tested and compresses the tail
+that collapses the MAD. It was not run and belongs in a registered follow-on.
 
-\paragraph{Method level is a different problem.} At method level the rule
-fails against every tool definition and, on the plan's chosen signal, against
-the reviewers, for one reason: most methods have the lowest possible value,
-the robust scale collapses to a mean deviation, and 3.5 of it is a low bar.
-Yet on the two structure signals the default rule reaches a micro MCC within
-\humCandLongMethodMaxGap{} of a cutoff tuned on MLCQ's own explore half against the reviewers' Long
-Method verdicts, ahead of every literature constant but one and level with
-that one. The constant is the
-problem, not the standardisation, and a scale-free rule for methods needs a
-constant fitted to the shape of method-level distributions, which this study
-did not register and does not claim. The natural candidate is the same rule on
-a logarithmic axis, a modified z of $\log(1+x)$: a change of scale becomes a
-shift the median absorbs, so it is as scale-free as the rule tested here, and
-it compresses the tail that collapses the MAD. It was not run and belongs in a
-registered follow-on.
-
-\paragraph{Humans against tools.} The weakest numbers in this paper are the
-ones every detector shares. No tool definition and no rule agrees with MLCQ's
-reviewers on Blob beyond an MCC of about \agrBlobMaxMcc{}, in line with what Schumacher et
-al.\ found for inter-developer agreement itself \cite{schumacher2010} and far
-below the 0.51 that classifiers trained on the labels reach \cite{mlcq2023}.
-On Long Method the fixed thresholds are precise and recall little, which is
-what a constant chosen to be safe does, and the relative rule recalls more at a
-price in precision. Whether a team wants the first or the second is a choice
-about cost, not a fact about the rule.
-
-\paragraph{The drift argument.} The motivation was that raw-scale constants
-stand in for a reader's budget, that the budget moves as the population of
-code moves, and that AI agents writing and maintaining code may be moving it
-now. Nothing here measures readers or budgets, and agreement with a definition
-cannot show its constant drifting. What the transfer read-out shows is
-narrower and goes the other way: between MLCQ's 2019 projects and the 2026
-sample, a cutoff tuned on one population lost almost nothing on the other, and
-the relative rule, which needs no re-fitting, did not beat the constant that
-was never re-fitted. The oracle is PMD's definition, itself one constant on
-both populations, so the read-out could not have seen that constant move
-against readers; what it shows is that on these two populations there was no
-drift in what recovers PMD. Both are populations of code written largely by
-people. The one comparison
-found that sets LLM-generated code beside human-written code on a fixed task
-saw concentration rise with the share of LLM involvement, and saw the
-threshold-based smell detectors miss it \cite{zhang2026llm}; that is one
-assignment of small projects, and this study's sample holds no such contrast. The cost of the relative rule, a doubling of false positives at a precision
-of \primRelPrecision{} against \primAbsPrecision{}, is large to a user of a
-detector, and on this evidence it buys nothing. Whether a population written
-largely by agents moves the constant is a question this study's sample, drawn
-in 2026 from repositories of every age, does not isolate; a comparison of
-repositories by agent adoption, of the kind He et al.\ made for complexity
-\cite{he2026cursor}, would.
-
-\paragraph{Conservation, revisited.} The companion study's finding that
-complexity is conserved and placed was the context in which concentration,
-rather than level, came to be the question. The results here do not test
-conservation, and conservation was never a premise of the rule; what they test
-is whether the place where a system's complexity has gathered is the god unit
-the definitions in use mark. The place is often the right one; what sits there
-is not always a god unit. A conserved quantity has to sit somewhere,
-and some of the places it sits are the right ones.
+\paragraph{What warrants the next study.} The rule's extra flags are small
+classes carrying one method PMD's own method-level rule would flag: three in
+four fail PMD's size clause, \fpFpCognitiveOneFivePct{} hold a method at
+cognitive 15, and a coupling component marks \fpFpCoupledPct{} of them against
+\fpTpCoupledPct{} of PMD's god classes. Against MLCQ's reviewers one in six of
+them is a Blob, more than twice the rate among unflagged classes and less than
+the rate among PMD's flags. Reading the source did not settle whether they are
+leaves; the one judgement two readers shared, whether the class works on other
+objects' data, was the one that separated the extra flags from PMD's god
+classes to both. The reading that fits is that complexity concentration
+locates where a codebase's complexity has gathered, and that whether the place
+is a god unit is legible neither in the complexity nor, reliably, in a
+reader's sense of responsibility, but in what the unit does with other
+objects' data. A leaf that holds the complexity of the algorithm it computes,
+a parser, a solver, a state machine, is an outlier for its repository and is
+where that complexity belongs. Complexity alone cannot tell it from a class
+that gathers responsibilities; every definition in this study that does so
+adds a coupling clause to do it. The follow-on study asks whether a unit's
+coupling divergence, what it hands on to the rest of the system against what
+it receives, separates a complex leaf from a god unit among the units
+complexity alone flags. Its plan was registered before the human-label
+numbers here existed and records what of this study it had seen.
 
 \section{Threats to validity}
 \label{sec:threats}
 
-\paragraph{Construct.} Every tool definition is itself an absolute threshold
-and itself imperfect, so against the tools this measures agreement between
-detectors on terms that favour the absolute competitor. The approximate DECOR
-Blob omits the association clause and uses the study's own cohesion cut; the
-Brain Method is internal and omits the NOAV clause; cognitive complexity,
-Halstead volume, the maintainability index and nesting are lexical estimators,
-calibrated against PMD. Each signal is a single indicator of a construct with
-several facets; reading the rule across ten of them, in
-families fixed in advance, stands in for a measurement model of complexity and
-is not one. The class-level unit is the file. The human labels are
-the only oracle without a constant inside it, and they are absolute judgements
-by readers who did not see the repository; their reviewers agreed with one
-another only moderately.
+\paragraph{Construct.} Every tool definition is an absolute threshold and
+imperfect, so against the tools this measures agreement between detectors on
+terms that favour the absolute competitor. The approximate DECOR Blob keeps
+two of its four clauses; the Brain Method is internal; cognitive complexity,
+Halstead volume, the maintainability index and nesting are lexical estimators
+calibrated against PMD. The class-level unit is the file. The human labels are
+absolute judgements by readers who did not see the repository and who agreed
+with one another only moderately.
 
-\paragraph{Internal.} PMD and CK ran without a classpath; the validation bounds
-the effect at \cpRate{} of verdicts on ten repositories and was run out of
-order. Test code is excluded by directory conventions that can miss or
-over-match; generated files and files over 1~MB leave the universe and are
-counted. The class-level unit is the file, and \javaFilesMultiPct{} of Java
-files hold more than one class, so a nested class's verdict and its methods'
-complexity are credited to the file that holds it. The relative rules are fitted with zeros included, which makes the
-zero-heavy method-level signals fall back to a mean-deviation scale; the scale
-kind is recorded and reported. The human read-out was computed by the paper's
-scripts, checked against the harness on the main run, and rests on
-\humBlobAllMinPosEx{} (Blob) and \humLongMethodAllMinPosEx{} (Long Method)
-repositories for its signal choice and on \humBlobAllAucMacroN{} and
-\humLongMethodAllAucMacroN{} for its per-repository AUC.
+\paragraph{Internal.} PMD and CK ran without a classpath; the validation
+bounds the effect at \cpRate{} of verdicts on ten repositories and was run out
+of order. Test code is excluded by directory conventions that can miss or
+over-match. The relative rules are fitted with zeros included, which makes the
+zero-heavy method-level signals fall back to a mean-deviation scale. The human
+read-out rests on \humBlobAllMinPosEx{} (Blob) and \humLongMethodAllMinPosEx{}
+(Long Method) repositories for its signal choice.
 
 \paragraph{External.} GitHub repositories of 200 stars or more, ten languages,
-one commit each, drawn with equal allocation across three popularity tiers, so
-pooled numbers are unweighted over strata and not population estimates. Every
-composite definition is Java-only, so the recovery result is a Java,
-class-level result; the other nine languages supply the flag-rate and
-scale-kind diagnostics and no recovery of an external definition. The MLCQ
-population is MLCQ's choice, half of it Apache, at 2019 commits, and its
-intervals overstate its independence; its reviewed units were drawn at random
-and then enriched by re-review, so the base rate among them is MLCQ's, and
-agreement with its reviewers is read at that rate. The sampler is a separate tool but the author's own; it takes no
-input from the study beyond its criteria, and its draw is reproducible from
-the published derivation. Re-running it reproduces the method, not necessarily
-the list; the published sample files, pinned to commits, are the record.
+one commit each, with equal allocation across tiers, so pooled numbers are not
+population estimates. Every composite definition is Java-only, so the recovery
+result is a Java, class-level result. The MLCQ population is MLCQ's choice,
+half of it Apache, at 2019 commits, and its intervals overstate its
+independence; its reviewed units are enriched by re-review. The sampler is the
+author's own tool; its draw is reproducible from the published derivation, and
+the published sample files, pinned to commits, are the record.
 
-\paragraph{Conclusion validity.} The matrix is a large search; its single best
-cells are upward-biased, which is why one primary, one decision rule and one
-read of the confirm half were fixed in advance and why the all-candidate tables
-of the human read-out are labelled exploratory. The within-repository AUC is the
-same under both views and is never read as evidence for scale-freeness. The
-human-label gate was not met, so no human-label result here is confirmatory,
-and the one favourable human-label number, the relative rule on cyclomatic
-complexity against Long Method, is an exploratory comparison, read with a
-paired test, that a reader should expect to shrink on replication. The
-cross-population transfer, the component breakdown of the false positives and
-the reading of a sample of them were added after the first draft of this paper
-was reviewed; none was pre-registered and each is labelled exploratory. The
-reading has two readers, one of them the author and the other a language
-model whose answers are not a human's, who agree on the category at a $\kappa$
-of \fpKappaAuthorModel{}; the author read \fpKappaAuthorModelN{} units and the
-per-question shares are descriptive, with no interval put on them. The reading
-was blind to PMD's verdict and not to size, which is most of that verdict; the
-model answered one of the four questions almost uniformly, so its category
-rests on one question; and a third reader, neither the author nor a model,
-would be needed to say which reading is the better one. The model is a
-commercial product whose behaviour can change between releases, so its
-archived sessions, not a re-run, are the record.
+\paragraph{Conclusion validity.} One primary, one decision rule and one read
+of the confirm half were fixed in advance; everything added after review is
+labelled exploratory, and the one favourable human-label number is a
+best-of-many comparison a reader should expect to shrink. The reading has two
+readers, one the author and the other a language model whose answers are not
+a human's, who agree on the category at a $\kappa$ of \fpKappaAuthorModel{};
+the author read \fpKappaAuthorModelN{} units, the reading was blind to PMD's
+verdict and not to size, and a third reader would be needed to say which
+reading is the better one. The model is a commercial product whose behaviour
+can change between releases, so its archived sessions, not a re-run, are the
+record.
 
 \section{Reproducibility and data availability}
 \label{sec:repro}
 
 Every number in this paper is produced by a script from the harness's output.
-The harness's two confirmatory analysis files, one per run, and the dated
-exploratory re-analysis are included with the paper as ancillary data, with
-their digests as committed, together with the sample files the repositories
-were drawn from, the frozen explore/confirm assignments, the per-repository
-summary tables and definition registries the harness writes, the converted MLCQ
-labels and their summary, the classpath reports and build log, the paper's own
-reductions of the per-unit data for the human read-out and the agreement
-comparison, every reader's answers on the false-positive sample with the
-model reader's recorded sessions, and the harness's superseded agreement
-output. The raw per-unit
-data (several gigabytes) is not included; it regenerates by running the
-harness on the published sample files, which pin every repository to its
-commit, and the ancillary README names the public code repositories of the
-harness, the sampler, the companion study and the follow-on study, with the
-command behind every table, figure and inline number.
+The harness's two confirmatory analysis files, the dated exploratory
+re-analysis, the sample files, the frozen explore/confirm assignments, the
+per-repository summaries and definition registries, the converted MLCQ
+labels, the classpath reports, the paper's reductions for the human read-out
+and the agreement comparison, and every reader's answers on the false-positive
+sample with the model reader's recorded sessions are included as ancillary
+data, with the digests as committed. The raw per-unit data regenerates by
+running the harness on the published sample files, and the ancillary README
+names the public repositories of the harness, the sampler, the companion study
+and the follow-on study, with the command behind every table, figure and
+inline number.
 
 \section{Conclusion}
 
 A unit whose complexity is a robust outlier for its own codebase ranks above
-the classes PMD does not call god classes in nine pairs of ten, in every tier,
-in both applications and libraries, and on two populations; of the units it
-flags, three in ten are PMD god classes. Read as the plan required, against a
-cutoff tuned on the same population, the scale-free rule at its literature
-default is behind on every point estimate, within the pre-registered margin on
-recovery and worse on false positives, and the verdict is inconclusive on both
-populations, by a different arm on each. Tuning the rule's own constant leaves
-the verdict where it is, so what the rule loses on is the axis, not the 3.5.
-Carried between the two populations, the tuned cutoff lost almost nothing, so
-on these populations, both of code written largely by people, the re-fitting
-the rule saves was not needed to recover PMD, whose definition is the same
-constant on both. At method
-level the literature constant is wrong for the shape of the distribution and
-the rule is inferior. Against human reviewers the planned read-out is
-underpowered and inferior on the signals its procedure chose, while an
-exploratory comparison finds every detector weak on Blob and the relative rule
-on cyclomatic complexity level with the best fixed threshold on Long Method and
-ahead of the rest.
+the classes PMD does not call god classes in nine pairs of ten, in every tier
+and on two populations, and at its literature default is not worse, within
+the pre-registered margin, than a cutoff tuned on the same population at
+recovering them. It pays for that with about twice the false positives, so
+the pre-registered verdict is inconclusive. The two populations, both of
+human-written code, sit on one scale, so this is the first step the
+motivation needs, matching the scale the constants were fitted to, and not
+yet the test of a shifted one. At method level the literature constant is wrong for the
+shape of the distribution and the rule is inferior.
 
 The result that carries forward is the shape of the errors. Concentration
-finds where the complexity is. Some of those places are god units, and some
+finds where the complexity is. Some of those places are god units and some
 are small classes doing the work they were written to do, and a complexity
 measure cannot tell the two apart because the difference is not in the
-complexity. Two readers of the source could not tell them apart by eye either,
-except on one question, whether the class works on other objects' data. The
-difference is in what the unit does with the data it holds, which is a
-coupling question, and the next study asks it.
+complexity. Two readers of the source could not tell them apart by eye
+either, except on one question, whether the class works on other objects'
+data. That is a coupling question, and it warrants the next study, which asks
+it; the detector that study refines is the one to take to agent-written code.
 
 \section*{Competing interests}
 
-The author created and maintains OfficeFloor, a framework whose design rests on
-taking data off the control flow, and the construct the follow-on study tests,
-coupling divergence, comes from that line of work. This study compares no
-frameworks and its sample excludes the author's own ecosystem, but the reading
-in Section~\ref{sec:disc}, that the false positives call for a coupling measure,
-is the reading the author's interest favours, and a reader should weigh it as
-such. The author was also one of the two readers of the false-positive sample;
-that reading was blind to PMD's verdict, made under a protocol committed
-before it, and is reported beside the model's with their disagreement. The
-sampler that drew the repositories is the author's tool as well. The companion
-study on conservation, which motivates this one, is the author's as well. Against the interest: the plan, the seed and the decision rule
-were fixed before the data existed, the verdict that resulted is inconclusive
-rather than favourable, every deviation is reported with its effect,
-and a replication needs no cooperation from the author.
+The author created and maintains OfficeFloor, a framework whose design rests
+on taking data off the control flow, and the construct the follow-on study
+tests, coupling divergence, comes from that line of work. This study compares
+no frameworks and its sample excludes the author's own ecosystem, but the
+reading in Section~\ref{sec:disc}, that the false positives call for a
+coupling measure, is the reading the author's interest favours, and a reader
+should weigh it as such. The author was one of the two readers of the
+false-positive sample; that reading was blind to PMD's verdict, made under a
+protocol committed before it, and is reported beside the model's with their
+disagreement. The sampler and the companion study are the author's as well.
+Against the interest: the plan, the seed and the decision rule were fixed
+before the data existed, the verdict that resulted is inconclusive rather than
+favourable, every deviation is reported with its effect, and a replication
+needs no cooperation from the author.
 
 \section*{Funding}
 
 This work received no external funding and was carried out and paid for by the
 author.
-
-\appendix
-\section{Definitions, rules and exploratory tables}
-\label{app:tables}
-
-\begin{table}[p]
-\centering
-\caption{The definitions this paper reads, from the registry written with the
-run. Kind: a composite is a multi-clause textbook definition, a tool measure is
-one none of the study's signals computes, a self definition restates one signal
-as a threshold, a calibration definition is PMD's own implementation of one of
-the study's signals, a component is one clause of a definition. Origin: who
-computed the label. A signal built from a definition's base measures may never
-headline it.}
-\label{tab:registry}
-\scriptsize
-\setlength{\tabcolsep}{4pt}
-\fitwidth{\input{generated/tab_registry}}
-\end{table}
-
-\begin{table}[p]
-\centering
-\caption{The relative outlier rules and their standardised-axis constants, as
-recorded with the run. The modified z-score is the pre-registered primary; the
-classic z-score is a parametric control; the extreme-value rule's default
-$p = 1/n$ is a deliberately strict floor.}
-\label{tab:rules}
-\scriptsize
-\setlength{\tabcolsep}{4pt}
-\fitwidth{\input{generated/tab_rules}}
-\end{table}
-
-\begin{table}[p]
-\centering
-\caption{Exploratory: every candidate class signal on the confirm reviewed
-classes of MLCQ's Blob, pooled standardised AUC, the default modified z-score's
-micro MCC, precision and recall, and the explore-tuned absolute cutoff with its
-micro MCC.}
-\label{tab:human-cand-class}
-\scriptsize
-\fitwidth{\input{generated/tab_human_candidates_class}}
-\end{table}
-
-\begin{table}[p]
-\centering
-\caption{The same for the method-level candidates on MLCQ's Long Method.}
-\label{tab:human-cand-method}
-\scriptsize
-\fitwidth{\input{generated/tab_human_candidates_method}}
-\end{table}
-
-\begin{table}[p]
-\centering
-\caption{Exploratory, main run: the best signal by macro AUC and the best
-signal-and-rule cell by macro MCC for every definition in the registry.
-$^{*}$ marks a signal that is an ingredient of the definition. Best-of-many is
-upward-biased.}
-\label{tab:exploratory}
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\fitwidth{\input{generated/tab_exploratory}}
-\end{table}
 
 \begin{thebibliography}{99}
 
@@ -1735,22 +952,11 @@ upward-biased.}
   in \emph{Proc. 16th IEEE International Working Conference on Source Code
   Analysis and Manipulation (SCAM)}, pp.~41--50, 2016.
 
-\bibitem{arif2026} H.~Arif, M.~Kuutila and P.~Ralph,
-  ``Assessing the construct validity of object-oriented, class-level code
-  quality metrics,''
-  in \emph{Proc. ACM/IEEE International Symposium on Empirical Software
-  Engineering and Measurement (ESEM)}, 2026; arXiv:2609.20411.
-
 \bibitem{baxter2006} G.~Baxter, M.~Frean, J.~Noble, M.~Rickerby, H.~Smith,
   M.~Visser, H.~Melton and E.~Tempero,
   ``Understanding the shape of Java software,''
   in \emph{Proc. 21st ACM SIGPLAN Conference on Object-Oriented Programming,
   Systems, Languages, and Applications (OOPSLA)}, pp.~397--412, 2006.
-
-\bibitem{brys2004} G.~Brys, M.~Hubert and A.~Struyf,
-  ``A robust measure of skewness,''
-  \emph{Journal of Computational and Graphical Statistics}, vol.~13, no.~4,
-  pp.~996--1017, 2004.
 
 \bibitem{campbell2018} G.~A. Campbell,
   ``Cognitive Complexity: a new way of measuring understandability,''
@@ -1770,16 +976,6 @@ upward-biased.}
   \emph{Bootstrap Methods and Their Application}. Cambridge University Press,
   1997.
 
-\bibitem{demsar2006} J.~Dem\v{s}ar,
-  ``Statistical Comparisons of Classifiers over Multiple Data Sets,''
-  \emph{Journal of Machine Learning Research}, vol.~7, pp.~1--30, 2006.
-
-\bibitem{dinucci2018} D.~Di~Nucci, F.~Palomba, D.~A. Tamburri, A.~Serebrenik and
-  A.~De~Lucia,
-  ``Detecting code smells using machine learning techniques: Are we there yet?''
-  in \emph{Proc. IEEE 25th International Conference on Software Analysis,
-  Evolution and Reengineering (SANER)}, pp.~612--621, 2018.
-
 \bibitem{elemam2001} K.~El~Emam, S.~Benlarbi, N.~Goel and S.~N. Rai,
   ``The confounding effect of class size on the validity of object-oriented
   metrics,''
@@ -1791,18 +987,9 @@ upward-biased.}
   ``Identifying thresholds for object-oriented software metrics,''
   \emph{Journal of Systems and Software}, vol.~85, no.~2, pp.~244--257, 2012.
 
-\bibitem{fontana2016} F.~Arcelli Fontana, M.~V. M\"antyl\"a, M.~Zanoni and
-  A.~Marino,
-  ``Comparing and experimenting machine learning techniques for code smell
-  detection,''
-  \emph{Empirical Software Engineering}, vol.~21, no.~3, pp.~1143--1191, 2016.
-
 \bibitem{fowler1999} M.~Fowler,
   \emph{Refactoring: Improving the Design of Existing Code}. Addison-Wesley,
   1999.
-
-\bibitem{halstead1977} M.~H. Halstead,
-  \emph{Elements of Software Science}. Elsevier, 1977.
 
 \bibitem{he2026cursor} H.~He, C.~Miller, S.~Agarwal, C.~K\"astner and
   B.~Vasilescu,
@@ -1815,21 +1002,11 @@ upward-biased.}
   ``Calculation and optimization of thresholds for sets of software metrics,''
   \emph{Empirical Software Engineering}, vol.~16, no.~6, pp.~812--841, 2011.
 
-\bibitem{hubert2008} M.~Hubert and E.~Vandervieren,
-  ``An adjusted boxplot for skewed distributions,''
-  \emph{Computational Statistics \& Data Analysis}, vol.~52, no.~12,
-  pp.~5186--5201, 2008.
-
 \bibitem{iglewicz1993} B.~Iglewicz and D.~C. Hoaglin,
   \emph{How to Detect and Handle Outliers}. ASQC Quality Press, 1993.
 
 \bibitem{lanza2006} M.~Lanza and R.~Marinescu,
   \emph{Object-Oriented Metrics in Practice}. Springer, 2006.
-
-\bibitem{mcCabe1976} T.~J. McCabe,
-  ``A Complexity Measure,''
-  \emph{IEEE Transactions on Software Engineering}, vol.~SE-2, no.~4,
-  pp.~308--320, 1976.
 
 \bibitem{mlcq2020} L.~Madeyski and T.~Lewowski,
   ``MLCQ: Industry-relevant code smell data set,''
@@ -1845,6 +1022,11 @@ upward-biased.}
   ``Detection strategies: metrics-based rules for detecting design flaws,''
   in \emph{Proc. 20th IEEE International Conference on Software Maintenance
   (ICSM)}, pp.~350--359, 2004.
+
+\bibitem{mcCabe1976} T.~J. McCabe,
+  ``A Complexity Measure,''
+  \emph{IEEE Transactions on Software Engineering}, vol.~SE-2, no.~4,
+  pp.~308--320, 1976.
 
 \bibitem{moha2010} N.~Moha, Y.-G. Gu\'eh\'eneuc, L.~Duchien and A.-F. Le~Meur,
   ``DECOR: A Method for the Specification and Detection of Code and Design
@@ -1866,20 +1048,6 @@ upward-biased.}
   in \emph{Proc. IEEE Conference on Software Maintenance, Reengineering and
   Reverse Engineering (CSMR-WCRE)}, pp.~254--263, 2014.
 
-\bibitem{oman1992} P.~Oman and J.~Hagemeister,
-  ``Metrics for Assessing a Software System's Maintainability,''
-  in \emph{Proc. Conference on Software Maintenance (ICSM)}, pp.~337--344, 1992.
-
-\bibitem{landfill2015} F.~Palomba, D.~Di~Nucci, M.~Tufano, G.~Bavota,
-  R.~Oliveto, D.~Poshyvanyk and A.~De~Lucia,
-  ``Landfill: An open dataset of code smells with public evaluation,''
-  in \emph{Proc. 12th Working Conference on Mining Software Repositories (MSR)},
-  pp.~482--485, 2015.
-
-\bibitem{pickands1975} J.~Pickands III,
-  ``Statistical inference using extreme order statistics,''
-  \emph{The Annals of Statistics}, vol.~3, no.~1, pp.~119--131, 1975.
-
 \bibitem{riel1996} A.~J. Riel,
   \emph{Object-Oriented Design Heuristics}. Addison-Wesley, 1996.
 
@@ -1892,24 +1060,6 @@ upward-biased.}
   ``Building empirical support for automated code smell detection,''
   in \emph{Proc. ACM-IEEE International Symposium on Empirical Software
   Engineering and Measurement (ESEM)}, article 8, 2010.
-
-\bibitem{serebrenik2010} A.~Serebrenik and M.~van~den Brand,
-  ``Theil index for aggregation of software metrics values,''
-  in \emph{Proc. IEEE International Conference on Software Maintenance (ICSM)},
-  pp.~1--9, 2010.
-
-\bibitem{tempero2026} E.~Tempero and P.~Ralph,
-  ``Making software metrics useful,''
-  \emph{IEEE Computer}, in press, 2026, doi:10.1109/MC.2026.3666634;
-  arXiv:2603.16012.
-
-\bibitem{tukey1977} J.~W. Tukey,
-  \emph{Exploratory Data Analysis}. Addison-Wesley, 1977.
-
-\bibitem{vasa2009} R.~Vasa, M.~Lumpe, P.~Branch and O.~Nierstrasz,
-  ``Comparative Analysis of Evolving Software Systems Using the Gini
-  Coefficient,'' in \emph{Proc. IEEE International Conference on Software
-  Maintenance (ICSM)}, pp.~179--188, 2009.
 
 \bibitem{lizard} T.~Yin,
   ``Lizard: a simple code complexity analyser,'' version 1.23.0.

@@ -62,7 +62,7 @@ read-out and the exploratory agreement are computed here, and the paper says so 
   author's reading and runs the model readers as blind `claude -p` sessions. `readings/` holds every reader's decisions, the one
   input no script reproduces, and is committed.
 
-All five read-outs were added after drafts were reviewed, and the paper labels each exploratory (Section 6).
+The read-outs these scripts add beyond the plan were introduced after drafts were reviewed, and the paper labels each exploratory (Section 6).
 
 `scripts/check_extract.py` shows the paper's reduction reproduces the harness's numbers on the
 main run to nine decimals, so the human read-out rests on the same code path.

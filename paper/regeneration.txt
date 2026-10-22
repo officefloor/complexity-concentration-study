@@ -35,35 +35,30 @@ STEP BY STEP
   .venv/bin/python   scripts/figures.py           -> figures/*.pdf
 
 TABLES (generated/), in the order the paper places them
-  tab_sample                strata, from analysis.json diagnostics (Section 4)
-  tab_calibration           estimators vs PMD, both analysis.json files (Section 5.1)
-  tab_explore_primary       the explore choice, analysis.json primary (Section 5.2)
-  tab_confirm_primary       the primary read-out on confirm (Section 5.2)
-  tab_decisions             every decision row: analysis.json (main, MLCQ) and human.json
-  tab_secondary             the three secondaries (Section 5.3)
-  tab_friedman              Friedman tests, both runs (Section 5.4)
-  tab_classpath             the classpath reports under main-run/classpath/ (Section 5.5)
-  tab_transfer              the cutoff carried across populations and the relative cut tuned on
-                            each population (tuned against tuned), transfer.json (Section 5.7)
-  tab_confirm_human_class_all, tab_confirm_human_method_all      human.json (Section 5.8)
-  tab_agreement             agreement.json (Section 5.8; tab_agreement_groups is also written)
-  tab_fp_breakdown          false_positives.json (Section 5.9); tab_fp_readings once readings exist
-  Appendix A: tab_registry (main-run/oracles.json), tab_rules (oracles.json),
-              tab_human_candidates_class, tab_human_candidates_method (human.json),
-              tab_exploratory (analysis.json exploratory section)
-  (also written, not placed: tab_explore_{class,method}_{all,pos}, tab_confirm_human_*_pos,
-   tab_confirm_{npath,decor,brain,mlcq_pmd}, tab_explore_mlcq_pmd)
+  Table 1  tab_confirm_primary   the primary read-out on confirm, analysis.json (Section 5.2)
+  Table 2  tab_decisions         every decision row: analysis.json (main, MLCQ) and human.json (Section 5.2)
+  Table 3  tab_transfer          the cutoff carried across populations and the relative cut tuned on
+                                 each population (tuned against tuned), transfer.json (Section 5.3)
+  Table 4  tab_agreement         agreement.json (Section 5.4)
+  Table 5  tab_fp_breakdown      false_positives.json (Section 5.5)
+  Table 6  tab_fp_readings       false_positives.json with readings/ (Section 5.5)
+  Also written by tables.py, not placed in the paper (the full set behind the longer draft):
+    tab_sample, tab_calibration, tab_explore_primary, tab_secondary, tab_friedman, tab_classpath,
+    tab_confirm_human_class_all, tab_confirm_human_method_all, tab_agreement_groups, tab_registry,
+    tab_rules, tab_human_candidates_class, tab_human_candidates_method, tab_exploratory,
+    tab_explore_{class,method}_{all,pos}, tab_confirm_human_*_pos,
+    tab_confirm_{npath,decor,brain,mlcq_pmd}, tab_explore_mlcq_pmd.
+  The numbers those tables hold are still quoted inline where the paper needs them (the sample,
+  the calibration, the classpath validation, the secondaries, the human candidates).
 
 FIGURES (figures/, scripts/figures.py)
-  Figure 1 flag_rates.pdf           data/main.json rows (the harness's per-repository cells)
-  Figure 2 auc_by_signal.pdf        data/main.json class-level per-repository AUCs
-  Figure 3 pooled_distribution.pdf  data/main.json per-unit z and raw values of cognitive_max
-  Figure 4 decisions.pdf            analysis.json (main, MLCQ) decisions and human.json
-  Figure 5 paired_mcc.pdf           data/main.json per-repository confusion counts
-  Figure 6 human_agreement.pdf      data/agreement.json
+  Figure 1 decisions.pdf            analysis.json (main, MLCQ) decisions and human.json
+  Also drawn, not placed: flag_rates.pdf, auc_by_signal.pdf, pooled_distribution.pdf,
+  paired_mcc.pdf (data/main.json) and human_agreement.pdf (data/agreement.json).
 
 INLINE NUMBERS
-  Every inline number is a macro in generated/numbers.tex (about 1,100 of them), named by its source:
+  Every inline number is a macro in generated/numbers.tex (about 1,100 of them, more than the paper
+  quotes; every one is still generated), named by its source:
   prim* (the primary), npath*/decor*/brain* (secondaries), mlcqPmd* (the plan on MLCQ's
   population), humBlob*/humLongMethod* with All/Pos (the human read-out, both populations),
   agrBlob*/agrLm* (the agreement, with RelMinus* the paired differences and *MaxMcc the best any
