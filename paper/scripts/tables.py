@@ -206,7 +206,7 @@ def table_confirm(res: dict, out: str, name: str, prefix: str) -> None:
     cut = c["absolute_cutoff"]["cut"]
     zcut = c["relative_tuned"]["z_cut"]
     body = ["\\begin{tabular}{lrrrrrr}", "\\toprule",
-            "Rule on " + sig_tex(best) + " & Macro MCC (95\\% CI) & Micro MCC & Precision & Recall & Macro FPR & FP in god-free repos \\\\",
+            "Rule on " + sig_tex(best) + " & Macro MCC, god-free at 0 (95\\% CI) & Micro MCC & Precision & Recall & Macro FPR & FP in god-free repos \\\\",
             "\\midrule",
             mcc_rows("default: modified $z \\geq 3.5$", c["relative_default"]),
             mcc_rows(f"tuned absolute cutoff $\\geq {cut:g}$", c["absolute_cutoff"]["confirm"]),
@@ -420,6 +420,7 @@ def table_human(h: dict, out: str) -> None:
                         f"{f(c['mad_z_precision'], 2)} & {f(c['mad_z_recall'], 2)} & {cut_s} & {f(c['abs_micro_mcc'])} \\\\")
         body += ["\\bottomrule", "\\end{tabular}"]
         write(out, f"tab_human_candidates_{level}.tex", "\n".join(body) + "\n")
+        num(f"humCand{defn}N", str(len(allc)))
         if allc:
             top = max(allc.values(), key=lambda c: c["pooled_auc_standardised"] or 0)
             num(f"humCand{defn}TopPooledAuc", f(top["pooled_auc_standardised"]))
@@ -691,7 +692,7 @@ def verdict_of(b, arm: str, margin: float, fpr_margin: float) -> str:
 
 def table_transfer(t: dict, out: str, margins: dict) -> None:
     body = ["\\begin{tabular}{llrrrrrr}", "\\toprule",
-            "Read on & Rule & Cut & Micro MCC & Macro MCC & Macro FPR & Precision & Recall \\\\", "\\midrule"]
+            "Read on & Rule & Cut & Micro MCC & Macro MCC, $\\geq 1$ positive & Macro FPR & Precision & Recall \\\\", "\\midrule"]
     labels = {"main": ("main run, confirm half", "MLCQ"), "mlcq": ("MLCQ, confirm half", "main run")}
     for run in ("main", "mlcq"):
         R = t["runs"][run]
@@ -791,6 +792,10 @@ def table_fp(fp: dict, out: str) -> None:
                     qn = "Q" + {"1": "One", "2": "Two", "3": "Three", "4": "Four"}[q[1]]
                     num("fpRead" + camel(r) + camel(g) + qn + "YesN", str(x["yes"]))
                     num("fpRead" + camel(r) + camel(g) + qn + "YesPct", pct(x["yes"] / x["n"], 0) if x["n"] else "--")
+            # the separation of the two groups by this reader: fpSepAuthorQThreeP, fpSepModelLeafP and so on
+            for k, x in rd.get("separation_by_reader", {}).get(r, {}).items():
+                kn = "Q" + {"1": "One", "2": "Two", "3": "Three", "4": "Four"}[k[1]] if k.startswith("q") else k.capitalize()
+                num("fpSep" + camel(r) + kn + "P", f(x["p"], 3))
         for pair, a in rd["agreement"].items():
             x, y = pair.split("|")
             body.append(f"\\multicolumn{{7}}{{l}}{{agreement {tex(x)} with {tex(y)}: {a['agree']} of {a['n']} units, Cohen's $\\kappa = {f(a['kappa'], 2) if a['kappa'] is not None else '--'}$}} \\\\")

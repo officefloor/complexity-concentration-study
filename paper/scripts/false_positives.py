@@ -269,18 +269,36 @@ def load_readings(pattern: str) -> tuple[dict, dict]:
     return readings, pending
 
 
+def fisher_two_sided(a: int, b: int, c: int, d: int) -> float:
+    """Two-sided Fisher exact p for the 2x2 table [[a, b], [c, d]]: the summed probability, under
+    the fixed margins, of every table at most as likely as the observed one."""
+    from math import comb
+    n = a + b + c + d
+    r1, c1 = a + b, a + c
+    if n == 0 or r1 in (0, n) or c1 in (0, n):
+        return 1.0
+
+    def prob(x: int) -> float:
+        return comb(r1, x) * comb(n - r1, c1 - x) / comb(n, c1)
+
+    p0 = prob(a)
+    lo, hi = max(0, c1 - (n - r1)), min(r1, c1)
+    return min(1.0, sum(prob(x) for x in range(lo, hi + 1) if prob(x) <= p0 * (1 + 1e-9)))
+
+
 def merge_readings(readings: dict, key: dict) -> dict:
     """{reader: {group: {category: n}}}: each reader's category by group (derived from the
     answers by the protocol's mapping), each reader's yes-count on every question by group,
     and the agreement between every pair of readers on the units both read: on the category
-    (Cohen's kappa) and on each question."""
+    (Cohen's kappa) and on each question. For each reader, the separation of the two groups on
+    each question and on each category is a two-sided Fisher exact p on the yes/no counts."""
     readers = sorted({r for v in readings.values() for r in v})
     for v in readings.values():
         for r in readers:
             if r in v:
                 v[r]["category"] = category_of(v[r])
     out = {"readers": readers, "n_read": {r: sum(1 for v in readings.values() if r in v) for r in readers},
-           "by_reader": {}, "questions_by_reader": {}, "agreement": {}}
+           "by_reader": {}, "questions_by_reader": {}, "separation_by_reader": {}, "agreement": {}}
     for r in readers:
         tab: dict = {}
         qtab: dict = {}
@@ -297,6 +315,18 @@ def merge_readings(readings: dict, key: dict) -> dict:
                 qt[q]["yes"] += 1 if bool(v[r].get(q)) else 0
         out["by_reader"][r] = tab
         out["questions_by_reader"][r] = qtab
+        sep: dict = {}
+        if "fp" in qtab and "tp" in qtab:
+            for q in ("q1", "q2", "q3", "q4"):
+                x, y = qtab["fp"][q], qtab["tp"][q]
+                sep[q] = {"fp_yes": x["yes"], "fp_n": x["n"], "tp_yes": y["yes"], "tp_n": y["n"],
+                          "p": fisher_two_sided(x["yes"], x["n"] - x["yes"], y["yes"], y["n"] - y["yes"])}
+            n_fp, n_tp = sum(tab["fp"].values()), sum(tab["tp"].values())
+            for c in ("LEAF", "GATHERER", "TABLE", "OTHER"):
+                a_, b_ = tab["fp"].get(c, 0), tab["tp"].get(c, 0)
+                sep[c] = {"fp_yes": a_, "fp_n": n_fp, "tp_yes": b_, "tp_n": n_tp,
+                          "p": fisher_two_sided(a_, n_fp - a_, b_, n_tp - b_)}
+        out["separation_by_reader"][r] = sep
     for i, a in enumerate(readers):
         for b in readers[i + 1:]:
             both = [v for v in readings.values() if a in v and b in v]
@@ -364,6 +394,9 @@ def main(argv=None) -> int:
         for r, qtab in out["readings"]["questions_by_reader"].items():
             p(f"   {r} yes by question: " + "; ".join(
                 f"{g}: " + ", ".join(f"{q} {x['yes']}/{x['n']}" for q, x in qt.items()) for g, qt in qtab.items()))
+        for r, sep in out["readings"]["separation_by_reader"].items():
+            p(f"   {r} fp vs tp, Fisher two-sided p: " + ", ".join(
+                f"{k} {x['fp_yes']}/{x['fp_n']} vs {x['tp_yes']}/{x['tp_n']} p={x['p']:.3f}" for k, x in sep.items()))
         for pair, a in out["readings"]["agreement"].items():
             p(f"   agreement {pair}: category {a['agree']}/{a['n']} kappa {a['kappa']}; " +
               "; ".join(f"{q} {x['agree']}/{a['n']} kappa {x['kappa']}" for q, x in a["questions"].items()))
