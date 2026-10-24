@@ -29,10 +29,12 @@ classifiers = [
 # ZERO functions (study.check_parser fails closed on it). PMD 7.27.0 and CK 0.7.0 are
 # pinned in study.py.
 # The sample, and the loop that clones each sampled repository at its pinned commit, come from
-# open-source-repository-sampler, pinned to its PyPI release.
+# open-source-repository-sampler, from its PyPI releases: 0.2 only adds the opt-in `only` clone
+# filter (download just the files an experiment reads); without it every clone is as in 0.1.0,
+# so this study's runs are unchanged by either, and a study building on this one can use it.
 dependencies = [
     "lizard==1.23.0",
-    "open-source-repository-sampler==0.1.0",
+    "open-source-repository-sampler>=0.1.0,<0.3",
 ]
 
 [project.optional-dependencies]
